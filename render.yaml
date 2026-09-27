@@ -6,8 +6,8 @@ services:
     runtime: python
     plan: free                # passe a "starter" pour eviter la mise en veille
     buildCommand: pip install -r requirements.txt
-    # VRAI WebSocket temps reel via gunicorn + eventlet (1 worker = etat partage)
-    startCommand: gunicorn -k eventlet -w 1 -b 0.0.0.0:$PORT cerveau:app
+    # VRAI WebSocket temps reel : eventlet est installe -> socketio.run l'utilise
+    startCommand: python cerveau.py
     healthCheckPath: /health
     envVars:
       # Version Python stable (evite les surprises des versions trop recentes)
