@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panneau propriétaire — HIKAROCHAT</title>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{min-height:100vh;color:#e6f0ff;background:radial-gradient(1000px 500px at 20% -10%,#2a0f3a,#05070d);padding:24px}
+.wrap{max-width:900px;margin:0 auto}
+h1{background:linear-gradient(90deg,#ff2ce0,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.8rem}
+.sub{color:#c79cbd;margin:4px 0 20px;font-size:.9rem}
+.card{background:#161020;border:1px solid #52224a;border-radius:16px;padding:18px;margin-bottom:18px}
+.card h2{color:#ff2ce0;font-size:1.15rem;margin-bottom:12px}
+.item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #3a2140;border-radius:11px;margin-bottom:10px;background:#0f0a16}
+.item .info{flex:1}.item .info b{color:#ffb0ec}
+.item .info .m{color:#a880a0;font-size:.82rem}
+.item button{padding:8px 14px;border:none;border-radius:9px;cursor:pointer;font-weight:700}
+.ok{color:#04121a;background:linear-gradient(90deg,#39d98a,#00f0ff)}
+.no{color:#fff;background:#b3324a}.kick{color:#1a0512;background:linear-gradient(90deg,#ff2ce0,#ff8a3d)}
+.empty{color:#a880a0;font-size:.88rem;padding:8px}
+.foot{color:#a880a0;font-size:.8rem;text-align:center;margin-top:10px}
+a{color:#ff8a3d}
+</style></head><body><div class="wrap">
+<h1>🔐 Panneau propriétaire</h1>
+<p class="sub">Gère les demandes de modération et l'équipe. Actions réservées au propriétaire.</p>
+<div class="card"><h2>📨 Demandes de modération</h2><div id="reqs">
+{% for r in demandes %}
+  <div class="item" data-req="{{ r.id }}" data-bid="{{ r.browser_id }}">
+    <div class="info"><b>{{ r.pseudo }}</b><div class="m">{{ r.raison }}</div></div>
+    <button class="ok" data-act="approve">Approuver</button>
+    <button class="no" data-act="refuse">Refuser</button>
+  </div>
+{% else %}<div class="empty">Aucune demande en attente.</div>{% endfor %}
+</div></div>
+<div class="card"><h2>🛡️ Modérateurs actifs</h2><div id="mods">
+{% for m in mods %}
+  <div class="item" data-bid="{{ m.browser_id }}">
+    <div class="info"><b>{{ m.pseudo }}</b><div class="m">niveau {{ m.level }}</div></div>
+    <button class="kick" data-act="kick">Révoquer</button>
+  </div>
+{% else %}<div class="empty">Aucun modérateur pour l'instant.</div>{% endfor %}
+</div></div>
+<p class="foot">Support : {{ support }} — <a href="/chat">Retour au chat</a></p>
+</div>
+<script>
+const BID=localStorage.getItem('hikaro_bid'),SIG=localStorage.getItem('hikaro_sig');
+const socket=io({transports:['websocket','polling']});
+socket.on('connect',()=>socket.emit('auth',{browser_id:BID,signature:SIG}));
+socket.on('auth_error',()=>alert('Accès refusé. Reconnecte-toi via /owner.'));
+socket.on('panel_refresh',()=>setTimeout(()=>location.reload(),400));
+document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+  const it=b.closest('.item'),bid=it.dataset.bid,req=it.dataset.req,act=b.dataset.act;
+  if(act==='approve')socket.emit('approve_mod',{req_id:req,browser_id:bid});
+  if(act==='refuse')socket.emit('refuse_mod',{req_id:req});
+  if(act==='kick')socket.emit('kick_mod',{browser_id:bid});
+  b.textContent='…';
+});
+</script></body></html>

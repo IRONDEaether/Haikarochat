@@ -1,0 +1,766 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HIKAROCHAT</title>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+:root{--cy:#00f0ff;--mg:#ff2ce0;--bg:#05070d;--pan:#0d1626;--pan2:#111d33;--bd:#213050;--tx:#e6f0ff;--mut:#8fa6cc}
+body{height:100vh;overflow:hidden;color:var(--tx);background:radial-gradient(1000px 500px at 20% -10%,#12213f,var(--bg))}
+.app{display:grid;grid-template-columns:230px 1fr 240px;grid-template-rows:56px 1fr;height:100vh}
+.top{grid-column:1/4;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--pan);border-bottom:1px solid var(--bd)}
+.logo{font-weight:800;letter-spacing:2px;font-size:1.25rem;background:linear-gradient(90deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.top .sp{flex:1}
+.icobtn{width:40px;height:40px;border-radius:11px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx);
+  font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;position:relative}
+.icobtn:hover{border-color:var(--cy);box-shadow:0 0 14px rgba(0,240,255,.35);transform:translateY(-1px)}
+.coins{display:flex;align-items:center;gap:6px;padding:0 12px;height:40px;border-radius:11px;background:var(--pan2);border:1px solid var(--bd);font-weight:700;color:#ffd76b}
+/* sidebar salons */
+.side{background:var(--pan);border-right:1px solid var(--bd);overflow:auto;padding:12px 8px}
+.side h3{font-size:.72rem;text-transform:uppercase;color:var(--mut);letter-spacing:1px;margin:6px 8px 8px}
+.salon{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;transition:.15s}
+.salon:hover{background:var(--pan2)}
+.salon.on{background:linear-gradient(90deg,rgba(0,240,255,.16),rgba(255,44,224,.10));border:1px solid var(--bd)}
+.salon .em{font-size:1.15rem}.salon .nm{font-weight:600;font-size:.92rem}.salon .ds{font-size:.7rem;color:var(--mut)}
+/* centre */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.head{padding:12px 18px;border-bottom:1px solid var(--bd);background:var(--pan2);flex-shrink:0}
+.head h2{font-size:1.05rem}.head p{font-size:.78rem;color:var(--mut)}
+.msgs{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:16px 18px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.msg{display:flex;gap:10px;max-width:80%;flex-shrink:0;align-items:flex-start}
+.msg .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--pan2);border:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--mut)}
+.msg .bd{background:var(--pan2);border:1px solid var(--bd);border-radius:12px;padding:8px 12px;min-width:0;flex:1}
+.msg .who{font-size:.78rem;font-weight:700;color:var(--cy)}.msg .who .ti{color:#ffd76b;font-weight:600;margin-left:6px;font-size:.7rem}
+.msg .tx{font-size:.93rem;margin-top:2px;word-break:break-word}.msg img.pic{max-width:220px;border-radius:9px;margin-top:5px}
+.msg.sys{max-width:100%;justify-content:center}
+.msg.sys .bd{background:rgba(0,240,255,.07);border-color:rgba(0,240,255,.25);color:var(--cy);font-size:.83rem;text-align:center}
+.msg.sys .who{color:var(--mg)}
+.compose{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--bd);background:var(--pan);flex-shrink:0}
+.compose input[type=text]{flex:1;padding:12px;border-radius:11px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)}
+.compose input:focus{outline:none;border-color:var(--cy)}
+.compose button{padding:0 16px;border:none;border-radius:11px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))}
+.compose .ghost{background:var(--pan2);color:var(--tx);border:1px solid var(--bd)}
+/* online */
+.right{background:var(--pan);border-left:1px solid var(--bd);overflow:auto;padding:12px 8px}
+.right h3{font-size:.72rem;text-transform:uppercase;color:var(--mut);letter-spacing:1px;margin:6px 8px 8px}
+.u{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:.15s;position:relative}
+.u:hover{background:var(--pan2)}
+.u .av{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--pan2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.u .nm{font-size:.88rem;font-weight:600}.u .rl{font-size:.68rem;color:var(--mut)}
+.u .dot{width:8px;height:8px;border-radius:50%;background:#39d98a;margin-left:auto}
+.u.bot .dot{background:var(--mg)}
+.badge{position:absolute;top:-4px;right:-4px;background:var(--mg);color:#fff;font-size:.62rem;font-weight:700;border-radius:9px;padding:1px 6px}
+/* modale */
+.ov{position:fixed;inset:0;background:rgba(3,6,12,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.on{display:flex}
+.modal{width:100%;max-width:440px;background:var(--pan);border:1px solid var(--bd);border-radius:16px;padding:22px;max-height:88vh;overflow:auto}
+.modal h2{margin-bottom:4px;background:linear-gradient(90deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+.modal .x{float:right;cursor:pointer;color:var(--mut);font-size:1.4rem;line-height:1}
+.titem{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:11px;margin-top:8px;background:var(--pan2)}
+.titem b{color:var(--cy)}.titem .price{color:#ffd76b;font-weight:700}
+.titem button{padding:7px 12px;border:none;border-radius:9px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))}
+.pf{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.pf img{width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid var(--cy);background:var(--pan2)}
+.field{margin-top:10px}.field label{font-size:.78rem;color:var(--mut);display:block;margin-bottom:4px}
+.field input,.field textarea{width:100%;padding:10px;border-radius:9px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)}
+/* cinema */
+.cine{display:none;flex-direction:column;gap:12px;padding:16px 18px;overflow:auto;flex:1;min-height:0}
+.cine.on{display:flex}
+.modes{display:flex;gap:8px}
+.modes button{flex:1;padding:11px;border:1px solid var(--bd);border-radius:11px;cursor:pointer;background:var(--pan2);color:var(--tx);font-weight:700}
+.modes button.on{background:linear-gradient(90deg,var(--cy),var(--mg));color:#04121a;border-color:transparent}
+.screen{background:#000;border:1px solid var(--bd);border-radius:12px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+.screen video{width:100%;height:100%}
+.cine .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cine .hint{font-size:.8rem;color:var(--mut)}
+.music{background:var(--pan2);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.music h4{color:var(--mg);margin-bottom:8px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pan);border:1px solid var(--cy);
+  color:var(--tx);padding:12px 20px;border-radius:12px;z-index:99;display:none;box-shadow:0 10px 40px rgba(0,240,255,.3)}
+.toast.on{display:block}
+/* barre emoji */
+.emobar{display:none;flex-wrap:wrap;gap:4px;padding:8px 16px;border-top:1px solid var(--bd);background:var(--pan2);flex-shrink:0}
+.emobar.on{display:flex}
+.emobar span{cursor:pointer;font-size:1.25rem;padding:3px 5px;border-radius:8px;transition:.12s}
+.emobar span:hover{background:var(--pan);transform:scale(1.25)}
+/* casino */
+.casbar{display:none;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--bd);background:var(--pan2);flex-shrink:0}
+.casbar.on{display:flex}
+.casbar button{padding:9px 14px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;background:var(--pan);color:var(--tx);font-weight:700}
+.casbar button:hover{border-color:#ffd76b;box-shadow:0 0 12px rgba(255,215,107,.3)}
+.casbar input{width:90px;padding:9px;border-radius:9px;border:1px solid var(--bd);background:var(--pan);color:var(--tx)}
+/* annonces panel */
+.annopanel{display:none;flex-direction:column;gap:10px;padding:16px 18px;overflow:auto;flex:1;min-height:0}
+.annopanel.on{display:flex}
+.anno{border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--pan2)}
+.anno .a-au{font-size:.76rem;color:var(--cy);font-weight:700}
+.anno .a-tx{margin-top:4px;word-break:break-word}
+.anno .a-ex{font-size:.7rem;color:var(--mut);margin-top:6px}
+.anno.mine{border-color:rgba(255,215,107,.5)}
+/* marche secrets */
+.scard{border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-top:10px;background:var(--pan2)}
+.scard .s-ti{font-weight:700;color:var(--mg)}
+.scard .s-de{font-size:.82rem;color:var(--mut);margin:4px 0}
+.scard .s-rv{margin-top:8px;padding:9px;border-radius:9px;background:var(--pan);border:1px solid rgba(0,240,255,.35);color:var(--cy);font-size:.86rem;word-break:break-word;display:none}
+.scard .s-rv.on{display:block}
+.scard .s-bt{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.scard .s-bt .price{color:#ffd76b;font-weight:700}
+.scard button{padding:7px 13px;border:none;border-radius:9px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))}
+.notitem{border:1px solid var(--bd);border-radius:10px;padding:9px 12px;margin-top:8px;background:var(--pan2);font-size:.85rem}
+.notitem .n-tm{font-size:.68rem;color:var(--mut);margin-top:3px}
+.subtab{display:flex;gap:8px;margin:6px 0 4px}
+.subtab button{flex:1;padding:8px;border:1px solid var(--bd);border-radius:9px;cursor:pointer;background:var(--pan2);color:var(--tx);font-weight:700}
+.subtab button.on{background:linear-gradient(90deg,var(--cy),var(--mg));color:#04121a;border-color:transparent}
+@media(max-width:820px){.app{grid-template-columns:1fr}.side,.right{display:none}
+  .side.show,.right.show{display:block;position:fixed;top:56px;bottom:0;width:230px;z-index:40;box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .right.show{right:0;width:240px}
+  #btnMenu{display:flex!important}
+  .msg{max-width:92%}}
+@media(max-width:560px){
+  .top{gap:8px;padding:0 10px}
+  .logo{font-size:1rem;letter-spacing:1px}
+  .icobtn{width:36px;height:36px;font-size:1rem}
+  .coins{padding:0 8px;height:36px;font-size:.85rem}
+  .msgs{padding:12px 12px}
+  .msg{max-width:100%}
+  .compose{padding:9px 10px;gap:6px}
+  .compose input[type=text]{padding:10px}
+  .compose button{padding:0 12px}
+  .head{padding:10px 12px}
+  .cine,.annopanel{padding:12px 12px}
+  .modal{padding:16px}
+  .msg img.pic{max-width:70vw}}
+@media(max-width:820px) and (orientation:landscape){.side.show,.right.show{top:56px}}
+</style></head>
+<body><div class="app" id="app" style="display:none">
+  <div class="top">
+    <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
+    <span class="logo" title="HIKAROCHAT v1.1.1">HIKAROCHAT</span>
+    <span class="sp"></span>
+    <div class="coins">🪙 <span id="coins">0</span></div>
+    <button class="icobtn" id="btnNotif" title="Notifications">🔔<span class="badge" id="notifBadge" style="display:none">0</span></button>
+    <button class="icobtn" id="btnShop" title="Boutique de titres">🛒</button>
+    <button class="icobtn" id="btnMarket" title="Marché des secrets">🎁</button>
+    <button class="icobtn" id="btnProfile" title="Profil">👤</button>
+  </div>
+  <div class="side">
+    <h3>Salons</h3>
+    <div id="salons"></div>
+  </div>
+  <div class="main">
+    <div class="head"><h2 id="hTitle">…</h2><p id="hDesc"></p></div>
+    <div class="casbar" id="casbar">
+      <button data-jeu="/de">🎲 Dé</button>
+      <button data-jeu="/machine">🎰 Machine</button>
+      <input type="number" id="casMise" placeholder="mise" min="1">
+      <button id="casPile">🪙 Pile ou face</button>
+      <button id="casDefi">⚔️ Lancer un défi</button>
+    </div>
+    <div class="annopanel" id="annopanel">
+      <button id="btnPostAnno" style="align-self:flex-start;padding:10px 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">📢 Poster une annonce</button>
+      <div id="annoList"></div>
+    </div>
+    <div class="annopanel" id="resapanel">
+      <div class="anno" style="border-color:rgba(0,240,255,.5)">
+        <div class="a-au">🔒 Salle Privée — places limitées</div>
+        <div class="a-tx" id="resaInfo">…</div>
+        <div class="seats" id="resaSeats" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btnReserve" style="padding:10px 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">🎫 Réserver ma place</button>
+          <button id="btnCancelResa" style="display:none;padding:10px 16px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;font-weight:700;background:var(--pan2);color:var(--tx)">Annuler ma réservation</button>
+        </div>
+      </div>
+      <div id="resaMembres" style="font-size:.82rem;color:var(--mut)"></div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="cine" id="cine">
+      <div class="anno" id="cineTicket" style="border-color:rgba(255,215,107,.5)">
+        <div class="a-au" style="color:#ffd76b">🎥 Cinéma sécurisé</div>
+        <div class="a-tx" id="cineTicketTxt">Un billet est requis pour diffuser ou recevoir le film (flux 100% P2P, jamais stocké).</div>
+        <button id="btnTicket" style="margin-top:10px;padding:9px 15px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,#ffd76b,var(--mg))">🎫 Prendre mon billet</button>
+      </div>
+      <div class="modes">
+        <button id="modeEns" class="on">🎥 Ensemble (synchro)</button>
+        <button id="modePerso">🍿 Perso (local)</button>
+      </div>
+      <div class="screen"><video id="film" controls></video></div>
+      <div class="row">
+        <button class="icobtn" id="filmPick" style="width:auto;padding:0 14px">📂 Charger un film</button>
+        <input type="file" id="filmFile" accept="video/*" style="display:none">
+        <span class="hint" id="filmInfo">Aucun film. En mode Ensemble, ta lecture est synchronisée (le film reste en P2P, jamais uploadé).</span>
+      </div>
+      <div class="music">
+        <h4>🎵 Zone musique</h4>
+        <div class="row">
+          <button class="icobtn" id="musPick" style="width:auto;padding:0 14px">🎧 Charger une musique</button>
+          <input type="file" id="musFile" accept="audio/*" style="display:none">
+          <audio id="aud" controls style="flex:1;min-width:180px"></audio>
+        </div>
+        <p class="hint" style="margin-top:6px">Lecture locale pour l'ambiance du salon.</p>
+      </div>
+    </div>
+    <div class="emobar" id="emobar"></div>
+    <div class="compose" id="compose">
+      <button class="icobtn ghost" id="btnEmo" title="Emojis">😀</button>
+      <button class="icobtn ghost" id="btnImg" title="Image">🖼️</button>
+      <input type="file" id="imgFile" accept="image/*" style="display:none">
+      <input type="text" id="input" placeholder="Écris un message…  (/help pour les commandes)">
+      <button id="send">Envoyer</button>
+    </div>
+  </div>
+  <div class="right">
+    <h3>En ligne — <span id="count">0</span></h3>
+    <div id="online"></div>
+  </div>
+</div>
+
+<!-- modales -->
+<div class="ov" id="ovShop"><div class="modal">
+  <span class="x" data-close>×</span><h2>🛒 Boutique de titres</h2>
+  <p style="color:var(--mut);font-size:.85rem">Gagne des 🪙 en discutant, puis affiche ton titre.</p>
+  <div id="shopList"></div>
+</div></div>
+<div class="ov" id="ovProfile"><div class="modal">
+  <span class="x" data-close>×</span><h2>👤 Mon profil</h2>
+  <div class="pf"><img id="pfAv" alt=""><div><b id="pfName"></b><div style="color:var(--mut);font-size:.82rem" id="pfRole"></div>
+    <div style="color:#ffd76b;font-size:.82rem" id="pfLvl"></div></div></div>
+  <div class="field"><label>Changer ma photo (P2P, jamais stockée)</label><input type="file" id="pfPhoto" accept="image/*"></div>
+  <div class="field"><label>Demander à devenir modérateur</label><textarea id="pfMod" rows="2" placeholder="Pourquoi toi ?"></textarea>
+    <button id="pfModBtn" style="margin-top:8px;padding:9px 14px;border:none;border-radius:9px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Envoyer la demande</button></div>
+</div></div>
+<div class="ov" id="ovUser"><div class="modal">
+  <span class="x" data-close>×</span><h2 id="uTitle">Membre</h2>
+  <div class="pf"><img id="uAv" alt=""><div><b id="uName"></b><div style="color:var(--mut);font-size:.82rem" id="uRole"></div>
+    <div style="color:#ffd76b;font-size:.82rem" id="uLvl"></div><div style="color:var(--mut);font-size:.8rem" id="uPays"></div></div></div>
+  <button id="uPm" style="width:100%;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">✉️ Message privé (ou double-clic)</button>
+</div></div>
+<div class="ov" id="ovPm"><div class="modal">
+  <span class="x" data-close>×</span><h2 id="pmTitle">Message privé</h2>
+  <div class="msgs" id="pmMsgs" style="height:260px;padding:8px 0"></div>
+  <div style="display:flex;gap:8px"><button class="icobtn ghost" id="pmMedia" title="Envoyer vidéo/musique (P2P)">📎</button>
+    <input type="file" id="pmMediaFile" accept="video/*,audio/*" style="display:none">
+    <input type="text" id="pmInput" placeholder="Ton message…"
+    style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)">
+    <button id="pmSend" style="padding:0 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Envoyer</button></div>
+  <div class="hint" id="pmXfer" style="font-size:.75rem;color:var(--mut);margin-top:6px"></div>
+</div></div>
+<div class="ov" id="ovMarket"><div class="modal">
+  <span class="x" data-close>×</span><h2>🎁 Marché des secrets</h2>
+  <p style="color:var(--mut);font-size:.85rem">Des secrets payants et éphémères (1–24h). Paie en 🪙 pour révéler.</p>
+  <div class="subtab"><button id="tabBuy" class="on">Acheter</button><button id="tabSell">Vendre un secret</button></div>
+  <div id="mktBuy"><div id="secretList"></div></div>
+  <div id="mktSell" style="display:none">
+    <div class="field"><label>Titre (accroche visible)</label><input type="text" id="scTitre" maxlength="80" placeholder="Ex: Le vrai nom du fondateur…"></div>
+    <div class="field"><label>Description (teaser visible)</label><input type="text" id="scDesc" maxlength="200" placeholder="Un indice qui donne envie…"></div>
+    <div class="field"><label>Contenu secret (révélé après achat)</label><textarea id="scContenu" rows="3" maxlength="1000"></textarea></div>
+    <div style="display:flex;gap:8px"><div class="field" style="flex:1"><label>Prix (🪙)</label><input type="number" id="scPrix" min="0" value="50"></div>
+      <div class="field" style="flex:1"><label>Durée (h, 1–24)</label><input type="number" id="scH" min="1" max="24" value="6"></div></div>
+    <button id="scPost" style="margin-top:10px;width:100%;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Publier le secret</button>
+  </div>
+</div></div>
+<div class="ov" id="ovAnno"><div class="modal">
+  <span class="x" data-close>×</span><h2>📢 Poster une annonce</h2>
+  <p style="color:var(--mut);font-size:.85rem" id="annoPrix">Diffusée à tout le chat.</p>
+  <div class="field"><label>Ton annonce</label><textarea id="anTexte" rows="3" maxlength="500"></textarea></div>
+  <div class="field"><label>Durée (h, 1–24)</label><input type="number" id="anH" min="1" max="24" value="3"></div>
+  <button id="anPost" style="margin-top:10px;width:100%;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Diffuser</button>
+</div></div>
+<div class="ov" id="ovNotif"><div class="modal">
+  <span class="x" data-close>×</span><h2>🔔 Notifications</h2>
+  <div id="notifList"><p style="color:var(--mut);font-size:.85rem">Rien pour l'instant.</p></div>
+</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const BID=localStorage.getItem('hikaro_bid');
+const SIG=localStorage.getItem('hikaro_sig');
+let AVATAR=localStorage.getItem('hikaro_avatar')||'';
+if(!BID||!SIG){location.href='/register';}
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const esc=s=>(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function toast(t){const x=$('#toast');x.textContent=t;x.classList.add('on');setTimeout(()=>x.classList.remove('on'),3200);}
+let ME=null, SALON=null, SALONS=[], AVCACHE={}, PMWITH=null, MODE='ens';
+let SETTINGS={}, ANNONCES=[], SECRETS=[], NOTIFS=[], NOTIFN=0;
+let RESA={}, RESAMINE=new Set(), HASTICKET=false;
+
+const socket=io({transports:['websocket','polling']});
+socket.on('connect',()=>socket.emit('auth',{browser_id:BID,signature:SIG,avatar:AVATAR}));
+socket.on('auth_error',d=>{toast(d.error||'Erreur');setTimeout(()=>location.href='/register',1500);});
+socket.on('auth_ok',d=>{
+  ME=d.user; SALONS=d.salons; window.TITRES=d.titres||[];
+  SETTINGS=d.settings||{}; ANNONCES=d.annonces||[]; SECRETS=d.secrets||[];
+  RESA=d.reservations||{};
+  RESAMINE=new Set(Object.keys(RESA).filter(k=>(RESA[k].membres||[]).includes(ME.pseudo)));
+  $('#app').style.display='grid';
+  $('#coins').textContent=ME.points||0;
+  if(SETTINGS.annonce_prix!=null)$('#annoPrix').textContent='Coût : '+SETTINGS.annonce_prix+' 🪙 — diffusée à tout le chat (1–24h).';
+  updateCineTicket();
+  renderSalons(); renderEmobar();
+  const gen=SALONS.find(s=>s.id==='general')||SALONS[0]; if(gen) joinSalon(gen.id);
+});
+
+function renderSalons(){
+  const box=$('#salons'); box.innerHTML='';
+  SALONS.forEach(s=>{
+    const d=el('div','salon'+(s.id===SALON?' on':''));
+    d.innerHTML=`<span class="em">${s.icone||'#'}</span><div><div class="nm">${esc(s.nom)}</div><div class="ds">${esc(s.desc||'')}</div></div>`;
+    d.onclick=()=>joinSalon(s.id);
+    box.appendChild(d);
+  });
+}
+function joinSalon(id){
+  const s=SALONS.find(x=>x.id===id)||{};
+  const reservable=!!s.reservable;
+  SALON=id;
+  $('#hTitle').textContent=(s.icone||'')+' '+(s.nom||id);
+  $('#hDesc').textContent=s.desc||'';
+  renderSalons();
+  const cine=id==='cinema', casino=id==='casino', anno=id==='annonce';
+  const needResa=reservable&&!RESAMINE.has(id);
+  $('#cine').classList.toggle('on',cine);
+  $('#casbar').classList.toggle('on',casino);
+  $('#annopanel').classList.toggle('on',anno);
+  $('#resapanel').classList.toggle('on',reservable);
+  const hideChat=cine||anno||needResa;
+  $('#msgs').style.display=hideChat?'none':'flex';
+  $('#compose').style.display=(cine||anno||needResa)?'none':'flex';
+  $('#emobar').classList.remove('on');
+  if(anno)renderAnnonces();
+  if(reservable)renderResa(id);
+  if(cine)updateCineTicket();
+  document.querySelector('.side').classList.remove('show');
+  if(needResa){toast('Réserve ta place pour entrer.');return;}
+  $('#msgs').innerHTML='';
+  socket.emit('join',{salon:id});
+}
+
+// ---- messages ----
+function avatarNode(pseudo,av){
+  const a=el('div','av');
+  const src=av||AVCACHE[pseudo]||'';
+  if(src){a.innerHTML=`<img src="${src}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;}
+  else{a.textContent=(pseudo||'?').slice(0,1).toUpperCase();}
+  return a;
+}
+function nearBottom(box){return box.scrollHeight-box.scrollTop-box.clientHeight<120;}
+function scrollMsgs(force){
+  const box=$('#msgs');
+  if(force||nearBottom(box)){requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight;});}
+}
+function addMsg(m){
+  const box=$('#msgs'); const stick=nearBottom(box);
+  const row=el('div','msg');
+  row.appendChild(avatarNode(m.pseudo,m.avatar));
+  const bd=el('div','bd');
+  const ti=m.titre?`<span class="ti">${esc(m.titre)}</span>`:'';
+  bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}</div><div class="tx">${esc(m.text)}</div>`;
+  if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.onload=()=>scrollMsgs(stick||m.pseudo===ME.pseudo);bd.appendChild(im);}
+  row.appendChild(bd);
+  box.appendChild(row); scrollMsgs(stick||m.pseudo===ME.pseudo);
+}
+function addSys(bot,text){
+  const box=$('#msgs'); const stick=nearBottom(box);
+  const row=el('div','msg sys');
+  row.innerHTML=`<div class="bd"><div class="who">🤖 ${esc(bot)}</div><div class="tx">${esc(text)}</div></div>`;
+  box.appendChild(row); scrollMsgs(stick);
+}
+socket.on('history',d=>{if(d.salon!==SALON)return;$('#msgs').innerHTML='';(d.messages||[]).forEach(addMsg);scrollMsgs(true);});
+socket.on('message',d=>{if(d.salon===SALON)addMsg(d);});
+socket.on('system',d=>{if(d.salon==='__all__'){notify('🤖 '+(d.bot||'Bot')+' : '+(d.text||'').slice(0,60),true);addSys(d.bot||'Bot',d.text);return;}if(!d.salon||d.salon===SALON)addSys(d.bot||'Bot',d.text);});
+socket.on('image',d=>{if(d.salon===SALON)addMsg(d);});
+socket.on('avatar',d=>{AVCACHE[d.pseudo]=d.avatar;});
+socket.on('denied',d=>toast(d.raison||'Refusé'));
+socket.on('economy',d=>{if(d.points!=null)$('#coins').textContent=d.points;if(d.level_up)toast('Niveau '+d.level+' !');});
+socket.on('title_bought',d=>{toast('Titre équipé : '+d.titre);ME=d.user;$('#coins').textContent=ME.points;});
+socket.on('salons_update',d=>{SALONS=d.salons;renderSalons();toast('🕶️ Un nouveau salon vient d\'apparaître…');});
+socket.on('shop_error',d=>toast(d.error));
+socket.on('mod_ok',d=>toast(d.text));
+socket.on('pm_error',d=>toast(d.error));
+socket.on('banned',d=>{if(d.browser_id===BID){toast('Tu as été banni : '+(d.raison||''));setTimeout(()=>location.href='/register',1800);}});
+socket.on('role_change',d=>{if(d.browser_id===BID&&ME){ME.role=d.role;toast('Ton rôle : '+d.role);}});
+
+// ---- notifications + son ----
+function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)();
+  const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+  o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.12,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.start();o.stop(c.currentTime+.35);
+}catch(_){}}
+function notify(txt,silent){
+  NOTIFS.unshift({txt,ts:Date.now()}); if(NOTIFS.length>40)NOTIFS.pop();
+  NOTIFN++; const b=$('#notifBadge'); b.textContent=NOTIFN; b.style.display='';
+  if(!silent)beep();
+}
+$('#btnNotif').onclick=()=>{
+  NOTIFN=0; $('#notifBadge').style.display='none';
+  const box=$('#notifList');
+  if(!NOTIFS.length){box.innerHTML='<p style="color:var(--mut);font-size:.85rem">Rien pour l\'instant.</p>';}
+  else{box.innerHTML='';NOTIFS.forEach(n=>{const d=el('div','notitem');
+    d.innerHTML=`${esc(n.txt)}<div class="n-tm">${new Date(n.ts).toLocaleTimeString()}</div>`;box.appendChild(d);});}
+  $('#ovNotif').classList.add('on');
+};
+
+// ---- annonces (bot Crieur) ----
+function renderAnnonces(){
+  const box=$('#annoList'); if(!box)return; box.innerHTML='';
+  const now=Date.now()/1000;
+  const live=ANNONCES.filter(a=>(a.expire||0)>now).sort((a,b)=>b.ts-a.ts);
+  if(!live.length){box.innerHTML='<p style="color:var(--mut);font-size:.85rem">Aucune annonce active.</p>';return;}
+  live.forEach(a=>{const d=el('div','anno'+(a.auteur===ME.pseudo?' mine':''));
+    const h=Math.max(1,Math.round(((a.expire-now)/3600)));
+    d.innerHTML=`<div class="a-au">📢 ${esc(a.auteur)}</div><div class="a-tx">${esc(a.texte)}</div><div class="a-ex">encore ~${h}h</div>`;
+    box.appendChild(d);});
+}
+socket.on('annonce',a=>{ANNONCES.push(a);if(SALON==='annonce')renderAnnonces();
+  notify('📢 '+a.auteur+' : '+(a.texte||'').slice(0,60));});
+$('#btnPostAnno').onclick=()=>$('#ovAnno').classList.add('on');
+$('#anPost').onclick=()=>{const t=$('#anTexte').value.trim();if(!t){toast('Écris ton annonce');return;}
+  socket.emit('post_annonce',{texte:t,heures:parseInt($('#anH').value)||1});
+  $('#anTexte').value='';$('#ovAnno').classList.remove('on');toast('Annonce envoyée →');};
+
+// ---- marche des secrets (2e boutique) ----
+function renderSecrets(){
+  const box=$('#secretList'); box.innerHTML='';
+  const now=Date.now()/1000;
+  const live=SECRETS.filter(s=>(s.expire||0)>now).sort((a,b)=>b.id-a.id);
+  if(!live.length){box.innerHTML='<p style="color:var(--mut);font-size:.85rem">Aucun secret en vente. Sois le premier !</p>';return;}
+  live.forEach(s=>{const d=el('div','scard');d.dataset.id=s.id;
+    const h=Math.max(1,Math.round((s.expire-now)/3600));
+    d.innerHTML=`<div class="s-ti">🔒 ${esc(s.titre)}</div><div class="s-de">${esc(s.desc||'')}</div>
+      <div class="s-rv"></div>
+      <div class="s-bt"><span style="font-size:.72rem;color:var(--mut)">par ${esc(s.auteur)} · ~${h}h</span>
+      <span><span class="price">🪙 ${s.prix}</span> <button>Révéler</button></span></div>`;
+    if(s.contenu){d.querySelector('.s-rv').textContent=s.contenu;d.querySelector('.s-rv').classList.add('on');
+      d.querySelector('button').textContent='Acheté ✓';d.querySelector('button').disabled=true;}
+    d.querySelector('button').onclick=()=>socket.emit('buy_secret',{secret_id:s.id});
+    box.appendChild(d);});
+}
+$('#btnMarket').onclick=()=>{renderSecrets();$('#ovMarket').classList.add('on');};
+$('#tabBuy').onclick=()=>{$('#tabBuy').classList.add('on');$('#tabSell').classList.remove('on');
+  $('#mktBuy').style.display='';$('#mktSell').style.display='none';renderSecrets();};
+$('#tabSell').onclick=()=>{$('#tabSell').classList.add('on');$('#tabBuy').classList.remove('on');
+  $('#mktSell').style.display='';$('#mktBuy').style.display='none';};
+$('#scPost').onclick=()=>{
+  const ti=$('#scTitre').value.trim(),co=$('#scContenu').value.trim();
+  if(!ti||!co){toast('Titre et contenu requis');return;}
+  socket.emit('post_secret',{titre:ti,desc:$('#scDesc').value.trim(),contenu:co,
+    prix:parseInt($('#scPrix').value)||0,heures:parseInt($('#scH').value)||1});
+};
+socket.on('secret_new',s=>{SECRETS.push(s);if($('#ovMarket').classList.contains('on')&&$('#tabBuy').classList.contains('on'))renderSecrets();
+  notify('🎁 Nouveau secret en vente : '+s.titre);});
+socket.on('secret_posted',d=>{if(d.ok){toast('Secret publié !');$('#scTitre').value='';$('#scDesc').value='';$('#scContenu').value='';$('#tabBuy').click();}});
+socket.on('secret_reveal',d=>{
+  const s=SECRETS.find(x=>x.id===d.secret_id);if(s)s.contenu=d.contenu;
+  const card=document.querySelector('.scard[data-id="'+d.secret_id+'"]');
+  if(card){const rv=card.querySelector('.s-rv');rv.textContent=d.contenu;rv.classList.add('on');
+    const b=card.querySelector('button');b.textContent='Acheté ✓';b.disabled=true;}
+  toast('Secret révélé !');
+});
+
+// ---- casino ----
+document.querySelectorAll('.casbar button[data-jeu]').forEach(b=>b.onclick=()=>{SALON&&socket.emit('message',{text:b.dataset.jeu});});
+$('#casPile').onclick=()=>{const m=parseInt($('#casMise').value)||0;socket.emit('message',{text:'/pileface '+m});};
+$('#casDefi').onclick=()=>{const t=prompt('Ton défi ?');if(t)socket.emit('message',{text:'/defi '+t});};
+
+// ---- saturation / bascule 2e serveur ----
+socket.on('saturated',d=>{
+  notify('⚠ Serveur '+(d.instance||'')+' saturé — un 2e serveur prend le relais');
+  if(d.backup_url){toast('Serveur plein — bascule proposee vers le serveur de secours');}
+});
+
+// ---- Salle Privee : reservations (places limitees) ----
+function renderResa(id){
+  const st=RESA[id]||{count:0,capacity:SETTINGS.salle_capacity||0,membres:[]};
+  const mine=RESAMINE.has(id);
+  const full=st.count>=st.capacity&&!mine;
+  $('#resaInfo').textContent=(mine?'Ta place est réservée ✓ — ':'')+'Places : '+st.count+'/'+st.capacity
+    +(SETTINGS.salle_prix!=null&&!mine?(' — coût : '+SETTINGS.salle_prix+' 🪙'):'')
+    +(SETTINGS.salle_h?(' — valable '+SETTINGS.salle_h+'h'):'');
+  const seats=$('#resaSeats');seats.innerHTML='';
+  for(let i=0;i<st.capacity;i++){const dot=el('span');
+    const taken=i<st.count;dot.textContent=taken?'🪑':'💺';
+    dot.style.cssText='font-size:1.3rem;filter:'+(taken?'none':'grayscale(1) opacity(.4)');
+    seats.appendChild(dot);}
+  const b=$('#btnReserve');
+  b.textContent=mine?'✅ Place réservée — Entrer':(full?'🚫 Salle complète':'🎫 Réserver ma place');
+  b.disabled=full&&!mine;
+  $('#btnCancelResa').style.display=mine?'inline-block':'none';
+  $('#resaMembres').textContent=(st.membres||[]).length?('Présents : '+st.membres.join(', ')):'Personne pour l\'instant.';
+}
+$('#btnReserve').onclick=()=>{
+  if(RESAMINE.has(SALON)){joinSalon(SALON);return;}
+  socket.emit('reserve_place',{salon:SALON});
+};
+$('#btnCancelResa').onclick=()=>socket.emit('cancel_place',{salon:SALON});
+socket.on('reservation_update',d=>{RESA[d.salon]={count:d.count,capacity:d.capacity,membres:d.membres};
+  if(SALON===d.salon)renderResa(d.salon);});
+socket.on('reserve_ok',d=>{
+  if(d.state&&d.state.count!=null)RESA[d.salon]={count:d.state.count,capacity:d.state.capacity,membres:d.state.membres};
+  if(d.cancelled){RESAMINE.delete(d.salon);toast('Réservation annulée.');if(SALON===d.salon)renderResa(d.salon);return;}
+  RESAMINE.add(d.salon);toast('Place réservée ✓');
+  if(SALON===d.salon)joinSalon(d.salon);
+});
+
+// ---- Cinema securise : billet ----
+function updateCineTicket(){
+  const secure=SETTINGS.cinema_secure;
+  const t=$('#cineTicketTxt');
+  if(!secure){$('#cineTicket').style.display='none';return;}
+  $('#cineTicket').style.display='';
+  if(HASTICKET){t.textContent='Billet valide ✓ — tu peux diffuser et recevoir le film.';
+    $('#btnTicket').style.display='none';}
+  else{t.textContent='Un billet ('+(SETTINGS.ticket_xp||0)+' XP) est requis pour diffuser ou recevoir le film (flux 100% P2P, jamais stocké).';
+    $('#btnTicket').style.display='';}
+  const need=secure&&!HASTICKET;
+  $('#filmPick').disabled=need;$('#filmPick').style.opacity=need?'.5':'1';
+}
+$('#btnTicket').onclick=()=>socket.emit('message',{text:'/ticket'});
+socket.on('cine_ticket_ok',()=>{HASTICKET=true;updateCineTicket();toast('Billet pris — bon film !');});
+
+// ---- barre emoji ----
+const EMOJIS='😀 😂 😍 😎 🥳 😢 😡 👍 👎 🙏 🔥 ✨ 🎉 ❤️ 👀 🤖 🎮 🌀 🕶️ 🌸'.split(' ');
+function renderEmobar(){const b=$('#emobar');b.innerHTML='';EMOJIS.forEach(e=>{const s=el('span',null,e);
+  s.onclick=()=>{const i=$('#input');i.value+=e;i.focus();};b.appendChild(s);});}
+$('#btnEmo').onclick=()=>$('#emobar').classList.toggle('on');
+
+// ---- menu responsive ----
+$('#btnMenu').onclick=()=>$('.side').classList.toggle('show');
+
+// ---- online ----
+socket.on('online',d=>{
+  if(d.salon!==SALON)return;
+  $('#count').textContent=d.count;
+  const box=$('#online'); box.innerHTML='';
+  (d.membres||[]).forEach(u=>{
+    if(u.avatar)AVCACHE[u.pseudo]=u.avatar;
+    const isBot=u.role==='bot';
+    const row=el('div','u'+(isBot?' bot':''));
+    const av=el('div','av');
+    if(u.avatar)av.innerHTML=`<img src="${u.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    else av.textContent=isBot?(u.icone||'🤖'):(u.pseudo||'?').slice(0,1).toUpperCase();
+    row.appendChild(av);
+    const info=el('div');
+    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${isBot?'bot':esc(u.role)}</div>`;
+    row.appendChild(info);
+    row.appendChild(el('span','dot'));
+    if(!isBot){
+      row.onclick=()=>openUser(u.pseudo);
+      row.ondblclick=()=>openPm(u.pseudo);
+    }else{
+      row.onclick=()=>{const b=el('div','badge','BOT');row.appendChild(b);setTimeout(()=>b.remove(),1200);toast(u.pseudo+' : '+(u.desc||'assistant'));};
+    }
+    box.appendChild(row);
+  });
+});
+
+// ---- compose ----
+function send(){
+  const i=$('#input'); const t=i.value.trim(); if(!t)return;
+  socket.emit('message',{text:t}); i.value='';
+}
+$('#send').onclick=send;
+$('#input').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+$('#btnImg').onclick=()=>$('#imgFile').click();
+$('#imgFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader(); r.onload=()=>{
+    const img=new Image(); img.onload=()=>{
+      const cv=document.createElement('canvas'); const mx=520; let w=img.width,h=img.height;
+      if(w>mx){h=h*mx/w;w=mx;} cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      socket.emit('image',{data:cv.toDataURL('image/jpeg',.7)});
+    }; img.src=r.result;
+  }; r.readAsDataURL(f); e.target.value='';
+};
+
+// ---- modales ----
+document.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>x.closest('.ov').classList.remove('on'));
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+$('#btnShop').onclick=()=>{
+  const box=$('#shopList'); box.innerHTML='';
+  (window.TITRES||[]).forEach(t=>{
+    const d=el('div','titem');
+    d.innerHTML=`<div><b>${esc(t.nom)}</b><div style="font-size:.75rem;color:var(--mut)">niv. ${t.level||1}</div></div>
+      <span class="price">🪙 ${t.prix}</span>`;
+    const b=el('button',null,'Acheter'); b.onclick=()=>socket.emit('buy_title',{titre_id:t.id}); d.appendChild(b);
+    box.appendChild(d);
+  });
+  $('#ovShop').classList.add('on');
+};
+$('#btnProfile').onclick=()=>{
+  $('#pfName').textContent=ME.pseudo;
+  $('#pfRole').textContent='Rôle : '+(ME.role||'user');
+  $('#pfLvl').textContent='Niveau '+(ME.level||1)+' — 🪙 '+(ME.points||0);
+  $('#pfAv').src=AVATAR||''; if(!AVATAR)$('#pfAv').removeAttribute('src');
+  $('#ovProfile').classList.add('on');
+};
+$('#pfPhoto').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{const img=new Image();img.onload=()=>{
+    const cv=document.createElement('canvas');const s=160;cv.width=s;cv.height=s;const x=cv.getContext('2d');
+    const m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+    AVATAR=cv.toDataURL('image/jpeg',.8);localStorage.setItem('hikaro_avatar',AVATAR);$('#pfAv').src=AVATAR;
+    socket.emit('auth',{browser_id:BID,signature:SIG,avatar:AVATAR});
+    if(SALON){socket.emit('join',{salon:SALON});}
+    toast('Photo mise à jour et diffusée.');
+  };img.src=r.result;};r.readAsDataURL(f);
+};
+$('#pfModBtn').onclick=()=>{socket.emit('become_mod',{raison:$('#pfMod').value.trim()});};
+
+function openUser(pseudo){socket.emit('user_info',{pseudo});}
+socket.on('user_info',u=>{
+  $('#uTitle').textContent=u.pseudo;
+  $('#uName').textContent=u.pseudo+(u.titre?(' — '+u.titre):'');
+  $('#uRole').textContent='Rôle : '+(u.role||'user');
+  $('#uLvl').textContent='Niveau '+(u.level||1);
+  $('#uPays').textContent=u.pays?('Pays : '+u.pays):'';
+  if(u.avatar){$('#uAv').src=u.avatar;}else{$('#uAv').removeAttribute('src');}
+  $('#uPm').onclick=()=>{$('#ovUser').classList.remove('on');openPm(u.pseudo);};
+  $('#ovUser').classList.add('on');
+});
+
+// ---- messages privés ----
+function openPm(pseudo){PMWITH=pseudo;$('#pmTitle').textContent='✉️ '+pseudo;$('#pmMsgs').innerHTML='';$('#ovPm').classList.add('on');$('#pmInput').focus();}
+$('#pmSend').onclick=()=>{const t=$('#pmInput').value.trim();if(!t||!PMWITH)return;socket.emit('pm',{to:PMWITH,text:t});$('#pmInput').value='';};
+$('#pmInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pmSend').click();});
+socket.on('pm',d=>{
+  if(typeof d.text==='string'&&d.text.startsWith('@@RTC@@')){handlePmRtc(d);return;}
+  const other=d.from===ME.pseudo?d.to:d.from;
+  if(!$('#ovPm').classList.contains('on')||PMWITH!==other){
+    if(d.from!==ME.pseudo)notify('✉️ MP de '+d.from+' : '+(d.text||'').slice(0,50));
+  }
+  if($('#ovPm').classList.contains('on')&&(PMWITH===d.from||PMWITH===d.to)){
+    const row=el('div','msg');row.style.maxWidth='100%';
+    row.innerHTML=`<div class="bd"><div class="who">${esc(d.from)}</div><div class="tx">${esc(d.text)}</div></div>`;
+    $('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
+  }
+});
+
+// ---- PV : envoi video/musique en P2P (signaling via le canal MP) ----
+const PMRTC={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
+let pmPc={}, pmRecv={};
+function pmSig(to,obj){socket.emit('pm',{to,text:'@@RTC@@'+JSON.stringify(obj)});}
+function pmAddMedia(peer,url,mime,name){
+  if(!($('#ovPm').classList.contains('on')&&PMWITH===peer))return;
+  const row=el('div','msg');row.style.maxWidth='100%';
+  const tag=(mime||'').startsWith('audio')?`<audio controls src="${url}" style="width:100%"></audio>`:`<video controls src="${url}" style="max-width:100%;border-radius:9px"></video>`;
+  row.innerHTML=`<div class="bd"><div class="who">${esc(peer)}</div><div class="tx">📎 ${esc(name||'média')}</div>${tag}</div>`;
+  $('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
+}
+$('#pmMedia').onclick=()=>{if(!PMWITH){toast('Ouvre une conversation');return;}$('#pmMediaFile').click();};
+$('#pmMediaFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f||!PMWITH)return;e.target.value='';
+  if(f.size>80*1024*1024){toast('Fichier trop lourd (80 Mo max)');return;}
+  const peer=PMWITH;
+  const pc=new RTCPeerConnection(PMRTC);pmPc[peer]=pc;
+  pc.onicecandidate=ev=>{if(ev.candidate)pmSig(peer,{cand:ev.candidate});};
+  const dc=pc.createDataChannel('media');dc.binaryType='arraybuffer';
+  dc.onopen=async()=>{
+    $('#pmXfer').textContent='Envoi de '+f.name+'…';
+    dc.send(JSON.stringify({name:f.name,mime:f.type,size:f.size}));
+    const buf=await f.arrayBuffer();const CH=16*1024;
+    for(let o=0;o<buf.byteLength;o+=CH){while(dc.bufferedAmount>4*1024*1024){await new Promise(r=>setTimeout(r,40));}dc.send(buf.slice(o,o+CH));}
+    dc.send('EOF');$('#pmXfer').textContent='Envoyé ✓ (resté en P2P, jamais stocké)';
+  };
+  const off=await pc.createOffer();await pc.setLocalDescription(off);pmSig(peer,{sdp:pc.localDescription});
+  toast('Connexion P2P avec '+peer+'…');
+};
+async function handlePmRtc(d){
+  const peer=d.from;if(peer===ME.pseudo)return;
+  let m;try{m=JSON.parse(d.text.slice(7));}catch(_){return;}
+  if(m.sdp&&m.sdp.type==='offer'){
+    const pc=new RTCPeerConnection(PMRTC);pmPc[peer]=pc;pmRecv[peer]={buf:[],meta:null};
+    pc.onicecandidate=ev=>{if(ev.candidate)pmSig(peer,{cand:ev.candidate});};
+    pc.ondatachannel=ev=>{const dc=ev.channel;dc.binaryType='arraybuffer';
+      dc.onmessage=x=>{const st=pmRecv[peer];
+        if(typeof x.data==='string'){
+          if(x.data==='EOF'){const b=new Blob(st.buf,{type:st.meta.mime||'video/mp4'});
+            pmAddMedia(peer,URL.createObjectURL(b),st.meta.mime,st.meta.name);}
+          else{try{st.meta=JSON.parse(x.data);}catch(_){}}
+        }else{st.buf.push(x.data);}
+      };};
+    await pc.setRemoteDescription(m.sdp);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
+    pmSig(peer,{sdp:pc.localDescription});
+    if(!($('#ovPm').classList.contains('on')&&PMWITH===peer))notify('📎 '+peer+' t\'envoie un média (MP)');
+  }else if(m.sdp&&m.sdp.type==='answer'){
+    if(pmPc[peer])await pmPc[peer].setRemoteDescription(m.sdp);
+  }else if(m.cand&&pmPc[peer]){try{await pmPc[peer].addIceCandidate(m.cand);}catch(_){}}
+}
+
+// ================= CINEMA (Divertissement) =================
+const RTC={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
+let filmFileObj=null, isHost=false, curHost=null, pcs={}, recvBuf=[], recvMeta=null;
+const film=$('#film');
+$('#modeEns').onclick=()=>setMode('ens');
+$('#modePerso').onclick=()=>setMode('perso');
+function setMode(m){MODE=m;$('#modeEns').classList.toggle('on',m==='ens');$('#modePerso').classList.toggle('on',m==='perso');
+  $('#filmInfo').textContent=m==='ens'?'Mode Ensemble : ta lecture est synchronisée, le film reste en P2P.':'Mode Perso : lecture 100% locale, rien n\'est partagé.';}
+$('#filmPick').onclick=()=>$('#filmFile').click();
+$('#filmFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return; filmFileObj=f; isHost=true;
+  film.src=URL.createObjectURL(f);
+  $('#filmInfo').textContent='Film chargé : '+f.name;
+  if(MODE==='ens')socket.emit('film_load',{name:f.name,mime:f.type,mode:'ens'});
+};
+['play','pause','seeked'].forEach(ev=>film.addEventListener(ev,()=>{
+  if(isHost&&MODE==='ens')socket.emit('film_play',{time:film.currentTime,playing:!film.paused});
+}));
+socket.on('film_load',d=>{
+  if(d.host===BID)return; curHost=d.host; isHost=false;
+  if(SETTINGS.cinema_secure&&!HASTICKET){
+    $('#filmInfo').textContent=d.hostPseudo+' diffuse : '+d.name+' — prends ton billet pour recevoir le film.';
+    notify('🎥 '+d.hostPseudo+' diffuse un film — billet requis');return;
+  }
+  $('#filmInfo').textContent=d.hostPseudo+' diffuse : '+d.name+' — réception en cours…';
+  recvBuf=[]; recvMeta={name:d.name,mime:d.mime};
+  socket.emit('film_join',{host:d.host});
+});
+socket.on('film_play',d=>{ if(isHost)return;
+  if(Math.abs(film.currentTime-d.time)>1)film.currentTime=d.time;
+  if(d.playing)film.play().catch(()=>{}); else film.pause();
+});
+// host reçoit une demande -> P2P
+socket.on('film_request',async d=>{
+  if(!filmFileObj)return;
+  const pc=new RTCPeerConnection(RTC); pcs[d.from]=pc;
+  pc.onicecandidate=e=>{if(e.candidate)socket.emit('rtc_signal',{to:d.from,cand:e.candidate});};
+  const dc=pc.createDataChannel('film');
+  dc.binaryType='arraybuffer';
+  dc.onopen=async()=>{
+    dc.send(JSON.stringify({name:filmFileObj.name,mime:filmFileObj.type,size:filmFileObj.size}));
+    const buf=await filmFileObj.arrayBuffer(); const CH=16*1024;
+    for(let o=0;o<buf.byteLength;o+=CH){
+      while(dc.bufferedAmount>4*1024*1024){await new Promise(r=>setTimeout(r,40));}
+      dc.send(buf.slice(o,o+CH));
+    }
+    dc.send('EOF');
+  };
+  const off=await pc.createOffer(); await pc.setLocalDescription(off);
+  socket.emit('rtc_signal',{to:d.from,sdp:pc.localDescription});
+});
+socket.on('rtc_signal',async d=>{
+  const from=d.from;
+  if(d.sdp&&d.sdp.type==='offer'){
+    const pc=new RTCPeerConnection(RTC); pcs[from]=pc;
+    pc.onicecandidate=e=>{if(e.candidate)socket.emit('rtc_signal',{to:from,cand:e.candidate});};
+    pc.ondatachannel=e=>{const dc=e.channel;dc.binaryType='arraybuffer';
+      dc.onmessage=ev=>{
+        if(typeof ev.data==='string'){
+          if(ev.data==='EOF'){const blob=new Blob(recvBuf,{type:recvMeta.mime||'video/mp4'});
+            film.src=URL.createObjectURL(blob);$('#filmInfo').textContent='Film reçu : '+recvMeta.name+' (synchro active)';}
+          else{try{recvMeta=JSON.parse(ev.data);}catch(_){}}
+        }else{recvBuf.push(ev.data);}
+      };};
+    await pc.setRemoteDescription(d.sdp);
+    const ans=await pc.createAnswer(); await pc.setLocalDescription(ans);
+    socket.emit('rtc_signal',{to:from,sdp:pc.localDescription});
+  }else if(d.sdp&&d.sdp.type==='answer'){
+    if(pcs[from])await pcs[from].setRemoteDescription(d.sdp);
+  }else if(d.cand&&pcs[from]){
+    try{await pcs[from].addIceCandidate(d.cand);}catch(_){}
+  }
+});
+// musique locale
+$('#musPick').onclick=()=>$('#musFile').click();
+$('#musFile').onchange=e=>{const f=e.target.files[0];if(!f)return;$('#aud').src=URL.createObjectURL(f);$('#aud').play().catch(()=>{});};
+</script>
+</body></html>

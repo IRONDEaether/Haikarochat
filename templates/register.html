@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inscription — HIKAROCHAT</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#e6f0ff;
+  background:radial-gradient(1200px 600px at 50% -10%,#15264a,#05070d);padding:20px}
+.card{width:100%;max-width:460px;background:#111a2c;border:1px solid #223052;border-radius:18px;padding:26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5)}
+h1{font-size:1.7rem;text-align:center;margin-bottom:4px;background:linear-gradient(90deg,#00f0ff,#ff2ce0);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:#8fa6cc;font-size:.85rem;margin-bottom:18px}
+label{display:block;font-size:.82rem;color:#9fb4da;margin:12px 0 5px}
+input,select,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #26365c;background:#0b1424;color:#e6f0ff;font-size:.95rem}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#00f0ff}
+.avatar{display:flex;gap:14px;align-items:center;margin-top:6px}
+.avatar .pv{width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #00f0ff;background:#0b1424}
+button{margin-top:20px;width:100%;padding:13px;border:none;border-radius:11px;cursor:pointer;font-weight:800;
+  letter-spacing:1px;color:#04121a;background:linear-gradient(90deg,#00f0ff,#ff2ce0)}
+button:hover{box-shadow:0 10px 30px rgba(0,240,255,.35)}
+.err{color:#ff6b81;font-size:.85rem;margin-top:10px;min-height:18px;text-align:center}
+.note{font-size:.75rem;color:#8fa6cc;margin-top:6px}
+</style></head><body>
+<div class="card">
+  <h1>Créer ton profil</h1>
+  <p class="sub">Ta photo reste chez toi (P2P), jamais en base.</p>
+  <div class="avatar">
+    <img id="pv" class="pv" alt="">
+    <div style="flex:1"><label>Photo de profil (optionnel)</label>
+      <input type="file" id="photo" accept="image/*">
+      <p class="note">Diffusée aux membres à ta connexion.</p></div>
+  </div>
+  <label>Pseudo *</label><input id="pseudo" maxlength="20" placeholder="TonPseudo">
+  <label>Âge * (13 minimum)</label><input id="age" type="number" min="13" max="120" placeholder="13">
+  <label>Pays</label><input id="pays" maxlength="30" placeholder="France">
+  <label>Bio</label><textarea id="bio" maxlength="160" rows="2" placeholder="Deux mots sur toi…"></textarea>
+  <button id="go">REJOINDRE HIKAROCHAT</button>
+  <p class="err" id="err"></p>
+</div>
+<script>
+async function fingerprint(){
+  const c=localStorage.getItem('hikaro_bid'); if(c) return c;
+  const p=[navigator.userAgent,navigator.language,(navigator.languages||[]).join(','),
+    screen.width+'x'+screen.height+'x'+screen.colorDepth,new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency||0,navigator.deviceMemory||0,navigator.platform||''];
+  const b=new TextEncoder().encode(p.join('|'));const h=await crypto.subtle.digest('SHA-256',b);
+  const hex=[...new Uint8Array(h)].map(v=>v.toString(16).padStart(2,'0')).join('');
+  const id='H-'+hex.slice(0,40);localStorage.setItem('hikaro_bid',id);return id;
+}
+let avatar='';
+document.getElementById('photo').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const img=new Image();img.onload=()=>{
+    const cv=document.createElement('canvas');const s=160;cv.width=s;cv.height=s;
+    const x=cv.getContext('2d');const m=Math.min(img.width,img.height);
+    x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+    avatar=cv.toDataURL('image/jpeg',.8);document.getElementById('pv').src=avatar;};
+    img.src=r.result;};r.readAsDataURL(f);};
+document.getElementById('go').onclick=async()=>{
+  const err=document.getElementById('err');err.textContent='';
+  const pseudo=document.getElementById('pseudo').value.trim();
+  if(pseudo.length<3){err.textContent='Pseudo trop court (3 min).';return;}
+  const age=parseInt(document.getElementById('age').value||'0',10);
+  if(age<13){err.textContent='Age minimum 13 ans.';return;}
+  const bid=await fingerprint();
+  const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({browser_id:bid,pseudo,age,pays:document.getElementById('pays').value.trim(),
+      bio:document.getElementById('bio').value.trim()})});
+  const j=await r.json();
+  if(!j.ok){err.textContent=j.error||'Erreur';return;}
+  localStorage.setItem('hikaro_registered',bid);
+  localStorage.setItem('hikaro_sig',j.signature);
+  if(avatar)localStorage.setItem('hikaro_avatar',avatar);
+  location.href='/chat';
+};
+(async()=>{await fingerprint();})();
+</script></body></html>
