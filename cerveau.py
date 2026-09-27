@@ -4,6 +4,15 @@ Flask + Flask-SocketIO. L'escouade de bots est posee a cote (bots/squad.py)
 et apparait toujours comme connectee. Aucune image en base : photos en P2P /
 localStorage, diffusees par socket aux membres connectes.
 """
+# --- Temps reel performant : eventlet fournit un VRAI WebSocket (ideal Render).
+#     Le monkey_patch DOIT etre fait avant tout autre import reseau.
+try:
+    import eventlet
+    eventlet.monkey_patch()
+    _ASYNC_MODE = "eventlet"
+except Exception:            # pas d'eventlet en local -> repli threading
+    _ASYNC_MODE = "threading"
+
 import hashlib
 import time
 
@@ -16,7 +25,8 @@ from bots.squad import Squad
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
-socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*",
+socketio = SocketIO(app, async_mode=_ASYNC_MODE, cors_allowed_origins="*",
+                    ping_timeout=25, ping_interval=15,
                     message_queue=(config.MESSAGE_QUEUE or None))
 
 sql = BotSQL()

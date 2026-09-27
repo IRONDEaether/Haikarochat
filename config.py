@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.1.1"
+VERSION = "1.1.2"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -34,8 +34,9 @@ VERSION = "1.1.1"
 DATABASE_URL = _env("DATABASE_URL", "") or _env("MYSQL_URL", "")
 
 # --- Supabase (free tier : texte seulement, pas d'images) ---
-SUPABASE_URL = _env("SUPABASE_URL")
-SUPABASE_KEY = _env("SUPABASE_KEY")
+# .strip() + rstrip('/') : evite l'erreur PGRST125 si un / ou espace traine a la fin
+SUPABASE_URL = _env("SUPABASE_URL").strip().rstrip("/")
+SUPABASE_KEY = _env("SUPABASE_KEY").strip()
 
 # --- Support officiel ---
 SUPPORT_EMAIL = _env("SUPPORT_EMAIL", "raphaelod760@protonmail.com")
