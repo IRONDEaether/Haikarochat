@@ -46,6 +46,15 @@ squad = Squad(sql, _emit)
 # presence en memoire : sid -> {bid, pseudo, role, salon, avatar}
 SID = {}
 
+# Notes de l'appli (etoiles 1-5) donnees par les utilisateurs, en memoire.
+RATINGS = []
+
+
+def _rating_stats():
+    n = len(RATINGS)
+    avg = round(sum(RATINGS) / n, 1) if n else 0
+    return {"avg": avg, "count": n}
+
 
 def _sig(bid):
     return hashlib.sha256((bid + config.SECRET_KEY).encode()).hexdigest()
@@ -95,7 +104,8 @@ def _check_saturation():
 # ===================== ROUTES =====================
 @app.route("/")
 def loading():
-    return render_template("loading.html", support=config.SUPPORT_EMAIL)
+    return render_template("loading.html", support=config.SUPPORT_EMAIL,
+                           rating=_rating_stats())
 
 
 @app.route("/register")
@@ -126,6 +136,26 @@ def api_config():
     return jsonify({"salons": config.SALONS, "titres": config.TITRES,
                     "bots": config.BOTS, "support": config.SUPPORT_EMAIL,
                     "version": config.VERSION})
+
+
+@app.route("/api/rate", methods=["POST"])
+def api_rate():
+    d = request.get_json(force=True) or {}
+    try:
+        note = int(d.get("note", 0))
+    except (ValueError, TypeError):
+        note = 0
+    if not (1 <= note <= 5):
+        return jsonify({"ok": False, "error": "Note 1-5"}), 400
+    RATINGS.append(note)
+    if len(RATINGS) > 5000:
+        del RATINGS[0]
+    return jsonify({"ok": True, **_rating_stats()})
+
+
+@app.route("/api/rating")
+def api_rating():
+    return jsonify(_rating_stats())
 
 
 @app.route("/health")
@@ -218,6 +248,12 @@ def on_auth(d):
         emit("auth_error", {"error": "Tu es banni"}); return
     if d.get("signature") != user.get("signature_hash"):
         emit("auth_error", {"error": "Signature invalide"}); return
+    # --- Limite GLOBALE d'utilisateurs simultanes ---
+    connectes = {info["bid"] for info in SID.values()}
+    if bid not in connectes and len(connectes) >= config.APP_CAPACITY:
+        emit("app_full", {"max": config.APP_CAPACITY,
+             "text": "L'appli est pleine (%d personnes en ligne). Reessaie plus tard." % config.APP_CAPACITY})
+        return
     SID[request.sid] = {"bid": bid, "pseudo": user["pseudo"], "role": user.get("role", "user"),
                         "salon": None, "avatar": d.get("avatar", "")}
     emit("auth_ok", {"user": user, "salons": _salons_for(user),
@@ -268,6 +304,16 @@ def on_leave(d=None):
     s = me["salon"]; leave_room(s); me["salon"] = None; _push_online(s)
 
 
+@socketio.on("typing")
+def on_typing(d):
+    """Indicateur '... est en train d'ecrire' diffuse au salon courant."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    socketio.emit("typing", {"salon": me["salon"], "pseudo": me["pseudo"],
+                  "on": bool(d.get("on"))}, to=me["salon"])
+
+
 @socketio.on("message")
 def on_message(d):
     me = _me()
@@ -316,11 +362,13 @@ def _command(me, salon, txt):
     c = p[0].lower()
     is_mod = me["role"] in ("modo", "admin", "owner")
     if c == "/help":
-        cmds = "/help /me /roll /rules /online"
+        cmds = "/help /guide /me /roll /rules /online"
         if is_mod:
             cmds += " | MODO: /ban <pseudo> <raison> /warn <pseudo> <raison>"
         cmds += " | CASINO: /de /pileface <mise> /machine /defi <txt> | CINE: /ticket"
         emit("system", {"salon": salon, "bot": "Haiku", "text": "Commandes: " + cmds})
+    elif c == "/guide":
+        squad.guide(salon)
     elif c == "/me":
         socketio.emit("system", {"salon": salon, "bot": "Ambiance",
                       "text": "* %s %s" % (me["pseudo"], " ".join(p[1:]))}, to=salon)

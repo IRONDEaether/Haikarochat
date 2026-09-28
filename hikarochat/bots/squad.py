@@ -29,7 +29,29 @@ class Squad:
     # ---------- bot Haiku : accueil ----------
     def bienvenue(self, salon, user):
         self.emit(salon, "system", {"salon": salon, "bot": "Haiku",
-                  "text": "Bienvenue %s ! Niveau %d. Tape /help." % (user["pseudo"], user.get("level", 1))})
+                  "text": "Bienvenue %s ! Niveau %d. Tape /help ou /guide pour la visite guidee." % (user["pseudo"], user.get("level", 1))})
+        if salon == "aide":
+            self.guide(salon)
+
+    # ---------- Guide : robot de presentation complet de l'appli ----------
+    def guide(self, salon):
+        """Le robot Haiku presente TOUT le fonctionnement : icones, boutiques, salons."""
+        blocs = [
+            ("Haiku", "\U0001F44B Salut ! Je suis le robot d'accueil. Voici la visite complete de HIKAROCHAT."),
+            ("Haiku", "\U0001F53C BARRE DU HAUT : \u2630 = liste des salons \u00b7 \U0001F465 = qui est en ligne \u00b7 \U0001FA99 = tes points \u00b7 \U0001F514 = notifications \u00b7 \U0001F6D2 = boutique de titres \u00b7 \U0001F381 = marche des secrets \u00b7 \U0001F464 = ton profil (avatar, titre, devenir modo)."),
+            ("Economie", "\U0001FA99 POINTS & XP : tu gagnes des points en discutant et en jouant. Les points servent a acheter des titres, poster des annonces, reveler des secrets et debloquer le club secret."),
+            ("Economie", "\U0001F6D2 BOUTIQUE DE TITRES : ouvre-la (icone \U0001F6D2) pour acheter un titre affiche a cote de ton pseudo. Plus le titre est prestigieux, plus il coute cher."),
+            ("Crieur", "\U0001F381 MARCHE DES SECRETS : une 2e boutique. Tu peux poster un secret payant : les autres paient des points pour le reveler, et tu touches la mise."),
+            ("Casino", "\U0001F3B0 SALON CASINO : \U0001F3B2 De, \U0001FA99 Pile ou face (avec mise), \U0001F3B0 Machine a sous, \u2694\uFE0F Defis. On gagne de l'XP et des points."),
+            ("Projectionniste", "\U0001F3AC SALON DIVERTISSEMENT : cinema + musique. Prends un billet (\U0001F3AB), puis regarde un film Ensemble (synchronise) ou Perso. Les films/musiques restent 100%% en P2P, jamais stockes."),
+            ("Concierge", "\U0001F512 SALLE PRIVEE : places limitees, sur reservation (paye en points). Reserve ta place pour entrer ; ta reservation est temporaire."),
+            ("Crieur", "\U0001F4E2 SALON ANNONCES : poste une annonce payante diffusee a tout le chat pendant 1 a 24h."),
+            ("Haiku", "\U0001F4AC SALONS : General, Otaku, Manga, Tech, Gaming, Musique, Ecole, Memes, Chill... Choisis-en un a gauche, ou utilise le menu deroulant + le bouton GO pour rejoindre direct. \U0001F576 Un salon SECRET se debloque en tapant le mot 'secret'."),
+            ("Network", "\U0001F6E1 SECURITE : je surveille tout. Respect, zero spam, rien d'illegal ni impliquant des mineurs = bannissement. Tape /rules a tout moment."),
+            ("Haiku", "\u2705 Voila ! Astuce : tape /guide n'importe ou pour revoir cette visite, et /help pour la liste des commandes. Amuse-toi bien !"),
+        ]
+        for bot, txt in blocs:
+            self.emit(salon, "system", {"salon": salon, "bot": bot, "text": txt})
 
     # ---------- bot Ambiance ----------
     def ambiance(self, salon, nb):

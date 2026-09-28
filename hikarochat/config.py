@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.1.4"
+VERSION = "1.1.6"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -74,6 +74,10 @@ PREMIUM_LEVEL = 10
 MAX_CLIENTS = int(_env("MAX_CLIENTS", "200"))
 BACKUP_URL = _env("BACKUP_URL", "")   # ex: https://s2.hikarochat.app
 
+# --- Capacite GLOBALE de l'appli (limite dure d'utilisateurs simultanes) ---
+# Au-dela, toute nouvelle connexion est refusee ("reessaie plus tard").
+APP_CAPACITY = int(_env("APP_CAPACITY", "100"))
+
 # --- Economie annonces / salle annonce / casino / cinema ---
 ANNONCE_PRIX = int(_env("ANNONCE_PRIX", "150"))      # points pour poster une annonce
 CINEMA_TICKET_XP = int(_env("CINEMA_TICKET_XP", "20"))  # XP pour un ticket cine
@@ -106,7 +110,13 @@ SALONS = [
     {"id": "otaku", "nom": "Otaku", "icone": "\U0001F338"},
     {"id": "manga", "nom": "Manga", "icone": "\U0001F4D6"},
     {"id": "tech", "nom": "Tech", "icone": "\U0001F4BB"},
+    {"id": "gaming", "nom": "Gaming", "icone": "\U0001F3AE", "desc": "Jeux, e-sport & parties"},
+    {"id": "musique", "nom": "Musique", "icone": "\U0001F3A7", "desc": "Sons, playlists & partages"},
     {"id": "ecole", "nom": "Ecole", "icone": "\U0001F3EB"},
+    {"id": "memes", "nom": "Memes", "icone": "\U0001F602",
+     "desc": "Le fun, les vannes & les memes"},
+    {"id": "chill", "nom": "Chill", "icone": "\U0001F319",
+     "desc": "Detente, confidences & bonnes vibes"},
     {"id": "cinema", "nom": "Divertissement", "icone": "\U0001F3AC", "divertissement": True},
     {"id": "casino", "nom": "Casino", "icone": "\U0001F3B0", "casino": True},
     {"id": "annonce", "nom": "Annonces", "icone": "\U0001F4E2", "annonce": True, "prix": ANNONCE_PRIX},
