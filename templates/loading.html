@@ -24,6 +24,12 @@ button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rg
 .mail{color:#00f0ff}.foot{margin-top:16px;color:#8fa6cc;font-size:.8rem}
 .owner-link{display:block;margin-top:12px;color:#8fa6cc;font-size:.78rem;text-decoration:none}
 .owner-link:hover{color:#00f0ff}
+.rating{margin-top:16px;background:#111a2c;border:1px solid #223052;border-radius:14px;padding:14px}
+.rating .rlabel{font-size:.9rem;color:#c8d6f2;margin-bottom:8px}
+.stars{display:flex;justify-content:center;gap:6px;font-size:1.9rem;line-height:1}
+.stars span{cursor:pointer;color:#33436b;transition:.15s;user-select:none}
+.stars span.on{color:#ffd76b}
+.ravg{margin-top:8px;font-size:.82rem;color:#8fa6cc}
 </style></head><body>
 <div class="wrap">
   <h1>HIKAROCHAT</h1>
@@ -39,6 +45,11 @@ button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rg
       <p><b>6. SUPPORT.</b> <span class="mail">{{ support }}</span></p>
     </div>
     <label class="acc"><input type="checkbox" id="acc"> J'accepte les CGU et la politique de confidentialité.</label>
+  </div>
+  <div class="rating">
+    <div class="rlabel">⭐ Note HIKAROCHAT</div>
+    <div class="stars" id="stars"><span data-n="1">★</span><span data-n="2">★</span><span data-n="3">★</span><span data-n="4">★</span><span data-n="5">★</span></div>
+    <div class="ravg" id="ravg"></div>
   </div>
   <div class="bar"><i id="bar"></i></div>
   <p class="st" id="st">Initialisation du cerveau…</p>
@@ -59,6 +70,24 @@ async function fingerprint(){
   const hex=[...new Uint8Array(h)].map(v=>v.toString(16).padStart(2,'0')).join('');
   const id='H-'+hex.slice(0,40);localStorage.setItem('hikaro_bid',id);return id;
 }
+// --- notation de l'appli (visible des la page de chargement) ---
+(function(){
+  const stars=document.getElementById('stars'),avg=document.getElementById('ravg');
+  if(!stars)return;
+  const spans=[].slice.call(stars.querySelectorAll('span'));
+  function paint(n){spans.forEach(function(s){s.classList.toggle('on',parseInt(s.dataset.n)<=n);});}
+  function showAvg(a,c){avg.textContent=c?('Moyenne '+a+'/5 \u00b7 '+c+' avis'):'Sois le premier \u00e0 noter !';}
+  showAvg({{ rating.avg }},{{ rating.count }});
+  var mine=parseInt(localStorage.getItem('hikaro_rated')||'0');if(mine)paint(mine);
+  spans.forEach(function(s){
+    s.addEventListener('mouseenter',function(){paint(parseInt(s.dataset.n));});
+    stars.addEventListener('mouseleave',function(){paint(parseInt(localStorage.getItem('hikaro_rated')||'0'));});
+    s.addEventListener('click',function(){
+      var n=parseInt(s.dataset.n);paint(n);localStorage.setItem('hikaro_rated',n);
+      fetch('/api/rate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({note:n})}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok)showAvg(j.avg,j.count);}).catch(function(){});
+    });
+  });
+})();
 (async()=>{
   const bar=document.getElementById('bar'),st=document.getElementById('st'),
         go=document.getElementById('go'),acc=document.getElementById('acc');
