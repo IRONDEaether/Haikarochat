@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HIKAROCHAT</title>
+<title>HINATACHAT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -255,15 +255,47 @@ body{background:linear-gradient(160deg,#04121a,#06202e,#072b3a,#041a26);backgrou
 .wpbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .wpbar button{padding:9px 14px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;background:var(--pan2);color:var(--tx);font-weight:700;font-size:.82rem}
 .wpbar button:hover{border-color:var(--cy)}
+/* ===== HINATACHAT WHAOU : ultra-glass + ecriture flottante ===== */
+:root{--cy:#6ef0ff;--mg:#b48bff;--vi:#ff7be5;--glass:rgba(255,255,255,.05);--glassbd:rgba(255,255,255,.14)}
+body{background:linear-gradient(140deg,#060a1f,#0a1430,#140a2e,#07132c,#061427);background-size:400% 400%;animation:bgflow 36s ease infinite}
+.liquid{opacity:.6;filter:blur(54px) saturate(165%)}
+.liquid i:nth-child(1){background:radial-gradient(circle at 30% 30%,#5ad8ff,transparent 60%)}
+.liquid i:nth-child(2){background:radial-gradient(circle at 60% 40%,#b06bff,transparent 62%)}
+.liquid i:nth-child(3){background:radial-gradient(circle at 50% 50%,#ff6fd8,transparent 60%)}
+.liquid::after{content:"";position:absolute;width:42vmax;height:42vmax;right:8%;bottom:-18%;border-radius:50%;background:radial-gradient(circle at 50% 50%,#3affd0,transparent 62%);mix-blend-mode:screen;animation:blob 30s ease-in-out infinite reverse}
+.app,.main{background:transparent}
+.top,.side,.right,.head,.compose,.modal,.musicpanel .card{background:var(--glass)!important;border-color:var(--glassbd)!important;backdrop-filter:blur(26px) saturate(185%);-webkit-backdrop-filter:blur(26px) saturate(185%)}
+.head{border-bottom:1px solid var(--glassbd)!important}
+.msg .bd{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.msg:hover .bd{border-color:rgba(110,240,255,.55)!important;box-shadow:0 10px 30px rgba(110,240,255,.2)}
+.icobtn{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.icobtn:hover{box-shadow:0 0 18px rgba(110,240,255,.5);border-color:var(--cy)!important}
+.compose input[type=text],.compose textarea#input{background:rgba(255,255,255,.05)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(10px)}
+.coins{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important}
+.salon:hover,.u:hover,.dmconv{background:rgba(255,255,255,.05)!important}
+.salon.on{background:linear-gradient(90deg,rgba(110,240,255,.18),rgba(180,139,255,.14))!important}
+/* ecriture qui flotte */
+.logo{background:linear-gradient(90deg,var(--cy),var(--mg),var(--vi),var(--cy));background-size:280% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:logoglow 6s ease-in-out infinite,floaty 7s ease-in-out infinite,shine 9s linear infinite}
+@keyframes shine{to{background-position:280% center}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.msg .who,.head h2,.side h3,.right h3{animation:floaty 8s ease-in-out infinite}
+#boot .bl{animation:floaty 5s ease-in-out infinite}
+/* video facon WhatsApp */
+.msg video.vid{max-width:min(78vw,300px);max-height:420px;width:100%;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.msg audio{border-radius:999px}
+/* scrollbar discrete */
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+*::-webkit-scrollbar-thumb:hover{background:rgba(110,240,255,.35)}
 </style></head>
 <body>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HIKAROCHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.2.0</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.3.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HIKAROCHAT v1.2.0">HIKAROCHAT</span>
+    <span class="logo" title="HINATACHAT v1.3.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -556,7 +588,7 @@ socket.on('history',d=>{
   $('#msgs').innerHTML='';merged.forEach(x=>{x._hist=true;addMsg(x);});scrollMsgs(true);
 });
 socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text))chime();}});
-socket.on('system',d=>{if(d.salon==='__all__'){notify('🤖 '+(d.bot||'Bot')+' : '+(d.text||'').slice(0,60),true);addSys(d.bot||'Bot',d.text);return;}if(!d.salon||d.salon===SALON)addSys(d.bot||'Bot',d.text);});
+socket.on('system',d=>{/* bots masqués : on n'affiche plus les messages des robots dans le chat */});
 socket.on('image',d=>{if(d.salon===SALON)addMsg(d);});
 socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
 socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});if(!mine)chime();});
@@ -605,7 +637,7 @@ function beepMention(){const c=audioCtx();if(!c)return;try{
     o.type='sine';o.frequency.value=i?1180:920;const t0=c.currentTime+dt;
     g.gain.setValueAtTime(.15,t0);g.gain.exponentialRampToValueAtTime(.001,t0+.16);o.start(t0);o.stop(t0+.16);});
 }catch(_){}}
-let _titleTimer=null;const _baseTitle='HIKAROCHAT';
+let _titleTimer=null;const _baseTitle='HINATACHAT';
 function flashTitle(t){if(!document.hidden)return;clearInterval(_titleTimer);let on=false;
   _titleTimer=setInterval(()=>{document.title=(on=!on)?('\uD83D\uDD14 '+t):_baseTitle;},900);}
 window.addEventListener('focus',()=>{clearInterval(_titleTimer);document.title=_baseTitle;});
@@ -614,7 +646,7 @@ function pingMention(from,text){
   notify('\uD83D\uDD14 '+from+' t\'a mentionn\u00e9 : '+String(text||'').slice(0,60),true);
   toast('\uD83D\uDD14 '+from+' t\'a mentionn\u00e9');
   flashTitle(from+' t\'a mentionn\u00e9');
-  try{if('Notification'in window&&Notification.permission==='granted'){new Notification('HIKAROCHAT \u2014 '+from+' t\'a mentionn\u00e9',{body:String(text||'').slice(0,80)});}}catch(_){}
+  try{if('Notification'in window&&Notification.permission==='granted'){new Notification('HINATACHAT \u2014 '+from+' t\'a mentionn\u00e9',{body:String(text||'').slice(0,80)});}}catch(_){}
 }
 $('#btnNotif').onclick=()=>{
   NOTIFN=0; $('#notifBadge').style.display='none';
@@ -796,26 +828,22 @@ $('#scrim').onclick=closeDrawers;
 // ---- online ----
 socket.on('online',d=>{
   if(d.salon!==SALON)return;
-  $('#count').textContent=d.count;
+  const membres=(d.membres||[]).filter(u=>u.role!=='bot'); // bots masqués
+  $('#count').textContent=membres.length||d.count;
   const box=$('#online'); box.innerHTML='';
-  (d.membres||[]).forEach(u=>{
+  membres.forEach(u=>{
     if(u.avatar)AVCACHE[u.pseudo]=u.avatar;
-    const isBot=u.role==='bot';
-    const row=el('div','u'+(isBot?' bot':''));
+    const row=el('div','u');
     const av=el('div','av');
     if(u.avatar)av.innerHTML=`<img src="${u.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
-    else av.textContent=isBot?(u.icone||'🤖'):(u.pseudo||'?').slice(0,1).toUpperCase();
+    else av.textContent=(u.pseudo||'?').slice(0,1).toUpperCase();
     row.appendChild(av);
     const info=el('div');
-    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${isBot?'bot':esc(u.role)}</div>`;
+    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${esc(u.role)}</div>`;
     row.appendChild(info);
     row.appendChild(el('span','dot'));
-    if(!isBot){
-      row.onclick=()=>openUser(u.pseudo);
-      row.ondblclick=()=>openPm(u.pseudo);
-    }else{
-      row.onclick=()=>{const b=el('div','badge','BOT');row.appendChild(b);setTimeout(()=>b.remove(),1200);toast(u.pseudo+' : '+(u.desc||'assistant'));};
-    }
+    row.onclick=()=>openUser(u.pseudo);
+    row.ondblclick=()=>openPm(u.pseudo);
     box.appendChild(row);
   });
 });

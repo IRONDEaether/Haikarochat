@@ -1,53 +1,70 @@
 <!DOCTYPE html><html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HIKAROCHAT</title>
+<title>HINATACHAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#e6f0ff;
-  background:radial-gradient(1200px 600px at 50% -10%,#15264a,#05070d)}
-.wrap{width:92%;max-width:640px;text-align:center;padding:26px}
-h1{font-size:3rem;font-weight:800;letter-spacing:4px;background:linear-gradient(90deg,#00f0ff,#ff2ce0);
-  -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px rgba(0,240,255,.4)}
-.tag{color:#8fa6cc;margin:8px 0 18px}
-.cgu{background:#111a2c;border:1px solid #223052;border-radius:16px;padding:18px;text-align:left}
-.cgu h2{color:#ff2ce0;text-transform:uppercase;font-size:1.1rem;margin-bottom:10px;text-shadow:0 0 14px rgba(255,44,224,.5)}
-.scroll{max-height:200px;overflow:auto;font-size:.9rem;line-height:1.55;color:#c8d6f2}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif}
+:root{--cy:#6ef0ff;--mg:#b48bff;--vi:#ff7be5;--glass:rgba(255,255,255,.05);--glassbd:rgba(255,255,255,.14)}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#eaf3ff;overflow:hidden;
+  background:linear-gradient(140deg,#060a1f,#0a1430,#140a2e,#07132c,#061427);background-size:400% 400%;animation:bgflow 36s ease infinite}
+@keyframes bgflow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.aurora{position:fixed;inset:-10%;z-index:0;pointer-events:none;filter:blur(60px) saturate(165%);opacity:.6;overflow:hidden}
+.aurora i{position:absolute;border-radius:50%;mix-blend-mode:screen}
+.aurora i:nth-child(1){width:48vmax;height:48vmax;left:-10%;top:-12%;background:radial-gradient(circle at 30% 30%,#5ad8ff,transparent 60%);animation:blob 26s ease-in-out infinite}
+.aurora i:nth-child(2){width:42vmax;height:42vmax;right:-12%;top:8%;background:radial-gradient(circle at 60% 40%,#b06bff,transparent 62%);animation:blob 32s ease-in-out infinite reverse}
+.aurora i:nth-child(3){width:40vmax;height:40vmax;left:22%;bottom:-18%;background:radial-gradient(circle at 50% 50%,#ff6fd8,transparent 60%);animation:blob 38s ease-in-out infinite}
+@keyframes blob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(6%,-5%) scale(1.12)}66%{transform:translate(-5%,6%) scale(.92)}}
+.wrap{position:relative;z-index:1;width:92%;max-width:640px;text-align:center;padding:26px}
+h1{font-family:'Space Grotesk',Inter,sans-serif;font-size:3.2rem;font-weight:800;letter-spacing:5px;
+  background:linear-gradient(90deg,var(--cy),var(--mg),var(--vi),var(--cy));background-size:280% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 9s linear infinite,floaty 6s ease-in-out infinite}
+@keyframes shine{to{background-position:280% center}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.tag{color:#b9c6e6;margin:10px 0 20px;animation:floaty 8s ease-in-out infinite}
+.cgu,.rating{background:var(--glass);border:1px solid var(--glassbd);border-radius:18px;padding:18px;text-align:left;
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%)}
+.cgu h2{color:var(--vi);text-transform:uppercase;font-size:1.05rem;margin-bottom:10px;text-shadow:0 0 14px rgba(255,123,229,.5)}
+.scroll{max-height:200px;overflow:auto;font-size:.9rem;line-height:1.55;color:#d2ddf6}
 .scroll p{margin-bottom:8px}
 .acc{display:flex;gap:9px;align-items:center;margin-top:12px;font-size:.9rem}
-.bar{height:8px;background:#0c1220;border-radius:6px;margin:20px 0 8px;overflow:hidden}
-.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00f0ff,#ff2ce0);transition:.3s}
-.st{color:#8fa6cc;font-size:.85rem}
-button{margin-top:16px;padding:13px 26px;border:none;border-radius:11px;cursor:pointer;font-weight:800;
-  letter-spacing:1px;color:#04121a;background:linear-gradient(90deg,#00f0ff,#ff2ce0);transition:.2s}
+.bar{height:9px;background:rgba(255,255,255,.07);border-radius:6px;margin:20px 0 8px;overflow:hidden;border:1px solid var(--glassbd)}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--mg),var(--vi));transition:.3s}
+.st{color:#b9c6e6;font-size:.85rem}
+button{margin-top:16px;padding:14px 28px;border:none;border-radius:13px;cursor:pointer;font-weight:800;
+  letter-spacing:1px;color:#061427;background:linear-gradient(90deg,var(--cy),var(--mg));transition:.2s}
 button:disabled{opacity:.35;cursor:not-allowed}
-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,240,255,.4)}
-.mail{color:#00f0ff}.foot{margin-top:16px;color:#8fa6cc;font-size:.8rem}
-.owner-link{display:block;margin-top:12px;color:#8fa6cc;font-size:.78rem;text-decoration:none}
-.owner-link:hover{color:#00f0ff}
-.rating{margin-top:16px;background:#111a2c;border:1px solid #223052;border-radius:14px;padding:14px}
-.rating .rlabel{font-size:.9rem;color:#c8d6f2;margin-bottom:8px}
+button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 34px rgba(110,240,255,.45)}
+.mail{color:var(--cy)}.foot{margin-top:16px;color:#b9c6e6;font-size:.8rem}
+.owner-link{display:block;margin-top:12px;color:#b9c6e6;font-size:.78rem;text-decoration:none}
+.owner-link:hover{color:var(--cy)}
+.rating{margin-top:16px;text-align:center}
+.rating .rlabel{font-size:.9rem;color:#d2ddf6;margin-bottom:8px}
 .stars{display:flex;justify-content:center;gap:6px;font-size:1.9rem;line-height:1}
-.stars span{cursor:pointer;color:#33436b;transition:.15s;user-select:none}
-.stars span.on{color:#ffd76b}
-.ravg{margin-top:8px;font-size:.82rem;color:#8fa6cc}
+.stars span{cursor:pointer;color:#3a4a74;transition:.15s;user-select:none}
+.stars span.on{color:#ffd76b;text-shadow:0 0 12px rgba(255,215,107,.6)}
+.ravg{margin-top:8px;font-size:.82rem;color:#b9c6e6}
+*::-webkit-scrollbar{width:7px}*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:7px}
 </style></head><body>
+<div class="aurora"><i></i><i></i><i></i></div>
 <div class="wrap">
-  <h1>HIKAROCHAT</h1>
-  <p class="tag">Réseau communautaire sécurisé — propulsé par l'escouade de bots</p>
+  <h1>HINATACHAT</h1>
+  <p class="tag">Réseau communautaire sécurisé — messages, vocaux &amp; vidéos en direct</p>
   <div class="cgu">
     <h2>⚠️ Conditions d'utilisation &amp; confidentialité</h2>
     <div class="scroll">
-      <p><b>1. RESPECT.</b> Harcèlement, haine, contenu illégal ou impliquant des mineurs = <b>bannissement immédiat</b> (Bot Network).</p>
-      <p><b>2. DONNÉES.</b> On enregistre une empreinte technique (browser_id), l'IP et le profil texte. <b>Aucune photo n'est stockée en base</b> : les images passent en P2P et restent chez toi.</p>
-      <p><b>3. SÉCURITÉ.</b> Flux en HTTPS. Fichiers lourds & films en pair-à-pair.</p>
-      <p><b>4. MODÉRATION.</b> Bots autonomes + modérateurs. Sanctions journalisées.</p>
+      <p><b>1. RESPECT.</b> Harcèlement, haine, contenu illégal ou impliquant des mineurs = <b>bannissement immédiat</b>.</p>
+      <p><b>2. DONNÉES.</b> On enregistre une empreinte technique (browser_id), l'IP et le profil texte. <b>Aucune photo, aucun vocal ni vidéo n'est stocké en base</b> : les médias sont diffusés en direct puis oubliés.</p>
+      <p><b>3. SÉCURITÉ.</b> Flux en HTTPS. Les médias restent éphémères.</p>
+      <p><b>4. MODÉRATION.</b> Modérateurs humains. Sanctions journalisées.</p>
       <p><b>5. ÂGE.</b> Interdit aux moins de 13 ans.</p>
       <p><b>6. SUPPORT.</b> <span class="mail">{{ support }}</span></p>
     </div>
     <label class="acc"><input type="checkbox" id="acc"> J'accepte les CGU et la politique de confidentialité.</label>
   </div>
   <div class="rating">
-    <div class="rlabel">⭐ Note HIKAROCHAT</div>
+    <div class="rlabel">⭐ Note HINATACHAT</div>
     <div class="stars" id="stars"><span data-n="1">★</span><span data-n="2">★</span><span data-n="3">★</span><span data-n="4">★</span><span data-n="5">★</span></div>
     <div class="ravg" id="ravg"></div>
   </div>
@@ -65,7 +82,7 @@ async function fingerprint(){
     navigator.hardwareConcurrency||0,navigator.deviceMemory||0,navigator.platform||''];
   try{const cv=document.createElement('canvas');const x=cv.getContext('2d');x.textBaseline='top';
     x.font="14px Arial";x.fillStyle='#f60';x.fillRect(0,0,120,30);x.fillStyle='#069';
-    x.fillText('HIKARO\u2726',2,2);p.push(cv.toDataURL());}catch(e){p.push('nc');}
+    x.fillText('HINATA\u2726',2,2);p.push(cv.toDataURL());}catch(e){p.push('nc');}
   const b=new TextEncoder().encode(p.join('|'));const h=await crypto.subtle.digest('SHA-256',b);
   const hex=[...new Uint8Array(h)].map(v=>v.toString(16).padStart(2,'0')).join('');
   const id='H-'+hex.slice(0,40);localStorage.setItem('hikaro_bid',id);return id;
@@ -91,8 +108,8 @@ async function fingerprint(){
 (async()=>{
   const bar=document.getElementById('bar'),st=document.getElementById('st'),
         go=document.getElementById('go'),acc=document.getElementById('acc');
-  const steps=['Initialisation du cerveau…','Connexion base de données…',
-    "Réveil de l'escouade de bots…",'Calcul de l\'empreinte…','Réseau prêt.'];
+  const steps=['Initialisation du cerveau\u2026','Connexion base de donn\u00e9es\u2026',
+    "R\u00e9veil du r\u00e9seau\u2026",'Calcul de l\u2019empreinte\u2026','R\u00e9seau pr\u00eat.'];
   const bid=await fingerprint();let i=0;
   const t=setInterval(()=>{i++;bar.style.width=Math.min(100,i*20)+'%';
     st.textContent=steps[Math.min(i,steps.length-1)];
