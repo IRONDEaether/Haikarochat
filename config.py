@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.1.9"
+VERSION = "1.2.0"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -104,58 +104,12 @@ BAN_TIERS = [
     (5, 0),             # permanent
 ]
 
-# --- Salons (le salon Cinema/Divertissement a ses 2 modes ensemble/perso) ---
+# --- Salons : un seul salon public (General). Admin reste cache pour la moderation. ---
 SALONS = [
-    {"id": "general", "nom": "General", "icone": "\U0001F310",
-     "desc": "Le coeur du reseau", "specialite": "Discussion libre, rencontres & actus",
+    {"id": "general", "nom": "General", "icone": "\U0001F30A",
+     "desc": "Le salon unique du reseau", "specialite": "Discussion libre, vocal, video & messages prives",
      "regles": "Reste courtois, pas de spam, tout le monde est bienvenu."},
-    {"id": "otaku", "nom": "Otaku", "icone": "\U0001F338",
-     "desc": "Culture japonaise", "specialite": "Anime, waifus, saisons & recommandations",
-     "regles": "Balise les spoilers avec [SPOIL]. Respecte les gouts des autres."},
-    {"id": "manga", "nom": "Manga", "icone": "\U0001F4D6",
-     "desc": "Lecture & scans", "specialite": "Shonen, seinen, debats de chapitres",
-     "regles": "Spoilers interdits sans balise. Pas de liens pirates."},
-    {"id": "tech", "nom": "Tech", "icone": "\U0001F4BB",
-     "desc": "Code & gadgets", "specialite": "Dev, hardware, IA & astuces",
-     "regles": "Entraide avant tout. Pas de piratage ni de contenu illegal."},
-    {"id": "gaming", "nom": "Gaming", "icone": "\U0001F3AE",
-     "desc": "Jeux, e-sport & parties", "specialite": "Squads, classements & soirees jeu",
-     "regles": "Pas de rage ni d'insultes. On joue fair-play."},
-    {"id": "musique", "nom": "Musique", "icone": "\U0001F3A7",
-     "desc": "Sons, playlists & lecteur du salon", "musique": True,
-     "specialite": "Partage de sons & lecteur audio integre",
-     "regles": "Partage tes pepites, respecte les droits d'auteur."},
-    {"id": "memes", "nom": "Memes", "icone": "\U0001F602",
-     "desc": "Le fun, les vannes & les memes",
-     "specialite": "Memes, blagues & moments WTF",
-     "regles": "On rigole, mais zero haine ni harcelement."},
-    {"id": "chill", "nom": "Chill", "icone": "\U0001F319",
-     "desc": "Detente, confidences & bonnes vibes",
-     "specialite": "Ambiance calme, confidences & soutien",
-     "regles": "Bienveillance obligatoire. Ce qui se dit ici reste ici."},
-    {"id": "casino", "nom": "Casino", "icone": "\U0001F3B0", "casino": True,
-     "specialite": "Jeux, paris en points & defis",
-     "regles": "Mise responsable. Les points sont virtuels, pas d'argent reel."},
-    {"id": "annonce", "nom": "Annonces", "icone": "\U0001F4E2", "annonce": True, "prix": ANNONCE_PRIX,
-     "specialite": "Annonces payantes diffusees a tout le reseau",
-     "regles": "Annonces claires et legales uniquement."},
-    {"id": "prive", "nom": "Salle Priv\u00e9e", "icone": "\U0001F512", "reservable": True,
-     "capacity": SALLE_CAPACITY, "prix": SALLE_PRIX,
-     "desc": "Salon a places limitees, sur reservation.",
-     "specialite": "Salon intimiste sur reservation",
-     "regles": "Place reservee = presence attendue. Discretion demandee."},
-    {"id": "premium", "nom": "Premium", "icone": "\U0001F451", "level": PREMIUM_LEVEL,
-     "specialite": "Cercle VIP reserve aux niveaux eleves",
-     "regles": "Acces niveau %d+. Reste a la hauteur du club." % PREMIUM_LEVEL},
-    {"id": "aide", "nom": "Aide", "icone": "\U0001F198",
-     "specialite": "Questions, support & guide du reseau",
-     "regles": "Pose ta question clairement, l'escouade te repond."},
     {"id": "admin", "nom": "Admin", "icone": "\U0001F6E1", "admin": True},
-    # SALON SECRET : cache par defaut (nom/desc masques), debloque en tapant
-    # le mot "secret" dans le chat contre des points.
-    {"id": "secret", "nom": "\u2753\u2753\u2753", "icone": "\U0001F576",
-     "secret": True, "prix": 500, "desc": "\u2022\u2022\u2022 masque \u2022\u2022\u2022",
-     "real_nom": "Club Secret", "real_desc": "Le salon cache de l'elite HIKARO."},
 ]
 
 # --- L'escouade de bots : ils apparaissent TOUJOURS comme connectes ---

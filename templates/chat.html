@@ -7,7 +7,7 @@
 <script>if(typeof io==='undefined'){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"><\/scr'+'ipt>');}</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif}
-:root{--cy:#5b8cff;--mg:#a66bff;--bg:#0a0e17;--pan:#121826;--pan2:#18202f;--bd:#273247;--tx:#e8edf6;--mut:#8c99b0;--gold:#e8b765;--disp:'Space Grotesk',Inter,sans-serif}
+:root{--cy:#3fe0ff;--mg:#4aa8ff;--bg:#04121a;--pan:#0b2230;--pan2:#0f2a3a;--bd:#1d4155;--tx:#e9f6fb;--mut:#8fb6c6;--gold:#7fe9d0;--disp:'Space Grotesk',Inter,sans-serif;--glass:rgba(14,42,58,.55);--glassbd:rgba(120,220,255,.16)}
 body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;color:var(--tx);background:radial-gradient(1100px 560px at 20% -12%,#16213a,var(--bg))}
 .logo,#boot .bl,.modal h2{font-family:var(--disp)}
 .app{display:grid;grid-template-columns:230px 1fr 240px;grid-template-rows:56px 1fr;height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh}
@@ -44,9 +44,20 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
 .msg.sys .bd{background:rgba(0,240,255,.07);border-color:rgba(0,240,255,.25);color:var(--cy);font-size:.83rem;text-align:center}
 .msg.sys .who{color:var(--mg)}
 .compose{display:flex;gap:8px;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--bd);background:var(--pan);flex-shrink:0;align-items:center;flex-wrap:nowrap}
-.compose input[type=text]{flex:1;min-width:0;padding:12px;border-radius:11px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx);font-size:16px}
-.compose input:focus{outline:none;border-color:var(--cy)}
-.compose button#send{padding:0 16px;border:none;border-radius:11px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg));white-space:nowrap;flex-shrink:0}
+.compose input[type=text],.compose textarea#input{flex:1;min-width:0;padding:12px 14px;border-radius:16px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx);font-size:16px;font-family:inherit;line-height:1.35;resize:none;max-height:140px;overflow-y:auto}
+.compose input:focus,.compose textarea#input:focus{outline:none;border-color:var(--cy);box-shadow:0 0 0 3px rgba(63,224,255,.12)}
+.compose button#send{width:46px;height:46px;padding:0;border:none;border-radius:50%;cursor:pointer;font-size:1.25rem;font-weight:700;color:#042029;background:linear-gradient(135deg,var(--cy),var(--mg));white-space:nowrap;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(63,224,255,.35)}
+.compose button#send:active{transform:scale(.92)}
+/* enregistrement vocal */
+.recbar{display:none;align-items:center;gap:10px;padding:8px 16px;color:var(--cy);font-size:.82rem;font-weight:600}
+.recbar.on{display:flex}
+.recbar.cancel{color:#ff6b9d}
+.recbar .rdot{width:12px;height:12px;border-radius:50%;background:#ff4d6d;animation:rpulse 1s ease-in-out infinite}
+.recbar .rhint{color:var(--mut);font-weight:400;font-size:.74rem}
+@keyframes rpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+#btnVoice.rec{background:linear-gradient(135deg,#ff4d6d,#ff9e5e);color:#fff;box-shadow:0 0 0 4px rgba(255,77,109,.25)}
+/* message vocal (lecteur) */
+.msg audio{width:220px;max-width:62vw;margin-top:6px;height:38px}
 .compose .ghost{background:var(--pan2);color:var(--tx);border:1px solid var(--bd)}
 /* online */
 .right{background:var(--pan);border-left:1px solid var(--bd);overflow:auto;padding:12px 8px}
@@ -155,8 +166,8 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
   .msg .av{width:32px;height:32px}
   .compose{padding:8px 8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));gap:5px}
   .compose .icobtn{width:38px;height:38px;font-size:1rem;flex-shrink:0}
-  .compose input[type=text]{padding:11px 10px}
-  .compose button#send{padding:0 12px;font-size:.9rem}
+  .compose input[type=text],.compose textarea#input{padding:11px 12px}
+  .compose button#send{width:42px;height:42px;font-size:1.1rem}
   .head{padding:10px 12px}
   .cine,.annopanel{padding:12px 12px}
   .modal{padding:16px}
@@ -174,21 +185,36 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
 /* --- mention @quelqu'un --- */
 .mention{color:var(--cy);font-weight:700;background:rgba(0,240,255,.12);border-radius:6px;padding:0 4px}
 .msg.me-mention .bd{border-color:var(--mg);box-shadow:0 0 14px rgba(255,44,224,.35)}
-/* ===== v1.1.9 PRO ===== */
-body{background:linear-gradient(150deg,#0a0e17,#0e1526,#120e24,#0a0e17);background-size:300% 300%;animation:bgflow 48s ease infinite}
+/* ===== v1.2.0 LIQUID / EAU ===== */
+body{background:linear-gradient(160deg,#04121a,#06202e,#072b3a,#041a26);background-size:300% 300%;animation:bgflow 42s ease infinite}
 @keyframes bgflow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+/* blobs liquides en fond (gooey) */
+.liquid{position:fixed;inset:-10%;z-index:0;pointer-events:none;filter:blur(42px) saturate(140%);opacity:.5;overflow:hidden}
+.liquid i{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform}
+.liquid i:nth-child(1){width:46vmax;height:46vmax;left:-8%;top:-10%;background:radial-gradient(circle at 30% 30%,#2bd6ff,transparent 60%);animation:blob 26s ease-in-out infinite}
+.liquid i:nth-child(2){width:40vmax;height:40vmax;right:-10%;top:10%;background:radial-gradient(circle at 60% 40%,#2f7dff,transparent 62%);animation:blob 32s ease-in-out infinite reverse}
+.liquid i:nth-child(3){width:38vmax;height:38vmax;left:20%;bottom:-16%;background:radial-gradient(circle at 50% 50%,#17e3c6,transparent 60%);animation:blob 38s ease-in-out infinite}
+@keyframes blob{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(6%,-5%) scale(1.12)}66%{transform:translate(-5%,6%) scale(.92)}}
 .logo{animation:logoglow 6s ease-in-out infinite}
-@keyframes logoglow{0%,100%{filter:drop-shadow(0 0 2px rgba(91,140,255,.35))}50%{filter:drop-shadow(0 0 7px rgba(166,107,255,.45))}}
-/* petales/fleurs animees en fond */
+@keyframes logoglow{0%,100%{filter:drop-shadow(0 0 3px rgba(63,224,255,.4))}50%{filter:drop-shadow(0 0 9px rgba(74,168,255,.55))}}
+/* verre liquide : panneaux translucides */
+.top,.side,.right,.compose,.musicpanel .card,.modal{backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%)}
+.top{background:var(--glass);border-bottom:1px solid var(--glassbd)}
+.side,.right{background:var(--glass);border-color:var(--glassbd)}
+.compose{background:var(--glass);border-top:1px solid var(--glassbd)}
+.msg .bd{background:rgba(15,42,58,.5);border:1px solid var(--glassbd);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.icobtn{background:rgba(20,52,70,.5);border:1px solid var(--glassbd)}
+.modal{background:var(--glass);border:1px solid var(--glassbd)}
+/* bulles d'eau qui remontent en fond */
 .petals{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}
-.petals b{position:absolute;top:-8%;font-size:16px;line-height:1;opacity:.55;animation:fall linear infinite;will-change:transform}
-@keyframes fall{0%{transform:translateY(-10vh) translateX(0) rotate(0);opacity:0}10%{opacity:.6}90%{opacity:.5}100%{transform:translateY(110vh) translateX(40px) rotate(320deg);opacity:0}}
+.petals b{position:absolute;bottom:-6%;font-size:16px;line-height:1;opacity:.5;animation:rise linear infinite;will-change:transform}
+@keyframes rise{0%{transform:translateY(10vh) translateX(0) scale(.7);opacity:0}12%{opacity:.6}88%{opacity:.45}100%{transform:translateY(-112vh) translateX(26px) scale(1.1);opacity:0}}
 #boot .petals b{opacity:.7}
 /* chips specialite + regles du salon */
 .spec{display:flex;flex-wrap:wrap;gap:7px;padding:9px 16px 2px;align-items:center}
-.spec .chip{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--bd);background:var(--pan2);color:var(--mut)}
-.spec .chip.sp{color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg));border-color:transparent}
-.spec .chip.rl{color:var(--gold);border-color:rgba(232,183,101,.4)}
+.spec .chip{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--glassbd);background:rgba(20,52,70,.45);color:var(--mut);backdrop-filter:blur(6px)}
+.spec .chip.sp{color:#042029;background:linear-gradient(90deg,var(--cy),var(--mg));border-color:transparent}
+.spec .chip.rl{color:var(--gold);border-color:rgba(127,233,208,.4)}
 .msg{animation:msgin .28s ease}
 @keyframes msgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .msg .bd{transition:border-color .2s,box-shadow .2s}
@@ -231,12 +257,13 @@ body{background:linear-gradient(150deg,#0a0e17,#0e1526,#120e24,#0a0e17);backgrou
 .wpbar button:hover{border-color:var(--cy)}
 </style></head>
 <body>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HIKAROCHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.1.9</div></div>
+<div class="liquid"><i></i><i></i><i></i></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HIKAROCHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.2.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HIKAROCHAT v1.1.9">HIKAROCHAT</span>
+    <span class="logo" title="HIKAROCHAT v1.2.0">HIKAROCHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -302,12 +329,14 @@ body{background:linear-gradient(150deg,#0a0e17,#0e1526,#120e24,#0a0e17);backgrou
       <button class="icobtn ghost" id="btnEmo" title="Emojis">😀</button>
       <button class="icobtn ghost" id="btnImg" title="Envoyer une photo">🖼️</button>
       <input type="file" id="imgFile" accept="image/*" style="display:none">
-      <button class="icobtn ghost" id="btnVid" title="Envoyer une vidéo (P2P, direct au salon)">📹</button>
+      <button class="icobtn ghost" id="btnVid" title="Envoyer une vidéo courte">📹</button>
       <input type="file" id="vidFile" accept="video/*" style="display:none">
+      <button class="icobtn ghost" id="btnVoice" title="Message vocal (maintenir)">🎙️</button>
       <input type="file" id="wallFile" accept="image/*" style="display:none">
-      <input type="text" id="input" placeholder="Écris un message…  (/help pour les commandes)">
-      <button id="send">Envoyer</button>
+      <textarea id="input" rows="1" placeholder="Écris un message…" autocomplete="off"></textarea>
+      <button id="send" title="Envoyer">➤</button>
     </div>
+    <div class="recbar" id="recbar"><span class="rdot"></span><span id="recTime">0:00</span><span class="rhint">Relâche pour envoyer • glisse pour annuler</span></div>
   </div>
   <div class="right">
     <h3>En ligne — <span id="count">0</span></h3>
@@ -342,8 +371,7 @@ body{background:linear-gradient(150deg,#0a0e17,#0e1526,#120e24,#0a0e17);backgrou
 <div class="ov" id="ovPm"><div class="modal">
   <span class="x" data-close>×</span><h2 id="pmTitle">Message privé</h2>
   <div class="msgs" id="pmMsgs" style="height:260px;padding:8px 0"></div>
-  <div style="display:flex;gap:8px"><button class="icobtn ghost" id="pmMedia" title="Envoyer vidéo/musique (P2P)">📎</button>
-    <input type="file" id="pmMediaFile" accept="video/*,audio/*" style="display:none">
+  <div style="display:flex;gap:8px"><button class="icobtn ghost" id="pmMic" title="Message vocal privé (maintenir)">🎙️</button>
     <input type="text" id="pmInput" placeholder="Ton message…"
     style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)">
     <button id="pmSend" style="padding:0 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Envoyer</button></div>
@@ -497,6 +525,8 @@ function addMsg(m){
   const ti=m.titre?`<span class="ti">${esc(m.titre)}</span>`:'';
   bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}</div><div class="tx">${renderText(m.text)}</div>`;
   if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.onload=()=>scrollMsgs(stick||mine);bd.appendChild(im);}
+  if(m._audio){const a=document.createElement('audio');a.controls=true;a.preload='metadata';a.src=m._audio;bd.appendChild(a);
+    bd.appendChild(el('div','dl','\uD83C\uDF99\uFE0F vocal'+(m._dur?(' \u00b7 '+Math.round(m._dur)+'s'):'')));}
   if(m._video){const v=document.createElement('video');v.className='vid';v.controls=true;v.src=m._video;v.onloadeddata=()=>scrollMsgs(stick||mine);bd.appendChild(v);
     if(m._vname){bd.appendChild(el('div','dl','📹 '+esc(m._vname)));}}
   row.appendChild(bd);
@@ -528,6 +558,8 @@ socket.on('history',d=>{
 socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text))chime();}});
 socket.on('system',d=>{if(d.salon==='__all__'){notify('🤖 '+(d.bot||'Bot')+' : '+(d.text||'').slice(0,60),true);addSys(d.bot||'Bot',d.text);return;}if(!d.salon||d.salon===SALON)addSys(d.bot||'Bot',d.text);});
 socket.on('image',d=>{if(d.salon===SALON)addMsg(d);});
+socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
+socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});if(!mine)chime();});
 socket.on('avatar',d=>{AVCACHE[d.pseudo]=d.avatar;});
 socket.on('denied',d=>toast(d.raison||'Refusé'));
 socket.on('economy',d=>{if(d.points!=null)$('#coins').textContent=d.points;if(d.level_up)toast('Niveau '+d.level+' !');});
@@ -739,7 +771,7 @@ $('#btnEmo').onclick=()=>$('#emobar').classList.toggle('on');
 // ---- menu responsive ----
 function setVH(){document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');}
 // ---- petales/fleurs animees en fond ----
-const _PETALS='\uD83C\uDF38 \uD83C\uDF37 \uD83C\uDF3A \uD83C\uDF31 \u2728'.split(' ');
+const _PETALS='\uD83D\uDCA7 \uD83E\uDEE7 \u2727 \u00B0 \u2022'.split(' ');
 function spawnPetals(box,n){
   if(!box)return;box.innerHTML='';
   for(let i=0;i<n;i++){
@@ -789,13 +821,19 @@ socket.on('online',d=>{
 });
 
 // ---- compose ----
+const IS_TOUCH=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+function autoGrow(){const i=$('#input');if(!i)return;i.style.height='auto';i.style.height=Math.min(i.scrollHeight,140)+'px';}
 function send(){
   const i=$('#input'); const t=i.value.trim(); if(!t)return;
-  socket.emit('message',{text:t}); i.value='';
+  socket.emit('message',{text:t}); i.value=''; autoGrow();
   sendTyping(false);
 }
 $('#send').onclick=send;
-$('#input').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+$('#input').addEventListener('input',autoGrow);
+// clavier adapte : PC -> Entree envoie, Maj+Entree = nouvelle ligne ; mobile -> Entree = nouvelle ligne (on envoie avec le bouton)
+$('#input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey&&!IS_TOUCH){e.preventDefault();send();}
+});
 // ---- bouton GO : rejoindre le salon choisi dans le menu deroulant ----
 if($('#goBtn'))$('#goBtn').onclick=()=>{const v=$('#goSel')&&$('#goSel').value;if(v)joinSalon(v);};
 // ---- indicateur "est en train d'ecrire" ----
@@ -889,7 +927,6 @@ function openPm(pseudo){PMWITH=pseudo;$('#pmTitle').textContent='✉️ '+pseudo
 $('#pmSend').onclick=()=>{const t=$('#pmInput').value.trim();if(!t||!PMWITH)return;socket.emit('pm',{to:PMWITH,text:t});$('#pmInput').value='';};
 $('#pmInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pmSend').click();});
 socket.on('pm',d=>{
-  if(typeof d.text==='string'&&d.text.startsWith('@@RTC@@')){handlePmRtc(d);return;}
   const other=d.from===ME.pseudo?d.to:d.from;
   dmPush(other,{from:d.from,text:d.text,ts:d.ts||Date.now()/1000});
   const open=$('#ovPm').classList.contains('on')&&PMWITH===other;
@@ -898,112 +935,77 @@ socket.on('pm',d=>{
     notify('✉️ MP de '+d.from+' : '+(d.text||'').slice(0,50));}
 });
 
-// ---- PV : envoi video/musique en P2P (signaling via le canal MP) ----
-const PMRTC={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
-let pmPc={}, pmRecv={};
-function pmSig(to,obj){socket.emit('pm',{to,text:'@@RTC@@'+JSON.stringify(obj)});}
-function pmAddMedia(peer,url,mime,name){
+// ---- PV : rendu d'un message vocal privé (relais serveur, jamais stocké) ----
+function pmRenderAudio(peer,src,dur){
   if(!($('#ovPm').classList.contains('on')&&PMWITH===peer))return;
   const row=el('div','msg');row.style.maxWidth='100%';
-  const tag=(mime||'').startsWith('audio')?`<audio controls src="${url}" style="width:100%"></audio>`:`<video controls src="${url}" style="max-width:100%;border-radius:9px"></video>`;
-  row.innerHTML=`<div class="bd"><div class="who">${esc(peer)}</div><div class="tx">📎 ${esc(name||'média')}</div>${tag}</div>`;
+  row.innerHTML=`<div class="bd"><div class="who">${esc(peer)}</div><audio controls preload="metadata" src="${src}" style="width:100%"></audio><div class="dl">🎙️ vocal${dur?(' · '+Math.round(dur)+'s'):''}</div></div>`;
   $('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
 }
-$('#pmMedia').onclick=()=>{if(!PMWITH){toast('Ouvre une conversation');return;}$('#pmMediaFile').click();};
-$('#pmMediaFile').onchange=async e=>{
-  const f=e.target.files[0];if(!f||!PMWITH)return;e.target.value='';
-  if(f.size>80*1024*1024){toast('Fichier trop lourd (80 Mo max)');return;}
-  const peer=PMWITH;
-  const pc=new RTCPeerConnection(PMRTC);pmPc[peer]=pc;
-  pc.onicecandidate=ev=>{if(ev.candidate)pmSig(peer,{cand:ev.candidate});};
-  const dc=pc.createDataChannel('media');dc.binaryType='arraybuffer';
-  dc.onopen=async()=>{
-    $('#pmXfer').textContent='Envoi de '+f.name+'…';
-    dc.send(JSON.stringify({name:f.name,mime:f.type,size:f.size}));
-    const buf=await f.arrayBuffer();const CH=16*1024;
-    for(let o=0;o<buf.byteLength;o+=CH){while(dc.bufferedAmount>4*1024*1024){await new Promise(r=>setTimeout(r,40));}dc.send(buf.slice(o,o+CH));}
-    dc.send('EOF');$('#pmXfer').textContent='Envoyé ✓ (resté en P2P, jamais stocké)';
-  };
-  const off=await pc.createOffer();await pc.setLocalDescription(off);pmSig(peer,{sdp:pc.localDescription});
-  toast('Connexion P2P avec '+peer+'…');
-};
-async function handlePmRtc(d){
-  const peer=d.from;if(peer===ME.pseudo)return;
-  let m;try{m=JSON.parse(d.text.slice(7));}catch(_){return;}
-  if(m.sdp&&m.sdp.type==='offer'){
-    const pc=new RTCPeerConnection(PMRTC);pmPc[peer]=pc;pmRecv[peer]={buf:[],meta:null};
-    pc.onicecandidate=ev=>{if(ev.candidate)pmSig(peer,{cand:ev.candidate});};
-    pc.ondatachannel=ev=>{const dc=ev.channel;dc.binaryType='arraybuffer';
-      dc.onmessage=x=>{const st=pmRecv[peer];
-        if(typeof x.data==='string'){
-          if(x.data==='EOF'){const b=new Blob(st.buf,{type:st.meta.mime||'video/mp4'});
-            pmAddMedia(peer,URL.createObjectURL(b),st.meta.mime,st.meta.name);}
-          else{try{st.meta=JSON.parse(x.data);}catch(_){}}
-        }else{st.buf.push(x.data);}
-      };};
-    await pc.setRemoteDescription(m.sdp);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
-    pmSig(peer,{sdp:pc.localDescription});
-    if(!($('#ovPm').classList.contains('on')&&PMWITH===peer))notify('📎 '+peer+' t\'envoie un média (MP)');
-  }else if(m.sdp&&m.sdp.type==='answer'){
-    if(pmPc[peer])await pmPc[peer].setRemoteDescription(m.sdp);
-  }else if(m.cand&&pmPc[peer]){try{await pmPc[peer].addIceCandidate(m.cand);}catch(_){}}
-}
 
-// ============ VIDEO en direct dans le salon (100% P2P, ephemere) ============
-const RTC={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
-let vidFileObj=null, smPcs={}, smRecv={};
+// ============ VIDEO courte via le serveur (ephemere, broadcast) ============
 $('#btnVid').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
 $('#vidFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;e.target.value='';
-  if(f.size>120*1024*1024){toast('Vidéo trop lourde (120 Mo max)');return;}
-  vidFileObj=f;
-  addMsg({pseudo:ME.pseudo,avatar:AVATAR,text:'',_video:URL.createObjectURL(f),_vname:f.name,_vmime:f.type,ts:Date.now()/1000});
-  socket.emit('salon_media',{name:f.name,mime:f.type});
-  toast('📹 Vidéo partagée au salon (P2P)');
+  if(f.size>6*1024*1024){toast('Vidéo trop lourde (6 Mo max)');return;}
+  const r=new FileReader();
+  r.onload=()=>{socket.emit('video',{data:r.result,name:f.name});toast('📹 Vidéo envoyée');};
+  r.readAsDataURL(f);
 };
-socket.on('salon_media',d=>{
-  if(d.salon!==SALON||d.host===BID)return;
-  smRecv[d.host]={buf:[],meta:{name:d.name,mime:d.mime},pseudo:d.hostPseudo,avatar:d.avatar};
-  addSys(d.hostPseudo,'📹 partage une vidéo : '+(d.name||'')+' — réception P2P…');
-  socket.emit('salon_media_req',{host:d.host});
-});
-socket.on('salon_media_req',async d=>{
-  if(!vidFileObj)return;
-  const pc=new RTCPeerConnection(RTC);smPcs[d.from]=pc;
-  pc.onicecandidate=e=>{if(e.candidate)socket.emit('rtc_signal',{to:d.from,cand:e.candidate});};
-  const dc=pc.createDataChannel('vid');dc.binaryType='arraybuffer';
-  dc.onopen=async()=>{
-    dc.send(JSON.stringify({name:vidFileObj.name,mime:vidFileObj.type,size:vidFileObj.size}));
-    const buf=await vidFileObj.arrayBuffer();const CH=16*1024;
-    for(let o=0;o<buf.byteLength;o+=CH){while(dc.bufferedAmount>4*1024*1024){await new Promise(r=>setTimeout(r,40));}dc.send(buf.slice(o,o+CH));}
-    dc.send('EOF');
+
+// ============ MESSAGE VOCAL (maintenir le micro) ============
+let _mrec=null,_mstream=null,_mchunks=[],_mstart=0,_mcancel=false,_mtimer=null,_mactive=false,_mbtn=null,_mpm=null;
+function _recFmt(s){const m=Math.floor(s/60),x=Math.floor(s%60);return m+':'+(x<10?'0':'')+x;}
+function _recShow(on){const b=$('#recbar');if(b)b.classList.toggle('on',on);}
+// target: null = salon courant ; sinon le pseudo du destinataire (message privé)
+async function startVoice(btn,pmPeer){
+  if(_mactive)return;
+  if(!navigator.mediaDevices||!window.MediaRecorder){toast('Vocal non supporté sur ce navigateur');return;}
+  if(!pmPeer&&!SALON){toast('Rejoins un salon');return;}
+  if(pmPeer&&!PMWITH){toast('Ouvre une conversation');return;}
+  try{_mstream=await navigator.mediaDevices.getUserMedia({audio:true});}catch(_){toast('Micro refusé');return;}
+  _mactive=true;_mcancel=false;_mchunks=[];_mstart=Date.now();_mbtn=btn;_mpm=pmPeer||null;
+  const mime=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'';
+  _mrec=new MediaRecorder(_mstream,mime?{mimeType:mime}:undefined);
+  _mrec.ondataavailable=ev=>{if(ev.data&&ev.data.size)_mchunks.push(ev.data);};
+  _mrec.onstop=()=>{
+    const dur=(Date.now()-_mstart)/1000;
+    if(_mstream){_mstream.getTracks().forEach(t=>t.stop());_mstream=null;}
+    const bar=$('#recbar');if(bar)bar.classList.remove('cancel');
+    const pm=_mpm;_mactive=false;
+    if(_mcancel||dur<0.6)return;
+    const blob=new Blob(_mchunks,{type:_mrec.mimeType||'audio/webm'});
+    const r=new FileReader();
+    r.onload=()=>{
+      if(pm)socket.emit('pm_voice',{to:pm,data:r.result,dur:dur});
+      else socket.emit('voice',{data:r.result,dur:dur});
+    };
+    r.readAsDataURL(blob);
   };
-  const off=await pc.createOffer();await pc.setLocalDescription(off);
-  socket.emit('rtc_signal',{to:d.from,sdp:pc.localDescription});
-});
-socket.on('rtc_signal',async d=>{
-  const from=d.from;
-  if(d.sdp&&d.sdp.type==='offer'){
-    const pc=new RTCPeerConnection(RTC);smPcs[from]=pc;
-    if(!smRecv[from])smRecv[from]={buf:[],meta:null,pseudo:from,avatar:''};
-    pc.onicecandidate=e=>{if(e.candidate)socket.emit('rtc_signal',{to:from,cand:e.candidate});};
-    pc.ondatachannel=e=>{const dc=e.channel;dc.binaryType='arraybuffer';
-      dc.onmessage=ev=>{const st=smRecv[from];
-        if(typeof ev.data==='string'){
-          if(ev.data==='EOF'){const blob=new Blob(st.buf,{type:(st.meta&&st.meta.mime)||'video/mp4'});
-            addMsg({pseudo:st.pseudo,avatar:st.avatar,text:'',_video:URL.createObjectURL(blob),_vname:st.meta&&st.meta.name,_vmime:st.meta&&st.meta.mime,ts:Date.now()/1000});
-            toast('📹 Vidéo reçue de '+st.pseudo);}
-          else{try{st.meta=JSON.parse(ev.data);}catch(_){}}
-        }else{st.buf.push(ev.data);}
-      };};
-    await pc.setRemoteDescription(d.sdp);
-    const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
-    socket.emit('rtc_signal',{to:from,sdp:pc.localDescription});
-  }else if(d.sdp&&d.sdp.type==='answer'){
-    if(smPcs[from])await smPcs[from].setRemoteDescription(d.sdp);
-  }else if(d.cand&&smPcs[from]){
-    try{await smPcs[from].addIceCandidate(d.cand);}catch(_){}
-  }
+  _mrec.start();
+  if(_mbtn)_mbtn.classList.add('rec');_recShow(true);
+  _mtimer=setInterval(()=>{const t=$('#recTime');if(t)t.textContent=_recFmt((Date.now()-_mstart)/1000);},200);
+}
+function stopVoice(cancel){
+  if(!_mactive&&!_mrec)return;
+  _mcancel=!!cancel;
+  if(_mtimer){clearInterval(_mtimer);_mtimer=null;}
+  if(_mbtn)_mbtn.classList.remove('rec');_recShow(false);
+  try{if(_mrec&&_mrec.state!=='inactive')_mrec.stop();}catch(_){_mactive=false;}
+}
+function bindMic(btn,pmPeerFn){
+  if(!btn)return;let sy=0,sx=0;
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();sy=e.clientY;sx=e.clientX;startVoice(btn,pmPeerFn?pmPeerFn():null);try{btn.setPointerCapture(e.pointerId);}catch(_){}} );
+  btn.addEventListener('pointermove',e=>{if(!_mactive)return;const dy=sy-e.clientY,dx=sx-e.clientX;const c=(dy>70||dx>90);const bar=$('#recbar');if(bar)bar.classList.toggle('cancel',c);});
+  btn.addEventListener('pointerup',e=>{if(!_mactive)return;const dy=sy-e.clientY,dx=sx-e.clientX;stopVoice(dy>70||dx>90);});
+  btn.addEventListener('pointercancel',()=>{if(_mactive)stopVoice(true);});
+}
+bindMic($('#btnVoice'),null);
+bindMic($('#pmMic'),()=>PMWITH);
+socket.on('pm_voice',d=>{
+  const other=(ME&&d.from===ME.pseudo)?d.to:d.from;
+  if($('#ovPm').classList.contains('on')&&PMWITH===other){pmRenderAudio(d.from,d.audio,d.dur);}
+  else if(d.from!==ME.pseudo){DMUNREAD[other]=(DMUNREAD[other]||0)+1;refreshDmBadge();notify('🎙️ Vocal privé de '+d.from);}
 });
 // ---- musique locale (salon Musique) ----
 $('#musPick').onclick=()=>$('#musFile').click();

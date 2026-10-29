@@ -419,6 +419,38 @@ def on_image(d):
                   "avatar": me.get("avatar", ""), "image": data, "ts": time.time()}, to=me["salon"])
 
 
+@socketio.on("voice")
+def on_voice(d):
+    """Message vocal : diffuse en direct au salon (ephemere, jamais en base)."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    data = d.get("data", "")
+    if not data:
+        return
+    if len(data) > 1700 * 1024:
+        emit("denied", {"raison": "Vocal trop long (garde-le court)."}); return
+    socketio.emit("voice", {"salon": me["salon"], "pseudo": me["pseudo"],
+                  "avatar": me.get("avatar", ""), "audio": data,
+                  "dur": float(d.get("dur", 0) or 0), "ts": time.time()}, to=me["salon"])
+
+
+@socketio.on("video")
+def on_video(d):
+    """Message video court : diffuse en direct au salon (ephemere, jamais en base)."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    data = d.get("data", "")
+    if not data:
+        return
+    if len(data) > 7 * 1024 * 1024:
+        emit("denied", {"raison": "Video trop lourde (garde-la courte)."}); return
+    socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
+                  "avatar": me.get("avatar", ""), "video": data,
+                  "name": (d.get("name") or "")[:80], "ts": time.time()}, to=me["salon"])
+
+
 @socketio.on("set_wallpaper")
 def on_set_wallpaper(d):
     """Un admin/owner definit le fond d'ecran du salon courant pour TOUS.
@@ -501,6 +533,25 @@ def on_pm(d):
     for s, info in list(SID.items()):
         if info["bid"] in (cible["browser_id"], me["bid"]):
             socketio.emit("pm", payload, to=s)
+
+
+@socketio.on("pm_voice")
+def on_pm_voice(d):
+    """Note vocale en message prive, relayee par le serveur (ephemere, pas de P2P, pas de base)."""
+    me = _me()
+    if not me:
+        return
+    cible = sql.get_by_pseudo(d.get("to", ""))
+    if not cible:
+        emit("pm_error", {"error": "Introuvable"}); return
+    data = d.get("data", "")
+    if not data or len(data) > 1700 * 1024:
+        emit("pm_error", {"error": "Vocal trop long"}); return
+    payload = {"from": me["pseudo"], "to": cible["pseudo"], "audio": data,
+               "dur": float(d.get("dur", 0) or 0), "ts": time.time()}
+    for s, info in list(SID.items()):
+        if info["bid"] in (cible["browser_id"], me["bid"]):
+            socketio.emit("pm_voice", payload, to=s)
 
 
 @socketio.on("user_info")

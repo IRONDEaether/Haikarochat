@@ -1,9 +1,0 @@
-# Python
-__pycache__/
-*.pyc
-
-# Secrets locaux (NE JAMAIS pousser sur GitHub)
-.env
-
-# Donnees locales (mode JSON dev)
-data/
