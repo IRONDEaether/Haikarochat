@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 socketio = SocketIO(app, async_mode=_ASYNC_MODE, cors_allowed_origins="*",
                     ping_timeout=25, ping_interval=15,
+                    max_http_buffer_size=12 * 1024 * 1024,
                     message_queue=(config.MESSAGE_QUEUE or None))
 
 sql = BotSQL()
@@ -444,7 +445,7 @@ def on_video(d):
     data = d.get("data", "")
     if not data:
         return
-    if len(data) > 7 * 1024 * 1024:
+    if len(data) > 9 * 1024 * 1024:
         emit("denied", {"raison": "Video trop lourde (garde-la courte)."}); return
     socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "video": data,
