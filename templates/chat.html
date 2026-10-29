@@ -894,7 +894,9 @@ $('#imgFile').onchange=e=>{
       const cv=document.createElement('canvas'); const mx=520; let w=img.width,h=img.height;
       if(w>mx){h=h*mx/w;w=mx;} cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      socket.emit('image',{data:cv.toDataURL('image/jpeg',.7)});
+      const _d=cv.toDataURL('image/jpeg',.7);
+      socket.emit('image',{data:_d});
+      addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',image:_d,ts:Date.now()/1000});
     }; img.src=r.result;
   }; r.readAsDataURL(f); e.target.value='';
 };
@@ -975,9 +977,9 @@ function pmRenderAudio(peer,src,dur){
 $('#btnVid').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
 $('#vidFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;e.target.value='';
-  if(f.size>6*1024*1024){toast('Vidéo trop lourde (6 Mo max)');return;}
   const r=new FileReader();
-  r.onload=()=>{socket.emit('video',{data:r.result,name:f.name});toast('📹 Vidéo envoyée');};
+  r.onload=()=>{socket.emit('video',{data:r.result,name:f.name});toast('📹 Vidéo envoyée');
+    addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_video:URL.createObjectURL(f),_vname:f.name,ts:Date.now()/1000});};
   r.readAsDataURL(f);
 };
 
@@ -1006,7 +1008,8 @@ async function startVoice(btn,pmPeer){
     const r=new FileReader();
     r.onload=()=>{
       if(pm)socket.emit('pm_voice',{to:pm,data:r.result,dur:dur});
-      else socket.emit('voice',{data:r.result,dur:dur});
+      else {socket.emit('voice',{data:r.result,dur:dur});
+        addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_audio:URL.createObjectURL(blob),_dur:dur,ts:Date.now()/1000});}
     };
     r.readAsDataURL(blob);
   };

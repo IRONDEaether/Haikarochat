@@ -27,7 +27,7 @@ app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 socketio = SocketIO(app, async_mode=_ASYNC_MODE, cors_allowed_origins="*",
                     ping_timeout=25, ping_interval=15,
-                    max_http_buffer_size=12 * 1024 * 1024,
+                    max_http_buffer_size=200 * 1024 * 1024,
                     message_queue=(config.MESSAGE_QUEUE or None))
 
 sql = BotSQL()
@@ -414,10 +414,12 @@ def on_image(d):
     if not me or not me["salon"]:
         return
     data = d.get("data", "")
-    if len(data) > 300 * 1024:
-        emit("denied", {"raison": "Trop lourd -> P2P"}); return
+    if not data:
+        return
+    # pas de limite : on diffuse aux AUTRES, l'expediteur l'affiche en local
     socketio.emit("image", {"salon": me["salon"], "pseudo": me["pseudo"],
-                  "avatar": me.get("avatar", ""), "image": data, "ts": time.time()}, to=me["salon"])
+                  "avatar": me.get("avatar", ""), "image": data, "ts": time.time()},
+                  to=me["salon"], include_self=False)
 
 
 @socketio.on("voice")
@@ -429,11 +431,10 @@ def on_voice(d):
     data = d.get("data", "")
     if not data:
         return
-    if len(data) > 1700 * 1024:
-        emit("denied", {"raison": "Vocal trop long (garde-le court)."}); return
     socketio.emit("voice", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "audio": data,
-                  "dur": float(d.get("dur", 0) or 0), "ts": time.time()}, to=me["salon"])
+                  "dur": float(d.get("dur", 0) or 0), "ts": time.time()},
+                  to=me["salon"], include_self=False)
 
 
 @socketio.on("video")
@@ -445,11 +446,10 @@ def on_video(d):
     data = d.get("data", "")
     if not data:
         return
-    if len(data) > 9 * 1024 * 1024:
-        emit("denied", {"raison": "Video trop lourde (garde-la courte)."}); return
     socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "video": data,
-                  "name": (d.get("name") or "")[:80], "ts": time.time()}, to=me["salon"])
+                  "name": (d.get("name") or "")[:80], "ts": time.time()},
+                  to=me["salon"], include_self=False)
 
 
 @socketio.on("set_wallpaper")
@@ -546,8 +546,8 @@ def on_pm_voice(d):
     if not cible:
         emit("pm_error", {"error": "Introuvable"}); return
     data = d.get("data", "")
-    if not data or len(data) > 1700 * 1024:
-        emit("pm_error", {"error": "Vocal trop long"}); return
+    if not data:
+        emit("pm_error", {"error": "Vocal vide"}); return
     payload = {"from": me["pseudo"], "to": cible["pseudo"], "audio": data,
                "dur": float(d.get("dur", 0) or 0), "ts": time.time()}
     for s, info in list(SID.items()):
