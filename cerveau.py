@@ -109,11 +109,14 @@ def _salons_for(user):
 
 
 def _online(salon):
-    """Liste des membres d'un salon : bots (toujours) + humains connectes."""
+    """Liste des membres d'un salon : bots (toujours) + humains connectes.
+    Dedoublonnage par browser_id pour eviter les fantomes de reconnexion."""
     membres = [{"pseudo": b["nom"], "role": "bot", "icone": b["icone"],
                 "desc": b["desc"], "avatar": ""} for b in config.BOTS]
+    seen = set()
     for info in SID.values():
-        if info.get("salon") == salon:
+        if info.get("salon") == salon and info.get("bid") not in seen:
+            seen.add(info.get("bid"))
             membres.append({"pseudo": info["pseudo"], "role": info["role"],
                             "avatar": info.get("avatar", ""), "desc": info.get("desc", "")})
     return membres
@@ -295,8 +298,24 @@ def on_auth(d):
         emit("app_full", {"max": config.APP_CAPACITY,
              "text": "L'appli est pleine (%d personnes en ligne). Reessaie plus tard." % config.APP_CAPACITY})
         return
+    # --- Anti-doublon : purge les anciennes sessions du MEME utilisateur ---
+    #     (sur iOS/mobile, une reconnexion cree un nouveau sid avant que
+    #      l'ancien 'disconnect' n'arrive -> sinon on apparait en double).
+    stale = [s for s, info in SID.items() if info.get("bid") == bid and s != request.sid]
+    stale_salons = set()
+    for s in stale:
+        old = SID.pop(s, None)
+        FLOOD.pop(s, None)
+        if old and old.get("salon"):
+            stale_salons.add(old["salon"])
+        try:
+            socketio.server.disconnect(s)
+        except Exception:
+            pass
     SID[request.sid] = {"bid": bid, "pseudo": user["pseudo"], "role": user.get("role", "user"),
                         "salon": None, "avatar": d.get("avatar", "")}
+    for sal in stale_salons:
+        _push_online(sal)
     try:
         sql.update_user(bid, {"last_seen": time.time()})
     except Exception:
