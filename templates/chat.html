@@ -197,6 +197,8 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
 @keyframes spin{to{transform:rotate(360deg)}}
 /* --- mention @quelqu'un --- */
 .mention{color:var(--cy);font-weight:700;background:rgba(0,240,255,.12);border-radius:6px;padding:0 4px}
+.preslog{align-self:center;margin:4px auto;padding:3px 12px;border-radius:999px;background:var(--pan2);border:1px solid var(--bd);color:var(--mut);font-size:.72rem;max-width:90%;text-align:center;opacity:.9}
+.preslog.in{color:var(--cy)}.preslog.out{color:var(--mg)}
 .msg.me-mention .bd{border-color:var(--mg);box-shadow:0 0 14px rgba(255,44,224,.35)}
 /* ===== v1.2.0 LIQUID / EAU ===== */
 body{background:linear-gradient(160deg,#04121a,#06202e,#072b3a,#041a26);background-size:300% 300%;animation:bgflow 42s ease infinite}
@@ -336,12 +338,12 @@ body.halloween .fog{display:block}
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.4.1</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.4.2</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v1.4.1">HINATACHAT</span>
+    <span class="logo" title="HINATACHAT v1.4.2">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -708,7 +710,18 @@ socket.on('history',d=>{
   saveCache(d.salon,merged);
   renderCache(d.salon);
 });
-socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text))chime();}});
+socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text)){chime();if(document.hidden){notify('💬 '+d.pseudo+' : '+String(d.text||'').slice(0,60),true);try{if('Notification'in window&&Notification.permission==='granted')new Notification('HINATACHAT — '+d.pseudo,{body:String(d.text||'').slice(0,80)});}catch(_){}}}}});
+socket.on('presence',d=>{
+  if(d.salon!==SALON)return;
+  const me=ME&&d.pseudo===ME.pseudo;
+  const box=$('#msgs');if(!box)return;
+  const join=d.event==='join';
+  const line=el('div','preslog '+(join?'in':'out'));
+  if(me)line.textContent=(join?'✅ Tu es entré dans le salon':'🚪 Tu as quitté le salon');
+  else line.textContent=(join?('👋 '+d.pseudo+' a rejoint le salon'):('🚪 '+d.pseudo+' a quitté le salon'));
+  box.appendChild(line);scrollMsgs(true);
+  if(!me)softTick();
+});
 socket.on('system',d=>{/* bots masqués : on n'affiche plus les messages des robots dans le chat */});
 socket.on('image',d=>{if(d.salon===SALON){addMsg(d);cachePush(d.salon,d);}});
 socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
@@ -843,6 +856,11 @@ function notify(txt,silent){
   NOTIFN++; const b=$('#notifBadge'); b.textContent=NOTIFN; b.style.display='';
   if(!silent)beep();
 }
+function softTick(){const c=audioCtx();if(!c)return;try{
+  const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+  o.type='triangle';o.frequency.value=660;const t0=c.currentTime;
+  g.gain.setValueAtTime(.05,t0);g.gain.exponentialRampToValueAtTime(.001,t0+.14);o.start(t0);o.stop(t0+.15);
+}catch(_){}}
 /* ---- mentions @quelqu'un : detection, rendu, son dedie, notif systeme ---- */
 function mentionsMe(t){if(!ME||!ME.pseudo)return false;return String(t||'').toLowerCase().includes('@'+ME.pseudo.toLowerCase());}
 function renderText(t){return esc(t).replace(/@([^\s@]{2,24})/gu,'<span class="mention">@$1</span>');}

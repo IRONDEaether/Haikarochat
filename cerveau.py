@@ -127,6 +127,31 @@ def _push_online(salon):
     socketio.emit("online", {"salon": salon, "membres": m, "count": len(m)}, to=salon)
 
 
+# presence join/leave : anti-spam par (bid, salon)
+PRES_LAST = {}
+
+
+def _bid_in_salon(bid, salon, skip_sid=None):
+    """Nombre de sessions (sid) du meme utilisateur presentes dans le salon."""
+    return sum(1 for s, info in SID.items()
+               if info.get("salon") == salon and info.get("bid") == bid and s != skip_sid)
+
+
+def _presence(salon, pseudo, kind, bid=None):
+    """Annonce 'X a rejoint / quitte le salon' aux membres, avec anti-spam."""
+    if not salon:
+        return
+    if bid is not None:
+        key = (bid, salon)
+        now = time.time()
+        prev = PRES_LAST.get(key)
+        if prev and prev[0] == kind and now - prev[1] < 15:
+            return
+        PRES_LAST[key] = (kind, now)
+    socketio.emit("presence", {"salon": salon, "pseudo": pseudo,
+                  "event": kind, "ts": time.time()}, to=salon)
+
+
 def _check_saturation():
     """Le Bot Relais n'active la bascule 2e serveur QUE si l'instance est saturee."""
     if len(SID) >= config.MAX_CLIENTS:
@@ -351,11 +376,16 @@ def on_join(d):
         emit("denied", {"raison": "Reserve ta place d'abord (Salle Privee)."}); return
     if me["salon"] and me["salon"] != salon:
         leave_room(me["salon"]); old = me["salon"]; me["salon"] = None; _push_online(old)
+        if _bid_in_salon(me["bid"], old) == 0:
+            _presence(old, me["pseudo"], "leave", bid=me["bid"])
+    already = _bid_in_salon(me["bid"], salon, skip_sid=request.sid) > 0
     join_room(salon)
     me["salon"] = salon
     emit("history", {"salon": salon, "messages": sql.history(salon)})
     squad.bienvenue(salon, user)
     _push_online(salon)
+    if not already:
+        _presence(salon, me["pseudo"], "join", bid=me["bid"])
     if me.get("avatar"):
         socketio.emit("avatar", {"pseudo": me["pseudo"], "avatar": me["avatar"]}, to=salon)
 
@@ -366,6 +396,8 @@ def on_leave(d=None):
     if not me or not me["salon"]:
         return
     s = me["salon"]; leave_room(s); me["salon"] = None; _push_online(s)
+    if _bid_in_salon(me["bid"], s) == 0:
+        _presence(s, me["pseudo"], "leave", bid=me["bid"])
 
 
 @socketio.on("typing")
@@ -865,6 +897,8 @@ def on_disc():
             pass
         if me["salon"]:
             _push_online(me["salon"])
+            if _bid_in_salon(me["bid"], me["salon"]) == 0:
+                _presence(me["salon"], me["pseudo"], "leave", bid=me["bid"])
 
 
 if __name__ == "__main__":
