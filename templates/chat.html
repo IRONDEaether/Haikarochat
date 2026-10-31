@@ -271,25 +271,51 @@ body{background:linear-gradient(160deg,#04121a,#06202e,#072b3a,#041a26);backgrou
 .wpbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .wpbar button{padding:9px 14px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;background:var(--pan2);color:var(--tx);font-weight:700;font-size:.82rem}
 .wpbar button:hover{border-color:var(--cy)}
-/* ===== HINATACHAT WHAOU : ultra-glass + ecriture flottante ===== */
-:root{--cy:#6ef0ff;--mg:#b48bff;--vi:#ff7be5;--glass:rgba(255,255,255,.05);--glassbd:rgba(255,255,255,.14)}
-body{background:linear-gradient(140deg,#060a1f,#0a1430,#140a2e,#07132c,#061427);background-size:400% 400%;animation:bgflow 36s ease infinite}
-.liquid{opacity:.6;filter:blur(54px) saturate(165%)}
-.liquid i:nth-child(1){background:radial-gradient(circle at 30% 30%,#5ad8ff,transparent 60%)}
-.liquid i:nth-child(2){background:radial-gradient(circle at 60% 40%,#b06bff,transparent 62%)}
-.liquid i:nth-child(3){background:radial-gradient(circle at 50% 50%,#ff6fd8,transparent 60%)}
-.liquid::after{content:"";position:absolute;width:42vmax;height:42vmax;right:8%;bottom:-18%;border-radius:50%;background:radial-gradient(circle at 50% 50%,#3affd0,transparent 62%);mix-blend-mode:screen;animation:blob 30s ease-in-out infinite reverse}
+/* ===== HINATACHAT v1.5 — AURORA POP (design neuf, non-glass) ===== */
+:root{--cy:#2ff3c4;--mg:#8b5cff;--vi:#ff5ca8;--bg:#0b0a1e;--pan:#161233;--pan2:#1f1a47;--bd:#352c67;--tx:#f3efff;--mut:#a79edb;--gold:#ffd166;--glass:#161233;--glassbd:#352c67}
+body{background:linear-gradient(135deg,#140a2e,#1a0f3f,#24124f,#140a2e);background-size:300% 300%;animation:bgflow 34s ease infinite}
+.liquid{opacity:.55;filter:blur(60px) saturate(175%)}
+.liquid i:nth-child(1){background:radial-gradient(circle at 30% 30%,#8b5cff,transparent 60%)}
+.liquid i:nth-child(2){background:radial-gradient(circle at 60% 40%,#ff5ca8,transparent 62%)}
+.liquid i:nth-child(3){background:radial-gradient(circle at 50% 50%,#2ff3c4,transparent 60%)}
+.liquid::after{content:"";position:absolute;width:40vmax;height:40vmax;right:6%;bottom:-16%;border-radius:50%;background:radial-gradient(circle at 50% 50%,#6a3bff,transparent 62%);mix-blend-mode:screen;animation:blob 30s ease-in-out infinite reverse}
 .app,.main{background:transparent}
-.top,.side,.right,.head,.compose,.modal,.musicpanel .card{background:var(--glass)!important;border-color:var(--glassbd)!important;backdrop-filter:blur(26px) saturate(185%);-webkit-backdrop-filter:blur(26px) saturate(185%)}
-.head{border-bottom:1px solid var(--glassbd)!important}
-.msg .bd{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 6px 24px rgba(0,0,0,.18)}
-.msg:hover .bd{border-color:rgba(110,240,255,.55)!important;box-shadow:0 10px 30px rgba(110,240,255,.2)}
-.icobtn{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.icobtn:hover{box-shadow:0 0 18px rgba(110,240,255,.5);border-color:var(--cy)!important}
-.compose input[type=text],.compose textarea#input{background:rgba(255,255,255,.05)!important;border:1px solid var(--glassbd)!important;backdrop-filter:blur(10px)}
-.coins{background:rgba(255,255,255,.06)!important;border:1px solid var(--glassbd)!important}
-.salon:hover,.u:hover,.dmconv{background:rgba(255,255,255,.05)!important}
-.salon.on{background:linear-gradient(90deg,rgba(110,240,255,.18),rgba(180,139,255,.14))!important}
+/* panneaux SOLIDES (plus de verre depoli facon iOS) */
+.top,.side,.right,.head,.compose,.musicpanel .card,.modal{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.top{background:linear-gradient(180deg,#1b1540,#15112f)!important;border-bottom:1px solid var(--bd)!important;box-shadow:0 2px 18px rgba(0,0,0,.35)}
+.side,.right{background:linear-gradient(180deg,#171235,#120f2a)!important;border-color:var(--bd)!important}
+.head{background:linear-gradient(90deg,#1c1642,#171236)!important;border-bottom:1px solid var(--bd)!important}
+.compose{background:linear-gradient(0deg,#1b1540,#15112f)!important;border-top:1px solid var(--bd)!important}
+.modal{background:linear-gradient(160deg,#1d1748,#15112f)!important;border:1px solid var(--bd)!important;box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(139,92,255,.12)}
+.musicpanel .card{background:linear-gradient(160deg,#1f1a4a,#17122f)!important;border:1px solid var(--bd)!important}
+.msg .bd{background:linear-gradient(160deg,#241d53,#1a1540)!important;border:1px solid var(--bd)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.msg:hover .bd{border-color:var(--mg)!important;box-shadow:0 8px 26px rgba(139,92,255,.28)}
+.msg .who{color:var(--cy)!important}
+.icobtn{background:#201a49!important;border:1px solid var(--bd)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.icobtn:hover{box-shadow:0 0 16px rgba(139,92,255,.55);border-color:var(--mg)!important;transform:translateY(-1px)}
+.compose input[type=text],.compose textarea#input{background:#211b4d!important;border:1px solid var(--bd)!important;backdrop-filter:none!important}
+.compose input:focus,.compose textarea#input:focus{border-color:var(--mg)!important;box-shadow:0 0 0 3px rgba(139,92,255,.22)!important}
+.compose button#send{background:linear-gradient(135deg,var(--vi),var(--mg))!important;color:#fff!important;box-shadow:0 6px 22px rgba(255,92,168,.5)}
+.coins{background:#201a49!important;border:1px solid var(--bd)!important;color:var(--gold)!important}
+.salon:hover,.u:hover{background:#201a49!important}
+.salon.on{background:linear-gradient(90deg,rgba(139,92,255,.3),rgba(255,92,168,.18))!important;border:1px solid var(--mg)!important;box-shadow:0 0 18px rgba(139,92,255,.3) inset}
+.quickjoin button,.spec .chip.sp{background:linear-gradient(90deg,var(--mg),var(--vi))!important;color:#fff!important}
+.dmconv{background:#1c1744!important;border:1px solid var(--bd)!important}
+.dmconv:hover{border-color:var(--mg)!important;box-shadow:0 0 14px rgba(139,92,255,.3)}
+/* pastille reseau + badge premium + numero perso */
+#netpill{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;letter-spacing:.2px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .4s,transform .4s;pointer-events:none}
+#netpill.on{background:linear-gradient(90deg,#1bc47d,#2ff3c4);color:#06241a}
+#netpill.wait{background:linear-gradient(90deg,var(--mg),var(--vi))}
+#netpill.off{background:linear-gradient(90deg,#ff5c6e,#ff8a5c)}
+#netpill.gone{opacity:0;transform:translateX(-50%) translateY(10px)}
+.prembadge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;color:#2a1c00;background:linear-gradient(90deg,#ffd166,#ffb01f);box-shadow:0 2px 10px rgba(255,180,30,.5);vertical-align:middle}
+.msg.prem .bd{border-color:var(--gold)!important;box-shadow:0 0 0 1px rgba(255,209,102,.35),0 8px 26px rgba(255,180,30,.22)!important}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.msg.prem .who{background:linear-gradient(90deg,var(--gold),#fff,var(--gold));background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+.codebox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;font-weight:800;letter-spacing:4px;color:var(--cy);background:#120f2a;border:1px dashed var(--mg);border-radius:12px;padding:12px;text-align:center;user-select:all}
+.codeinput{font-family:ui-monospace,monospace;letter-spacing:6px;text-align:center;font-size:20px;font-weight:800}
+.confetti{position:fixed;top:-12px;width:10px;height:14px;border-radius:2px;z-index:10000;pointer-events:none;animation:confall 2.2s ease-in forwards}
+@keyframes confall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(102vh) rotate(540deg);opacity:0}}
 /* ecriture qui flotte */
 .logo{background:linear-gradient(90deg,var(--cy),var(--mg),var(--vi),var(--cy));background-size:280% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:logoglow 6s ease-in-out infinite,floaty 7s ease-in-out infinite,shine 9s linear infinite}
 @keyframes shine{to{background-position:280% center}}
@@ -338,12 +364,12 @@ body.halloween .fog{display:block}
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.4.2</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.5.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v1.4.2">HINATACHAT</span>
+    <span class="logo" title="HINATACHAT v1.5.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -430,12 +456,22 @@ body.halloween .fog{display:block}
 <div class="ov" id="ovShop"><div class="modal">
   <span class="x" data-close>×</span><h2>🛒 Boutique de titres</h2>
   <p style="color:var(--mut);font-size:.85rem">Gagne des 🪙 en discutant, puis affiche ton titre.</p>
+  <div id="premCard" style="margin:4px 0 14px;padding:14px;border-radius:14px;background:linear-gradient(135deg,#2a2150,#3a2a1a);border:1px solid var(--gold)">
+    <div style="font-weight:800;color:var(--gold);font-size:1.05rem">⭐ HINATACHAT Premium</div>
+    <div style="color:var(--mut);font-size:.82rem;margin:6px 0 10px">Pseudo doré animé, badge Premium sur tes messages, cadre lumineux et effet « waouh » sur chaque envoi.</div>
+    <button id="buyPrem" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;font-weight:800;color:#2a1c00;background:linear-gradient(90deg,#ffd166,#ffb01f)">Activer Premium — 🪙 500</button>
+  </div>
   <div id="shopList"></div>
 </div></div>
 <div class="ov" id="ovProfile"><div class="modal">
   <span class="x" data-close>×</span><h2>👤 Mon profil</h2>
   <div class="pf"><img id="pfAv" alt=""><div><b id="pfName"></b><div style="color:var(--mut);font-size:.82rem" id="pfRole"></div>
     <div style="color:#ffd76b;font-size:.82rem" id="pfLvl"></div></div></div>
+  <div class="field"><label>📱 Mon numéro perso (donne-le pour recevoir des messages privés)</label>
+    <div class="codebox" id="pfCode">—</div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="pfCodeCopy" style="flex:1;padding:9px 14px;border:none;border-radius:9px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">📋 Copier mon numéro</button>
+      <button id="pfOpenCode" style="flex:1;padding:9px 14px;border:none;border-radius:9px;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--vi),var(--mg))">✉️ Écrire à un numéro</button></div></div>
   <div class="field"><label>Changer ma photo (P2P, jamais stockée)</label><input type="file" id="pfPhoto" accept="image/*"></div>
   <div class="field"><label>Changer mon pseudo</label>
     <div style="display:flex;gap:8px"><input type="text" id="pfPseudo" maxlength="24" placeholder="Nouveau pseudo" style="flex:1">
@@ -456,7 +492,7 @@ body.halloween .fog{display:block}
   <button id="uMention" style="width:100%;margin-top:8px;padding:11px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;font-weight:700;color:var(--tx);background:var(--pan2)">@ Mentionner dans le salon</button>
 </div></div>
 <div class="ov" id="ovPm"><div class="modal">
-  <span class="x" data-close>×</span><h2 id="pmTitle">Message privé</h2>
+  <span class="x" data-close>×</span><h2 id="pmTitle" style="display:flex;align-items:center;gap:8px;justify-content:space-between"><span id="pmTitleTxt">Message privé</span><button class="icobtn ghost" id="pmBlock" title="Bloquer cette personne" style="font-size:13px;padding:4px 10px">🚫 Bloquer</button></h2>
   <div class="msgs" id="pmMsgs" style="height:260px;padding:8px 0"></div>
   <div style="display:flex;gap:8px"><button class="icobtn ghost" id="pmMic" title="Message vocal privé (maintenir)">🎙️</button>
     <input type="text" id="pmInput" placeholder="Ton message…"
@@ -494,6 +530,13 @@ body.halloween .fog{display:block}
   <p style="color:var(--mut);font-size:.85rem">Tes conversations privées (gardées sur cet appareil).</p>
   <div id="dmList"></div>
 </div></div>
+<div class="ov" id="ovCode"><div class="modal">
+  <span class="x" data-close>×</span><h2>✉️ Écrire à un numéro perso</h2>
+  <p style="color:var(--mut);font-size:.85rem">Saisis le numéro à 8 chiffres qu'on t'a donné pour ouvrir une conversation privée.</p>
+  <div class="field"><input type="text" id="codeInput" class="codeinput" inputmode="numeric" maxlength="10" placeholder="••••••••" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)"></div>
+  <div class="hint" id="codeHint" style="font-size:.78rem;color:var(--mut);min-height:16px"></div>
+  <button id="codeGo" style="margin-top:10px;width:100%;padding:12px;border:none;border-radius:11px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(90deg,var(--vi),var(--mg))">Ouvrir la conversation</button>
+</div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -518,11 +561,30 @@ function bootMsg(t){const s=$('#bootSt');if(s)s.textContent=t;}
 socket.on('connect',()=>{bootMsg('Authentification\u2026');socket.emit('auth',{browser_id:BID,signature:SIG,avatar:AVATAR});});
 socket.on('connect_error',()=>bootMsg('Reconnexion en cours\u2026'));
 socket.io.on('reconnect_attempt',()=>bootMsg('Reconnexion en cours\u2026'));
-socket.on('disconnect',()=>{if(ME)toast('\u26a0 Connexion perdue, reconnexion\u2026');});
+socket.on('disconnect',()=>{if(ME)setNet('off');});
+socket.on('connect',()=>{if(ME)setNet('on');});
+socket.io.on('reconnect',()=>{if(ME)setNet('on');});
+socket.io.on('reconnect_attempt',()=>{if(ME)setNet('wait');});
+// --- Connexion persistante: ne coupe plus brutalement (lock ecran / onglet arriere-plan / APK) ---
+function _wake(){try{if(socket&&socket.connected===false)socket.connect();}catch(_){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)_wake();});
+window.addEventListener('pageshow',_wake);
+window.addEventListener('focus',_wake);
+window.addEventListener('online',()=>{if(ME)setNet('wait');_wake();});
+window.addEventListener('offline',()=>{if(ME)setNet('off');});
+let _netEl=null,_netHideTmr=null;
+function setNet(state){
+  if(!_netEl){_netEl=document.createElement('div');_netEl.id='netpill';document.body.appendChild(_netEl);}
+  clearTimeout(_netHideTmr);
+  if(state==='on'){_netEl.className='net on';_netEl.textContent='\u2713 Connect\u00e9';_netHideTmr=setTimeout(()=>{if(_netEl)_netEl.classList.add('gone');},1600);}
+  else if(state==='wait'){_netEl.className='net wait';_netEl.textContent='\u21bb Reconnexion\u2026';}
+  else{_netEl.className='net off';_netEl.textContent='\u26a0 Hors ligne \u2014 reconnexion auto\u2026';}
+}
 socket.on('auth_error',d=>{toast(d.error||'Erreur');setTimeout(()=>location.href='/register',1500);});
 socket.on('app_full',d=>{const b=$('#boot');if(b)b.classList.remove('hide');bootMsg(d.text||'L\u2019appli est pleine. R\u00e9essaie plus tard.');const s=$('#bootSt');if(s){s.style.color='#ff6b9d';s.style.fontWeight='700';}});
 socket.on('auth_ok',d=>{
   ME=d.user; SALONS=d.salons; window.TITRES=d.titres||[];
+  window.MON_CODE=d.mon_code||'';
   SETTINGS=d.settings||{}; ANNONCES=d.annonces||[]; SECRETS=d.secrets||[];
   RESA=d.reservations||{};
   RESAMINE=new Set(Object.keys(RESA).filter(k=>(RESA[k].membres||[]).includes(ME.pseudo)));
@@ -610,11 +672,12 @@ function addMsg(m){
   const box=$('#msgs'); const stick=nearBottom(box);
   const mine=m.pseudo===ME.pseudo;
   const ment=!mine&&mentionsMe(m.text);
-  const row=el('div','msg'+(ment?' me-mention':''));
+  const row=el('div','msg'+(ment?' me-mention':'')+(m.premium?' prem':''));
   row.appendChild(avatarNode(m.pseudo,m.avatar));
   const bd=el('div','bd');
   const ti=m.titre?`<span class="ti">${esc(m.titre)}</span>`:'';
-  bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}</div><div class="tx">${renderText(m.text)}</div>`;
+  const pb=m.premium?' <span class="prembadge">⭐ PREMIUM</span>':'';
+  bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}${pb}</div><div class="tx">${renderText(m.text)}</div>`;
   const mid=(m.pseudo||'')+'|'+(m.ts||'');
   bd.dataset.mid=mid;
   if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.onload=()=>scrollMsgs(stick||mine);bd.appendChild(im);}
@@ -1150,14 +1213,23 @@ $('#btnShop').onclick=()=>{
   });
   $('#ovShop').classList.add('on');
 };
+$('#buyPrem').onclick=()=>{if(ME&&ME.premium){toast('⭐ Tu es déjà Premium !');return;}socket.emit('buy_premium',{});};
+socket.on('premium_ok',d=>{ME=d.user||ME;if(ME)ME.premium=true;$('#coins').textContent=(ME&&ME.points)||0;toast('⭐ Premium activé ! Profite des effets waouh ✨');confettiBurst(28);$('#ovShop').classList.remove('on');});
+socket.on('economy',d=>{if(d&&d.points!=null){if(ME)ME.points=d.points;$('#coins').textContent=d.points;}});
+function confettiBurst(n){const cols=['#ffd166','#ff5ca8','#8b5cff','#2ff3c4','#fff'];for(let i=0;i<(n||24);i++){const c=document.createElement('i');c.className='confetti';c.style.left=(10+Math.random()*80)+'vw';c.style.background=cols[i%cols.length];c.style.animationDelay=(Math.random()*.4)+'s';c.style.transform='rotate('+(Math.random()*360)+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),2400);}}
 $('#btnProfile').onclick=()=>{
   $('#pfName').textContent=ME.pseudo;
   $('#pfPseudo').placeholder=ME.pseudo;
   $('#pfRole').textContent='Rôle : '+(ME.role||'user');
   $('#pfLvl').textContent='Niveau '+(ME.level||1)+' — 🪙 '+(ME.points||0);
   $('#pfAv').src=AVATAR||''; if(!AVATAR)$('#pfAv').removeAttribute('src');
+  $('#pfCode').textContent=window.MON_CODE||'—';
   $('#ovProfile').classList.add('on');
 };
+$('#pfCodeCopy').onclick=()=>{const c=(window.MON_CODE||'').replace(/\s/g,'');if(!c)return;navigator.clipboard&&navigator.clipboard.writeText(c);toast('📋 Numéro copié : '+(window.MON_CODE||''));};
+$('#pfOpenCode').onclick=()=>{$('#ovProfile').classList.remove('on');$('#codeInput').value='';const h=$('#codeHint');if(h){h.textContent='';h.style.color='var(--mut)';}$('#ovCode').classList.add('on');$('#codeInput').focus();};
+$('#codeGo').onclick=()=>{const c=($('#codeInput').value||'').replace(/\D/g,'');const h=$('#codeHint');if(c.length<8){if(h){h.textContent='Un numéro fait 8 chiffres.';h.style.color='#ff6b9d';}return;}if(h){h.textContent='Recherche…';h.style.color='var(--mut)';}socket.emit('pm_resolve',{code:c});};
+$('#codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#codeGo').click();});
 $('#pfPhoto').onchange=e=>{
   const f=e.target.files[0]; if(!f)return; const r=new FileReader();
   r.onload=()=>{const img=new Image();img.onload=()=>{
@@ -1200,17 +1272,25 @@ socket.on('user_info',u=>{
 });
 
 // ---- messages privés ----
-function openPm(pseudo){PMWITH=pseudo;$('#pmTitle').textContent='✉️ '+pseudo;$('#pmMsgs').innerHTML='';
+function openPm(pseudo){PMWITH=pseudo;$('#pmTitleTxt').textContent='✉️ '+pseudo;$('#pmMsgs').innerHTML='';
+  const x=$('#pmXfer');if(x)x.textContent='';
   dmLoad(pseudo).forEach(m=>{if(m.text)pmRender(m.from,m.text);});
   DMUNREAD[pseudo]=0;refreshDmBadge();
   $('#ovPm').classList.add('on');$('#pmInput').focus();}
+$('#pmBlock').onclick=()=>{if(!PMWITH)return;if(!confirm('Bloquer '+PMWITH+' ? Vous ne pourrez plus vous \u00e9crire.'))return;socket.emit('pm_block',{pseudo:PMWITH});};
+socket.on('pm_block_ok',d=>{if(d.blocked){toast('\ud83d\udeab '+(d.pseudo||'')+' bloqu\u00e9');if(PMWITH===d.pseudo)$('#ovPm').classList.remove('on');}else{toast('\u2713 '+(d.pseudo||'')+' d\u00e9bloqu\u00e9');}});
+// numero perso : resolution d'un code -> ouverture de la conv
+socket.on('pm_opened',d=>{if(d&&d.pseudo){const ov=$('#ovCode');if(ov)ov.classList.remove('on');openPm(d.pseudo);if(d.online===false)toast('\u2709\ufe0f '+d.pseudo+' est hors ligne \u2014 ton message sera livr\u00e9 \u00e0 son retour');}});
+socket.on('pm_error',d=>{const ov=$('#ovCode');if(ov&&ov.classList.contains('on')){const h=$('#codeHint');if(h){h.textContent=(d&&d.error)||'Num\u00e9ro introuvable';h.style.color='#ff6b9d';}}else{toast((d&&d.error)||'Erreur');}});
+socket.on('pm_queued',d=>{const x=$('#pmXfer');if(x&&PMWITH===d.to){x.textContent='\u23f3 '+d.to+' est hors ligne \u2014 message en attente, livr\u00e9 \u00e0 son retour.';x.style.color='var(--gold)';}toast('\u23f3 Message en attente (destinataire hors ligne)');});
+socket.on('pm_delivered',d=>{if(d&&d.count)toast('\u2709\ufe0f '+d.count+' message(s) priv\u00e9(s) re\u00e7u(s) pendant ton absence');});
 $('#pmSend').onclick=()=>{const t=$('#pmInput').value.trim();if(!t||!PMWITH)return;socket.emit('pm',{to:PMWITH,text:t});$('#pmInput').value='';};
 $('#pmInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pmSend').click();});
 socket.on('pm',d=>{
   const other=d.from===ME.pseudo?d.to:d.from;
   dmPush(other,{from:d.from,text:d.text,ts:d.ts||Date.now()/1000});
   const open=$('#ovPm').classList.contains('on')&&PMWITH===other;
-  if(open){pmRender(d.from,d.text);}
+  if(open){pmRender(d.from,d.text);if(d.offline){const x=$('#pmXfer');if(x){x.textContent='\u2709\ufe0f re\u00e7u pendant ton absence';x.style.color='var(--cy)';}}}
   else if(d.from!==ME.pseudo){DMUNREAD[other]=(DMUNREAD[other]||0)+1;refreshDmBadge();
     notify('✉️ MP de '+d.from+' : '+(d.text||'').slice(0,50));}
 });

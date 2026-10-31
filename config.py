@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.4.2"
+VERSION = "1.5.0"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -71,12 +71,12 @@ PREMIUM_LEVEL = 10
 # --- Charge / bascule 2e serveur ---
 # Au-dela de MAX_CLIENTS sur une instance, /health se declare "sature" et le
 # Bot Relais annonce la bascule ; les clients basculent sur BACKUP_URL si defini.
-MAX_CLIENTS = int(_env("MAX_CLIENTS", "200"))
+MAX_CLIENTS = int(_env("MAX_CLIENTS", "600"))
 BACKUP_URL = _env("BACKUP_URL", "")   # ex: https://s2.hikarochat.app
 
 # --- Capacite GLOBALE de l'appli (limite dure d'utilisateurs simultanes) ---
 # Au-dela, toute nouvelle connexion est refusee ("reessaie plus tard").
-APP_CAPACITY = int(_env("APP_CAPACITY", "100"))
+APP_CAPACITY = int(_env("APP_CAPACITY", "500"))
 
 # --- Economie annonces / salle annonce / casino / cinema ---
 ANNONCE_PRIX = int(_env("ANNONCE_PRIX", "150"))      # points pour poster une annonce

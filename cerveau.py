@@ -26,7 +26,7 @@ from bots.squad import Squad
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 socketio = SocketIO(app, async_mode=_ASYNC_MODE, cors_allowed_origins="*",
-                    ping_timeout=25, ping_interval=15,
+                    ping_timeout=60, ping_interval=25,
                     max_http_buffer_size=200 * 1024 * 1024,
                     message_queue=(config.MESSAGE_QUEUE or None))
 
@@ -90,6 +90,30 @@ def _rating_stats():
 
 def _sig(bid):
     return hashlib.sha256((bid + config.SECRET_KEY).encode()).hexdigest()
+
+
+def _user_code(bid):
+    """Numero perso stable (8 chiffres) derive du browser_id.
+    A distribuer aux autres pour ouvrir une discussion privee."""
+    h = hashlib.sha256(("code:" + bid + config.SECRET_KEY).encode()).hexdigest()
+    n = int(h[:12], 16) % 100000000
+    return "%08d" % n
+
+
+def _fmt_code(code):
+    c = "".join(ch for ch in str(code) if ch.isdigit())
+    return c[:4] + "-" + c[4:] if len(c) == 8 else c
+
+
+def _find_by_code(code):
+    """Retrouve l'utilisateur dont le numero perso correspond."""
+    want = "".join(ch for ch in str(code) if ch.isdigit())
+    if len(want) != 8:
+        return None
+    for u in sql.list_users():
+        if _user_code(u["browser_id"]) == want:
+            return u
+    return None
 
 
 def _salons_for(user):
@@ -346,6 +370,7 @@ def on_auth(d):
     except Exception:
         pass
     emit("auth_ok", {"user": user, "salons": _salons_for(user),
+                     "mon_code": _fmt_code(_user_code(bid)),
                      "titres": config.TITRES, "bots": config.BOTS,
                      "annonces": sql.list_annonces(), "secrets": _secrets_pub(bid),
                      "reservations": _resa_state(),
@@ -358,6 +383,20 @@ def on_auth(d):
                                   "salle_prix": config.SALLE_PRIX,
                                   "salle_h": config.SALLE_RESERVATION_H}})
     _check_saturation()
+    # --- Livraison des messages prives recus HORS LIGNE (store-and-forward) ---
+    try:
+        pend = sql.pop_pending_pm(bid)
+    except Exception:
+        pend = []
+    for it in pend:
+        try:
+            emit("pm", {"from": it.get("from", "?"), "to": user["pseudo"],
+                        "text": it.get("text", ""), "ts": it.get("ts", time.time()),
+                        "offline": True})
+        except Exception:
+            pass
+    if pend:
+        emit("pm_delivered", {"count": len(pend)})
 
 
 @socketio.on("join")
@@ -436,6 +475,7 @@ def on_message(d):
     user = sql.get_user(me["bid"])
     pref = "@" if me["role"] in ("modo", "admin", "owner") else ""
     payload = {"salon": salon, "pseudo": pref + me["pseudo"], "titre": user.get("titre_actif"),
+               "premium": bool(user.get("premium")),
                "avatar": me.get("avatar", ""), "text": txt, "ts": time.time()}
     sql.add_message(salon, me["bid"], me["pseudo"], txt)
     socketio.emit("message", payload, to=salon)
@@ -678,13 +718,104 @@ def on_pm(d):
     me = _me()
     if not me:
         return
-    cible = sql.get_by_pseudo(d.get("to", ""))
+    cible = None
+    code = (d.get("code") or "").strip()
+    if code:
+        cible = _find_by_code(code)
+    if not cible:
+        cible = sql.get_by_pseudo(d.get("to", ""))
     if not cible:
         emit("pm_error", {"error": "Introuvable"}); return
-    payload = {"from": me["pseudo"], "to": cible["pseudo"], "text": (d.get("text") or "")[:2000], "ts": time.time()}
+    if cible["browser_id"] == me["bid"]:
+        emit("pm_error", {"error": "Tu ne peux pas t'ecrire a toi-meme."}); return
+    # blocage : la cible t'a bloque OU tu l'as bloquee -> rien ne passe
+    me_user = sql.get_user(me["bid"]) or {}
+    if me["bid"] in (cible.get("blocked") or []):
+        emit("pm_error", {"error": "Cette personne t'a bloque."}); return
+    if cible["browser_id"] in (me_user.get("blocked") or []):
+        emit("pm_error", {"error": "Tu as bloque cette personne. Debloque-la pour ecrire."}); return
+    txt = (d.get("text") or "")[:2000]
+    if not txt.strip():
+        return
+    payload = {"from": me["pseudo"], "to": cible["pseudo"], "text": txt, "ts": time.time()}
+    targets = [s for s, info in SID.items() if info["bid"] == cible["browser_id"]]
+    # echo chez l'expediteur (toujours)
     for s, info in list(SID.items()):
-        if info["bid"] in (cible["browser_id"], me["bid"]):
+        if info["bid"] == me["bid"]:
             socketio.emit("pm", payload, to=s)
+    if targets:
+        for s in targets:
+            socketio.emit("pm", payload, to=s)
+    else:
+        # HORS LIGNE : le message reste en file et part des son retour
+        try:
+            sql.add_pending_pm(cible["browser_id"], payload)
+        except Exception:
+            pass
+        emit("pm_queued", {"to": cible["pseudo"], "ts": payload["ts"]})
+
+
+@socketio.on("pm_resolve")
+def on_pm_resolve(d):
+    """Ouvre une discussion a partir d'un NUMERO PERSO distribue par la personne."""
+    me = _me()
+    if not me:
+        return
+    u = _find_by_code(d.get("code", ""))
+    if not u:
+        emit("pm_error", {"error": "Aucun membre avec ce numero."}); return
+    if u["browser_id"] == me["bid"]:
+        emit("pm_error", {"error": "C'est ton propre numero \U0001F642"}); return
+    online = any(info["bid"] == u["browser_id"] for info in SID.values())
+    emit("pm_opened", {"pseudo": u["pseudo"], "online": online,
+                       "code": _fmt_code(_user_code(u["browser_id"]))})
+
+
+@socketio.on("pm_block")
+def on_pm_block(d):
+    """Bloque/debloque une personne (par pseudo). Persiste sur le compte."""
+    me = _me()
+    if not me:
+        return
+    cible = sql.get_by_pseudo(d.get("pseudo", ""))
+    if not cible:
+        emit("pm_error", {"error": "Introuvable"}); return
+    u = sql.get_user(me["bid"]) or {}
+    blocked = list(u.get("blocked") or [])
+    bid = cible["browser_id"]
+    if d.get("unblock"):
+        blocked = [b for b in blocked if b != bid]
+        state = False
+    else:
+        if bid not in blocked:
+            blocked.append(bid)
+        state = True
+    try:
+        sql.update_user(me["bid"], {"blocked": blocked})
+    except Exception:
+        pass
+    emit("pm_block_ok", {"pseudo": cible["pseudo"], "blocked": state})
+
+
+@socketio.on("buy_premium")
+def on_buy_premium(d):
+    """Active le mode Premium (badge dore, effets waouh). Cout: 500 points."""
+    me = _me()
+    if not me:
+        return
+    u = sql.get_user(me["bid"]) or {}
+    if u.get("premium"):
+        emit("premium_ok", {"user": u}); return
+    cost = 500
+    if int(u.get("points", 0)) < cost:
+        emit("pm_error", {"error": "Il te faut 500 points pour Premium."}); return
+    try:
+        sql.update_user(me["bid"], {"points": int(u.get("points", 0)) - cost, "premium": True})
+    except Exception:
+        pass
+    nu = sql.get_user(me["bid"]) or u
+    emit("premium_ok", {"user": nu})
+
 
 
 @socketio.on("pm_voice")

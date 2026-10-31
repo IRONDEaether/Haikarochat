@@ -23,7 +23,7 @@ _FILE = os.path.join(os.path.dirname(__file__), "..", "data", "local.json")
 # Collections ECRITES en base durable (MySQL/JSON).
 # "reservations" est VOLONTAIREMENT absente : les tickets sont temporaires.
 _DURABLE = ("users", "messages", "bans", "warns", "mod_requests",
-            "annonces", "secrets")
+            "annonces", "secrets", "pending_pm")
 
 
 def _parse_mysql_url(url):
@@ -47,7 +47,7 @@ class BotSQL:
         self._mycfg = None
         self.mode = "local"
         self._db = {"users": {}, "messages": [], "bans": [], "warns": [],
-                    "mod_requests": []}
+                    "mod_requests": [], "pending_pm": {}}
         self._connect()
         self._load()
 
@@ -206,6 +206,39 @@ class BotSQL:
                     q = q.eq("role", role)
                 return q.execute().data
             return [u for u in self._db["users"].values() if not role or u.get("role") == role]
+
+    # ---- messages prives EN ATTENTE (store-and-forward hors ligne) ----
+    #  Stockes par destinataire (browser_id). Livres des que la personne
+    #  revient en ligne, puis effaces. Texte uniquement.
+    def add_pending_pm(self, to_bid, item):
+        with _LOCK:
+            store = self._db.setdefault("pending_pm", {})
+            box = store.setdefault(to_bid, [])
+            box.append(item)
+            store[to_bid] = box[-200:]
+            self._save_pending()
+
+    def pop_pending_pm(self, to_bid):
+        with _LOCK:
+            store = self._db.setdefault("pending_pm", {})
+            items = store.pop(to_bid, [])
+            if items:
+                self._save_pending()
+            return items
+
+    def count_pending_pm(self, to_bid):
+        with _LOCK:
+            return len(self._db.get("pending_pm", {}).get(to_bid, []))
+
+    def _save_pending(self):
+        """Persistance ciblee de la file hors-ligne (mysql/local)."""
+        try:
+            if self.mode == "mysql":
+                self._my_write("pending_pm", self._db.get("pending_pm", {}))
+            elif self.mode == "local":
+                self._save()
+        except Exception as e:
+            print("[SQL] pending_pm KO:", e)
 
     # ---- messages (texte uniquement) ----
     def add_message(self, salon, bid, pseudo, contenu, mtype="text"):
