@@ -151,6 +151,27 @@ def _push_online(salon):
     socketio.emit("online", {"salon": salon, "membres": m, "count": len(m)}, to=salon)
 
 
+def _annuaire(me_bid=None):
+    """Annuaire des membres connus (en ligne OU hors ligne) pour la recherche.
+    Permet de retrouver et d'ecrire a quelqu'un meme deconnecte."""
+    online_bids = {info.get("bid") for info in SID.values()}
+    out = []
+    try:
+        users = sql.list_users()
+    except Exception:
+        users = []
+    for u in users:
+        bid = u.get("browser_id")
+        if not bid or not u.get("pseudo"):
+            continue
+        out.append({"pseudo": u.get("pseudo"), "avatar": u.get("avatar", ""),
+                    "role": u.get("role", "user"), "online": bid in online_bids,
+                    "code": _fmt_code(_user_code(bid)), "me": bid == me_bid,
+                    "last_seen": u.get("last_seen", 0)})
+    out.sort(key=lambda x: (not x["online"], (x["pseudo"] or "").lower()))
+    return out[:300]
+
+
 # presence join/leave : anti-spam par (bid, salon)
 PRES_LAST = {}
 
@@ -371,6 +392,7 @@ def on_auth(d):
         pass
     emit("auth_ok", {"user": user, "salons": _salons_for(user),
                      "mon_code": _fmt_code(_user_code(bid)),
+                     "annuaire": _annuaire(bid),
                      "titres": config.TITRES, "bots": config.BOTS,
                      "annonces": sql.list_annonces(), "secrets": _secrets_pub(bid),
                      "reservations": _resa_state(),
@@ -473,11 +495,17 @@ def on_message(d):
     if not ok:
         return
     user = sql.get_user(me["bid"])
-    pref = "@" if me["role"] in ("modo", "admin", "owner") else ""
-    payload = {"salon": salon, "pseudo": pref + me["pseudo"], "titre": user.get("titre_actif"),
-               "premium": bool(user.get("premium")),
-               "avatar": me.get("avatar", ""), "text": txt, "ts": time.time()}
-    sql.add_message(salon, me["bid"], me["pseudo"], txt)
+    anon = bool(d.get("anon"))
+    if anon:
+        payload = {"salon": salon, "pseudo": "\U0001F464 Anonyme", "titre": None,
+                   "premium": False, "anon": True, "avatar": "", "text": txt, "ts": time.time()}
+        sql.add_message(salon, me["bid"], "\U0001F464 Anonyme", txt)
+    else:
+        pref = "@" if me["role"] in ("modo", "admin", "owner") else ""
+        payload = {"salon": salon, "pseudo": pref + me["pseudo"], "titre": user.get("titre_actif"),
+                   "premium": bool(user.get("premium")),
+                   "avatar": me.get("avatar", ""), "text": txt, "ts": time.time()}
+        sql.add_message(salon, me["bid"], me["pseudo"], txt)
     socketio.emit("message", payload, to=salon)
     g = squad.gain(me["bid"])
     if g:
@@ -626,6 +654,25 @@ def on_video(d):
     socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "video": data,
                   "name": (d.get("name") or "")[:80], "ts": time.time()},
+                  to=me["salon"], include_self=False)
+
+
+@socketio.on("salon_file")
+def on_salon_file(d):
+    """Fichier quelconque partage dans le salon (ephemere, jamais en base)."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    data = d.get("data", "")
+    if not data:
+        return
+    if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
+        return
+    socketio.emit("salon_file", {"salon": me["salon"], "pseudo": me["pseudo"],
+                  "avatar": me.get("avatar", ""), "data": data,
+                  "name": (d.get("name") or "fichier")[:120],
+                  "mime": (d.get("mime") or "")[:80],
+                  "size": int(d.get("size", 0) or 0), "ts": time.time()},
                   to=me["salon"], include_self=False)
 
 
@@ -835,6 +882,40 @@ def on_pm_voice(d):
     for s, info in list(SID.items()):
         if info["bid"] in (cible["browser_id"], me["bid"]):
             socketio.emit("pm_voice", payload, to=s)
+
+
+@socketio.on("pm_media")
+def on_pm_media(d):
+    """Photo / video / fichier en message prive, relaye par le serveur (ephemere).
+    Non stocke : si le destinataire est hors ligne, on previent l'expediteur."""
+    me = _me()
+    if not me:
+        return
+    cible = _find_by_code(d.get("code", "")) or sql.get_by_pseudo(d.get("to", ""))
+    if not cible:
+        emit("pm_error", {"error": "Introuvable"}); return
+    data = d.get("data", "")
+    if not data:
+        return
+    me_user = sql.get_user(me["bid"]) or {}
+    if me["bid"] in (cible.get("blocked") or []):
+        emit("pm_error", {"error": "Cette personne t'a bloque."}); return
+    if cible["browser_id"] in (me_user.get("blocked") or []):
+        emit("pm_error", {"error": "Tu as bloque cette personne."}); return
+    payload = {"from": me["pseudo"], "to": cible["pseudo"], "kind": (d.get("kind") or "file")[:10],
+               "data": data, "name": (d.get("name") or "fichier")[:120],
+               "mime": (d.get("mime") or "")[:80], "size": int(d.get("size", 0) or 0),
+               "ts": time.time()}
+    targets = [s for s, info in SID.items() if info["bid"] == cible["browser_id"]]
+    # echo chez l'expediteur
+    for s, info in list(SID.items()):
+        if info["bid"] == me["bid"]:
+            socketio.emit("pm_media", payload, to=s)
+    if targets:
+        for s in targets:
+            socketio.emit("pm_media", payload, to=s)
+    else:
+        emit("pm_media_offline", {"to": cible["pseudo"]})
 
 
 @socketio.on("user_info")

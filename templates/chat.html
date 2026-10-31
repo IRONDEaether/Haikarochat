@@ -316,6 +316,34 @@ body{background:linear-gradient(135deg,#140a2e,#1a0f3f,#24124f,#140a2e);backgrou
 .codeinput{font-family:ui-monospace,monospace;letter-spacing:6px;text-align:center;font-size:20px;font-weight:800}
 .confetti{position:fixed;top:-12px;width:10px;height:14px;border-radius:2px;z-index:10000;pointer-events:none;animation:confall 2.2s ease-in forwards}
 @keyframes confall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(102vh) rotate(540deg);opacity:0}}
+/* ===== media cards clean (v1.6) ===== */
+.msg .bd .pic,.msg .bd .vid{display:block;margin-top:8px;max-width:min(340px,78%);width:auto;border-radius:14px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.msg .bd .vid{cursor:default;background:#000}
+.vidcard,.audcard,.filecard{margin-top:8px}
+.audcard{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,#241d53,#1a1540);border:1px solid var(--bd);max-width:300px}
+.aud-play{width:36px;height:36px;flex-shrink:0;border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--vi),var(--mg));display:flex;align-items:center;justify-content:center}
+.aud-bar{flex:1;height:7px;border-radius:999px;background:#120f2a;cursor:pointer;overflow:hidden;min-width:60px}
+.aud-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--mg));border-radius:999px;transition:width .1s linear}
+.aud-time{font-size:11px;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+.aud-ico{font-size:14px;opacity:.8}
+.filecard{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#241d53,#1a1540);border:1px solid var(--bd);max-width:300px}
+.fc-ico{font-size:26px;flex-shrink:0}
+.fc-meta{flex:1;min-width:0}
+.fc-nm{font-weight:700;font-size:13px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-sz{font-size:11px;color:var(--mut)}
+.fc-dl{flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;text-decoration:none;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--cy),var(--mg))}
+.lbox{position:fixed;inset:0;z-index:10001;background:rgba(5,3,15,.92);display:flex;align-items:center;justify-content:center;cursor:zoom-out;animation:fadein .2s ease}
+.lbox img{max-width:94vw;max-height:94vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.u.off{opacity:.62}
+.u.off .nm{color:var(--mut)}
+.dot.offdot{background:#6b6390!important;box-shadow:none!important}
+#btnAnon.anon-on{background:linear-gradient(135deg,var(--vi),var(--mg))!important;color:#fff!important;box-shadow:0 0 14px rgba(255,92,168,.6)}
+/* entree fluide des messages + premium */
+.msg{animation:msgin .26s cubic-bezier(.2,.8,.3,1)}
+@keyframes msgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg .bd{transition:border-color .2s,box-shadow .2s,transform .12s}
+.icobtn,.salon,.u{transition:transform .12s,box-shadow .2s,background .2s,border-color .2s}
 /* ecriture qui flotte */
 .logo{background:linear-gradient(90deg,var(--cy),var(--mg),var(--vi),var(--cy));background-size:280% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:logoglow 6s ease-in-out infinite,floaty 7s ease-in-out infinite,shine 9s linear infinite}
 @keyframes shine{to{background-position:280% center}}
@@ -364,12 +392,12 @@ body.halloween .fog{display:block}
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.5.0</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.6.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v1.5.0">HINATACHAT</span>
+    <span class="logo" title="HINATACHAT v1.6.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -439,6 +467,9 @@ body.halloween .fog{display:block}
       <input type="file" id="imgFile" accept="image/*" style="display:none">
       <button class="icobtn ghost" id="btnVid" title="Envoyer une vidéo courte">📹</button>
       <input type="file" id="vidFile" accept="video/*" style="display:none">
+      <button class="icobtn ghost" id="btnFile" title="Envoyer un fichier">📎</button>
+      <input type="file" id="fileAny" style="display:none">
+      <button class="icobtn ghost" id="btnAnon" title="Mode anonyme : envoyer sans montrer ton pseudo">👤</button>
       <button class="icobtn ghost" id="btnVoice" title="Message vocal (maintenir)">🎙️</button>
       <input type="file" id="wallFile" accept="image/*" style="display:none">
       <textarea id="input" rows="1" placeholder="Écris un message…" autocomplete="off"></textarea>
@@ -448,6 +479,7 @@ body.halloween .fog{display:block}
   </div>
   <div class="right">
     <h3>En ligne — <span id="count">0</span></h3>
+    <input type="text" id="userSearch" placeholder="🔍 Rechercher un membre…" autocomplete="off" style="width:100%;margin:0 0 8px;padding:9px 12px;border-radius:12px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx);font-size:14px">
     <div id="online"></div>
   </div>
 </div>
@@ -494,10 +526,13 @@ body.halloween .fog{display:block}
 <div class="ov" id="ovPm"><div class="modal">
   <span class="x" data-close>×</span><h2 id="pmTitle" style="display:flex;align-items:center;gap:8px;justify-content:space-between"><span id="pmTitleTxt">Message privé</span><button class="icobtn ghost" id="pmBlock" title="Bloquer cette personne" style="font-size:13px;padding:4px 10px">🚫 Bloquer</button></h2>
   <div class="msgs" id="pmMsgs" style="height:260px;padding:8px 0"></div>
-  <div style="display:flex;gap:8px"><button class="icobtn ghost" id="pmMic" title="Message vocal privé (maintenir)">🎙️</button>
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap"><button class="icobtn ghost" id="pmMic" title="Message vocal privé (maintenir)">🎙️</button>
+    <button class="icobtn ghost" id="pmImg" title="Photo">🖼️</button><input type="file" id="pmImgF" accept="image/*" style="display:none">
+    <button class="icobtn ghost" id="pmVid" title="Vidéo">📹</button><input type="file" id="pmVidF" accept="video/*" style="display:none">
+    <button class="icobtn ghost" id="pmFile" title="Fichier">📎</button><input type="file" id="pmFileF" style="display:none">
     <input type="text" id="pmInput" placeholder="Ton message…"
-    style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)">
-    <button id="pmSend" style="padding:0 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Envoyer</button></div>
+    style="flex:1;min-width:0;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--pan2);color:var(--tx)">
+    <button id="pmSend" style="padding:0 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--vi),var(--mg))">Envoyer</button></div>
   <div class="hint" id="pmXfer" style="font-size:.75rem;color:var(--mut);margin-top:6px"></div>
 </div></div>
 <div class="ov" id="ovMarket"><div class="modal">
@@ -585,6 +620,7 @@ socket.on('app_full',d=>{const b=$('#boot');if(b)b.classList.remove('hide');boot
 socket.on('auth_ok',d=>{
   ME=d.user; SALONS=d.salons; window.TITRES=d.titres||[];
   window.MON_CODE=d.mon_code||'';
+  window.ANNUAIRE=d.annuaire||[];
   SETTINGS=d.settings||{}; ANNONCES=d.annonces||[]; SECRETS=d.secrets||[];
   RESA=d.reservations||{};
   RESAMINE=new Set(Object.keys(RESA).filter(k=>(RESA[k].membres||[]).includes(ME.pseudo)));
@@ -668,6 +704,43 @@ function scrollMsgs(force){
   const box=$('#msgs');
   if(force||nearBottom(box)){requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight;});}
 }
+function fmtSize(b){b=+b||0;if(b<1024)return b+' o';if(b<1048576)return (b/1024).toFixed(0)+' Ko';return (b/1048576).toFixed(1)+' Mo';}
+function _recFmt2(s){s=Math.max(0,Math.round(s||0));const m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
+// lecteur audio custom (corrige le 0:00/0:00 des blobs webm)
+function audioCard(src,dur){
+  const w=el('div','audcard');
+  const btn=el('button','aud-play','▶');
+  const bar=el('div','aud-bar');const fill=el('div','aud-fill');bar.appendChild(fill);
+  const tim=el('div','aud-time',_recFmt2(dur||0));
+  const a=document.createElement('audio');a.preload='metadata';a.src=src;
+  let playing=false,known=+dur||0;
+  btn.onclick=()=>{if(playing){a.pause();}else{document.querySelectorAll('audio').forEach(x=>{if(x!==a)x.pause();});a.play().catch(()=>{});}};
+  a.onplay=()=>{playing=true;btn.textContent='‖';};
+  a.onpause=()=>{playing=false;btn.textContent='▶';};
+  a.onended=()=>{playing=false;btn.textContent='▶';fill.style.width='0%';tim.textContent=_recFmt2(known);};
+  a.ontimeupdate=()=>{const d=(isFinite(a.duration)&&a.duration>0)?a.duration:known;if(d>0){fill.style.width=Math.min(100,(a.currentTime/d)*100)+'%';tim.textContent=_recFmt2(a.currentTime)+' / '+_recFmt2(d);}};
+  bar.onclick=(e)=>{const r=bar.getBoundingClientRect();const p=(e.clientX-r.left)/r.width;const d=(isFinite(a.duration)&&a.duration>0)?a.duration:known;if(d>0){a.currentTime=p*d;}};
+  w.appendChild(btn);w.appendChild(bar);w.appendChild(tim);w.appendChild(a);
+  w.appendChild(el('span','aud-ico','🎙️'));
+  return w;
+}
+function videoCard(src,name,onready){
+  const w=el('div','vidcard');
+  const v=document.createElement('video');v.className='vid';v.controls=true;v.playsInline=true;v.preload='metadata';v.src=src;
+  v.onloadeddata=()=>{if(onready)onready();};
+  v.onerror=()=>{w.appendChild(el('div','dl','⚠ vidéo illisible'));};
+  w.appendChild(v);
+  if(name)w.appendChild(el('div','dl','📹 '+esc(name)));
+  return w;
+}
+function fileCard(f){
+  const w=el('div','filecard');
+  const ico=/image\//.test(f.mime||'')?'🖼️':/video\//.test(f.mime||'')?'🎬':/audio\//.test(f.mime||'')?'🎵':/pdf/.test(f.mime||'')?'📄':'📎';
+  w.innerHTML='<div class="fc-ico">'+ico+'</div><div class="fc-meta"><div class="fc-nm">'+esc(f.name||'fichier')+'</div><div class="fc-sz">'+fmtSize(f.size)+'</div></div>';
+  const a=document.createElement('a');a.className='fc-dl';a.textContent='⬇';a.href=f.data;a.download=f.name||'fichier';a.title='Télécharger';
+  w.appendChild(a);return w;
+}
+function lightbox(src){const o=el('div','lbox');const im=new Image();im.src=src;o.appendChild(im);o.onclick=()=>o.remove();document.body.appendChild(o);}
 function addMsg(m){
   const box=$('#msgs'); const stick=nearBottom(box);
   const mine=m.pseudo===ME.pseudo;
@@ -680,11 +753,10 @@ function addMsg(m){
   bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}${pb}</div><div class="tx">${renderText(m.text)}</div>`;
   const mid=(m.pseudo||'')+'|'+(m.ts||'');
   bd.dataset.mid=mid;
-  if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.onload=()=>scrollMsgs(stick||mine);bd.appendChild(im);}
-  if(m._audio){const a=document.createElement('audio');a.controls=true;a.preload='metadata';a.src=m._audio;bd.appendChild(a);
-    bd.appendChild(el('div','dl','\uD83C\uDF99\uFE0F vocal'+(m._dur?(' \u00b7 '+Math.round(m._dur)+'s'):'')));}
-  if(m._video){const v=document.createElement('video');v.className='vid';v.controls=true;v.src=m._video;v.onloadeddata=()=>scrollMsgs(stick||mine);bd.appendChild(v);
-    if(m._vname){bd.appendChild(el('div','dl','📹 '+esc(m._vname)));}}
+  if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.loading='lazy';im.onload=()=>scrollMsgs(stick||mine);im.onclick=()=>lightbox(m.image);bd.appendChild(im);}
+  if(m._audio){bd.appendChild(audioCard(m._audio,m._dur));}
+  if(m._video){bd.appendChild(videoCard(m._video,m._vname,()=>scrollMsgs(stick||mine)));}
+  if(m._file){bd.appendChild(fileCard(m._file));}
   if(m._note){bd.appendChild(el('div','dl',esc(m._note)));}
   row.appendChild(bd);
   attachReact(bd,mid);
@@ -789,6 +861,7 @@ socket.on('system',d=>{/* bots masqués : on n'affiche plus les messages des rob
 socket.on('image',d=>{if(d.salon===SALON){addMsg(d);cachePush(d.salon,d);}});
 socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
 socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_video:d.video,_vname:d.name,ts:d.ts});if(!mine)chime();});
+socket.on('salon_file',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;const f={name:d.name,mime:d.mime,size:d.size,data:d.data};addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_file:f,ts:d.ts});if(!mine)chime();});
 socket.on('avatar',d=>{AVCACHE[d.pseudo]=d.avatar;});
 socket.on('denied',d=>toast(d.raison||'Refusé'));
 socket.on('economy',d=>{if(d.points!=null)$('#coins').textContent=d.points;if(d.level_up)toast('Niveau '+d.level+' !');});
@@ -1122,38 +1195,59 @@ $('#btnMenu').onclick=()=>openDrawer('.side');
 $('#btnOnline').onclick=()=>openDrawer('.right');
 $('#scrim').onclick=closeDrawers;
 
-// ---- online ----
+// ---- online + annuaire (les membres ne disparaissent plus a la deconnexion) ----
+let ONLINE_NOW=[];
 socket.on('online',d=>{
   if(d.salon!==SALON)return;
-  const membres=(d.membres||[]).filter(u=>u.role!=='bot'); // bots masqués
-  $('#count').textContent=membres.length||d.count;
-  const box=$('#online'); box.innerHTML='';
-  membres.forEach(u=>{
+  ONLINE_NOW=(d.membres||[]).filter(u=>u.role!=='bot');
+  renderMembers();
+});
+function renderMembers(){
+  const q=($('#userSearch')&&$('#userSearch').value||'').trim().toLowerCase();
+  const onNames=new Set(ONLINE_NOW.map(u=>u.pseudo));
+  // base = membres en ligne
+  const list=ONLINE_NOW.map(u=>({pseudo:u.pseudo,role:u.role,avatar:u.avatar,online:true}));
+  // + annuaire des membres connus hors ligne (restent trouvables)
+  (window.ANNUAIRE||[]).forEach(u=>{
+    if(u.me)return;
+    if(onNames.has(u.pseudo))return;
+    list.push({pseudo:u.pseudo,role:u.role,avatar:u.avatar,online:false});
+  });
+  const shown=list.filter(u=>!q||(u.pseudo||'').toLowerCase().includes(q));
+  $('#count').textContent=ONLINE_NOW.length;
+  const box=$('#online');box.innerHTML='';
+  if(!shown.length){box.innerHTML='<p style="color:var(--mut);font-size:.82rem;padding:6px">Aucun membre trouvé.</p>';return;}
+  shown.forEach(u=>{
     if(u.avatar)AVCACHE[u.pseudo]=u.avatar;
-    const row=el('div','u');
+    const row=el('div','u'+(u.online?'':' off'));
     const av=el('div','av');
     if(u.avatar)av.innerHTML=`<img src="${u.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
     else av.textContent=(u.pseudo||'?').slice(0,1).toUpperCase();
     row.appendChild(av);
     const info=el('div');
-    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${esc(u.role)}</div>`;
+    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${u.online?esc(u.role):'hors ligne'}</div>`;
     row.appendChild(info);
-    row.appendChild(el('span','dot'));
+    row.appendChild(el('span','dot'+(u.online?'':' offdot')));
     row.onclick=()=>openUser(u.pseudo);
     row.ondblclick=()=>openPm(u.pseudo);
     box.appendChild(row);
   });
-});
+}
+if($('#userSearch'))$('#userSearch').addEventListener('input',renderMembers);
 
 // ---- compose ----
 const IS_TOUCH=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 function autoGrow(){const i=$('#input');if(!i)return;i.style.height='auto';i.style.height=Math.min(i.scrollHeight,140)+'px';}
 function send(){
   const i=$('#input'); const t=i.value.trim(); if(!t)return;
-  socket.emit('message',{text:t}); i.value=''; autoGrow();
+  socket.emit('message',{text:t,anon:ANON}); i.value=''; autoGrow();
   sendTyping(false);
 }
 $('#send').onclick=send;
+let ANON=false;
+$('#btnAnon').onclick=()=>{ANON=!ANON;const b=$('#btnAnon');b.classList.toggle('anon-on',ANON);b.textContent=ANON?'🕶️':'👤';$('#input').placeholder=ANON?'Mode anonyme activé…':'Écris un message…';toast(ANON?'🕶️ Mode anonyme ON — ton pseudo est masqué':'👤 Mode anonyme OFF');};
+$('#btnFile').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#fileAny').click();};
+$('#fileAny').onchange=e=>{const f=e.target.files[0];if(!f)return;e.target.value='';if(f.size>25*1048576){toast('⚠ Fichier trop lourd (max 25 Mo)');return;}const r=new FileReader();r.onload=()=>{const meta={name:f.name,mime:f.type,size:f.size,data:r.result};socket.emit('salon_file',meta);addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_file:meta,ts:Date.now()/1000});toast('📎 Fichier envoyé');};r.readAsDataURL(f);};
 $('#input').addEventListener('input',autoGrow);
 // clavier adapte : PC -> Entree envoie, Maj+Entree = nouvelle ligne ; mobile -> Entree = nouvelle ligne (on envoie avec le bouton)
 $('#input').addEventListener('keydown',e=>{
@@ -1299,9 +1393,37 @@ socket.on('pm',d=>{
 function pmRenderAudio(peer,src,dur){
   if(!($('#ovPm').classList.contains('on')&&PMWITH===peer))return;
   const row=el('div','msg');row.style.maxWidth='100%';
-  row.innerHTML=`<div class="bd"><div class="who">${esc(peer)}</div><audio controls preload="metadata" src="${src}" style="width:100%"></audio><div class="dl">🎙️ vocal${dur?(' · '+Math.round(dur)+'s'):''}</div></div>`;
-  $('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
+  const bd=el('div','bd');bd.appendChild(el('div','who',esc(peer)));bd.appendChild(audioCard(src,dur));
+  row.appendChild(bd);$('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
 }
+// ---- PV : rendu d'une photo / video / fichier prive ----
+function pmRenderMedia(who,kind,data,name,mime,size){
+  const row=el('div','msg');row.style.maxWidth='100%';
+  const bd=el('div','bd');bd.appendChild(el('div','who',esc(who)));
+  if(kind==='image'){const im=new Image();im.className='pic';im.src=data;im.onclick=()=>lightbox(data);bd.appendChild(im);}
+  else if(kind==='video'){bd.appendChild(videoCard(data,name,()=>{$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;}));}
+  else{bd.appendChild(fileCard({name:name,mime:mime,size:size,data:data}));}
+  row.appendChild(bd);$('#pmMsgs').appendChild(row);$('#pmMsgs').scrollTop=$('#pmMsgs').scrollHeight;
+}
+socket.on('pm_media',d=>{
+  const other=(ME&&d.from===ME.pseudo)?d.to:d.from;
+  if($('#ovPm').classList.contains('on')&&PMWITH===other){pmRenderMedia(d.from,d.kind,d.data,d.name,d.mime,d.size);}
+  else if(d.from!==ME.pseudo){DMUNREAD[other]=(DMUNREAD[other]||0)+1;refreshDmBadge();notify('📎 '+d.from+' t\'a envoyé un média privé');}
+});
+socket.on('pm_media_offline',d=>{toast('⚠ '+(d.to||'')+' est hors ligne — les médias privés ne peuvent pas être mis en attente (envoie du texte).');});
+function pmSendMedia(file,kind){
+  if(!PMWITH){toast('Ouvre une conversation');return;}
+  if(file.size>25*1048576){toast('⚠ Fichier trop lourd (max 25 Mo)');return;}
+  const r=new FileReader();r.onload=()=>{
+    socket.emit('pm_media',{to:PMWITH,kind:kind,data:r.result,name:file.name,mime:file.type,size:file.size});
+  };r.readAsDataURL(file);
+}
+$('#pmImg').onclick=()=>$('#pmImgF').click();
+$('#pmImgF').onchange=e=>{const f=e.target.files[0];if(f)pmSendMedia(f,'image');e.target.value='';};
+$('#pmVid').onclick=()=>$('#pmVidF').click();
+$('#pmVidF').onchange=e=>{const f=e.target.files[0];if(f)pmSendMedia(f,'video');e.target.value='';};
+$('#pmFile').onclick=()=>$('#pmFileF').click();
+$('#pmFileF').onchange=e=>{const f=e.target.files[0];if(f)pmSendMedia(f,'file');e.target.value='';};
 
 // ============ VIDEO courte via le serveur (ephemere, broadcast) ============
 $('#btnVid').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
