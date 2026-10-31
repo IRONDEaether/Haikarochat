@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.6.0"
+VERSION = "2.0.0"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -87,7 +87,7 @@ SECRET_MAX_H = 24
 # --- Cinema securise ---
 # Si True, il faut un billet (XP) pour ENTRER dans le salon cinema et pour
 # recevoir/diffuser le flux P2P. Le signaling est refuse sans billet.
-CINEMA_SECURE = _env("CINEMA_SECURE", "1") not in ("0", "false", "")
+CINEMA_SECURE = _env("CINEMA_SECURE", "0") not in ("0", "false", "")
 
 # --- Salle Privee sur reservation (places limitees) ---
 SALLE_CAPACITY = int(_env("SALLE_CAPACITY", "10"))          # nb de places
@@ -124,6 +124,10 @@ SALONS = [
      "desc": "Besoin d'aide ? Lis le guide", "specialite": "Guide & support \u2014 ecriture reservee aux admins",
      "regles": "Lis les consignes; pour une question ecris en General ou en MP a un admin",
      "admin_write": True, "help_bot": True},
+    {"id": "cinema", "nom": "Cinema P2P", "icone": "\U0001F3A5",
+     "desc": "Envoie des films en P2P, tout le monde regarde dans le chat",
+     "specialite": "Partage de films/videos 100%% P2P (hors serveur) \u2014 lecture directe dans le chat",
+     "regles": "Partage uniquement ce que tu as le droit de partager; respecte les autres"},
     {"id": "admin", "nom": "Admin", "icone": "\U0001F6E1", "admin": True},
 ]
 

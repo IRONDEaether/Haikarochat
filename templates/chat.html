@@ -331,6 +331,19 @@ body{background:linear-gradient(135deg,#140a2e,#1a0f3f,#24124f,#140a2e);backgrou
 .fc-meta{flex:1;min-width:0}
 .fc-nm{font-weight:700;font-size:13px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fc-sz{font-size:11px;color:var(--mut)}
+.p2pcard{margin-top:8px;padding:11px 13px;border-radius:14px;background:linear-gradient(135deg,#182a4d,#141d36);border:1px solid rgba(93,214,232,.35);max-width:320px}
+.p2p-head{font-size:.9rem;font-weight:700;color:var(--tx)}
+.p2p-st{font-size:.72rem;color:var(--mut);margin-top:3px}
+.p2p-btn{margin-top:8px;border:none;border-radius:10px;padding:7px 13px;cursor:pointer;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--cy),var(--mg))}
+.p2p-btn:disabled{opacity:.6;cursor:default}
+.p2pcard .aud-bar{margin-top:8px}
+.stage{position:sticky;top:0;z-index:40;background:#0b0820;border-bottom:1px solid var(--bd);box-shadow:0 8px 24px rgba(0,0,0,.45);animation:fadein .2s ease}
+.stage-bar{display:flex;align-items:center;gap:8px;padding:7px 12px}
+.stage-nm{font-size:.82rem;font-weight:700;color:var(--tx);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-x{border:none;background:rgba(255,255,255,.1);color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;flex-shrink:0}
+.stage-vid{width:100%;max-height:46vh;background:#000;display:block;object-fit:contain}
+.vid-pin{margin-top:6px;border:none;border-radius:9px;padding:5px 11px;cursor:pointer;font-weight:700;font-size:12px;color:#fff;background:linear-gradient(135deg,var(--vi),var(--mg))}
+@media(max-width:720px){.stage-vid{max-height:40vh}}
 .fc-dl{flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;text-decoration:none;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--cy),var(--mg))}
 .lbox{position:fixed;inset:0;z-index:10001;background:rgba(5,3,15,.92);display:flex;align-items:center;justify-content:center;cursor:zoom-out;animation:fadein .2s ease}
 .lbox img{max-width:94vw;max-height:94vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -392,12 +405,12 @@ body.halloween .fog{display:block}
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.6.0</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v2.0.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v1.6.0">HINATACHAT</span>
+    <span class="logo" title="HINATACHAT v2.0.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -445,6 +458,7 @@ body.halloween .fog{display:block}
       </div>
       <div id="resaMembres" style="font-size:.82rem;color:var(--mut)"></div>
     </div>
+    <div class="stage" id="stage" style="display:none"></div>
     <div class="msgs" id="msgs"></div>
     <div class="musicpanel" id="musicpanel">
       <div class="card">
@@ -731,7 +745,22 @@ function videoCard(src,name,onready){
   v.onerror=()=>{w.appendChild(el('div','dl','⚠ vidéo illisible'));};
   w.appendChild(v);
   if(name)w.appendChild(el('div','dl','📹 '+esc(name)));
+  const pin=el('button','vid-pin','📌 Regarder en haut');
+  pin.onclick=()=>pinVideo(src,name);
+  w.appendChild(pin);
   return w;
+}
+function pinVideo(src,name){
+  const st=$('#stage');if(!st)return;
+  st.innerHTML='';
+  const bar=el('div','stage-bar');
+  bar.appendChild(el('div','stage-nm','🎬 '+esc(name||'Vidéo')));
+  const x=el('button','stage-x','✕');x.onclick=()=>{st.style.display='none';st.innerHTML='';};
+  bar.appendChild(x);
+  const v=document.createElement('video');v.className='stage-vid';v.controls=true;v.playsInline=true;v.src=src;
+  st.appendChild(bar);st.appendChild(v);
+  st.style.display='';
+  try{v.play().catch(()=>{});}catch(_){}
 }
 function fileCard(f){
   const w=el('div','filecard');
@@ -758,6 +787,7 @@ function addMsg(m){
   if(m._video){bd.appendChild(videoCard(m._video,m._vname,()=>scrollMsgs(stick||mine)));}
   if(m._file){bd.appendChild(fileCard(m._file));}
   if(m._note){bd.appendChild(el('div','dl',esc(m._note)));}
+  if(m._node){bd.appendChild(m._node);}
   row.appendChild(bd);
   attachReact(bd,mid);
   box.appendChild(row); scrollMsgs(stick||mine);
@@ -1195,44 +1225,68 @@ $('#btnMenu').onclick=()=>openDrawer('.side');
 $('#btnOnline').onclick=()=>openDrawer('.right');
 $('#scrim').onclick=closeDrawers;
 
-// ---- online + annuaire (les membres ne disparaissent plus a la deconnexion) ----
+// ---- online + presence (deconnecte => ROUGE 5 min puis disparait) ----
 let ONLINE_NOW=[];
+const OFF_TTL=5*60*1000;          // 5 minutes en rouge avant de disparaitre
+const OFFLINE_RECENT={};          // pseudo -> {pseudo,avatar,role,ts}
 socket.on('online',d=>{
   if(d.salon!==SALON)return;
   ONLINE_NOW=(d.membres||[]).filter(u=>u.role!=='bot');
+  // ceux revenus en ligne ne sont plus "rouge"
+  ONLINE_NOW.forEach(u=>{delete OFFLINE_RECENT[u.pseudo];});
+  renderMembers();
+});
+// un membre vient de se deconnecter : il passe en GRIS (reste visible 5 min pour montrer que le site est vivant)
+socket.on('member_off',d=>{
+  if(!d||!d.pseudo||(ME&&d.pseudo===ME.pseudo))return;
+  OFFLINE_RECENT[d.pseudo]={pseudo:d.pseudo,avatar:d.avatar||'',role:d.role||'user',ts:Date.now()};
   renderMembers();
 });
 function renderMembers(){
   const q=($('#userSearch')&&$('#userSearch').value||'').trim().toLowerCase();
   const onNames=new Set(ONLINE_NOW.map(u=>u.pseudo));
-  // base = membres en ligne
-  const list=ONLINE_NOW.map(u=>({pseudo:u.pseudo,role:u.role,avatar:u.avatar,online:true}));
-  // + annuaire des membres connus hors ligne (restent trouvables)
-  (window.ANNUAIRE||[]).forEach(u=>{
-    if(u.me)return;
-    if(onNames.has(u.pseudo))return;
-    list.push({pseudo:u.pseudo,role:u.role,avatar:u.avatar,online:false});
+  const now=Date.now();
+  // 1) en ligne = vert
+  const list=ONLINE_NOW.map(u=>({pseudo:u.pseudo,role:u.role,avatar:u.avatar,state:'on'}));
+  // 2) deconnectes recemment = GRIS (<5 min) : montre que le site est vivant, puis on purge
+  Object.keys(OFFLINE_RECENT).forEach(p=>{
+    const u=OFFLINE_RECENT[p];
+    if(onNames.has(p)){delete OFFLINE_RECENT[p];return;}
+    if(now-u.ts>OFF_TTL){delete OFFLINE_RECENT[p];return;}
+    list.push({pseudo:u.pseudo,role:u.role,avatar:u.avatar,state:'off'});
   });
+  // 3) recherche : on complete avec l'annuaire (membres connus, meme partis depuis longtemps)
+  if(q){
+    const have=new Set(list.map(u=>u.pseudo));
+    (window.ANNUAIRE||[]).forEach(u=>{
+      if(u.me||have.has(u.pseudo))return;
+      list.push({pseudo:u.pseudo,role:u.role,avatar:u.avatar,state:'off'});
+    });
+  }
   const shown=list.filter(u=>!q||(u.pseudo||'').toLowerCase().includes(q));
   $('#count').textContent=ONLINE_NOW.length;
   const box=$('#online');box.innerHTML='';
   if(!shown.length){box.innerHTML='<p style="color:var(--mut);font-size:.82rem;padding:6px">Aucun membre trouvé.</p>';return;}
   shown.forEach(u=>{
     if(u.avatar)AVCACHE[u.pseudo]=u.avatar;
-    const row=el('div','u'+(u.online?'':' off'));
+    const on=u.state==='on';
+    const row=el('div','u'+(on?'':' off'));
     const av=el('div','av');
     if(u.avatar)av.innerHTML=`<img src="${u.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
     else av.textContent=(u.pseudo||'?').slice(0,1).toUpperCase();
     row.appendChild(av);
     const info=el('div');
-    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${u.online?esc(u.role):'hors ligne'}</div>`;
+    const rl=on?esc(u.role):'hors ligne';
+    info.innerHTML=`<div class="nm">${esc(u.pseudo)}</div><div class="rl">${rl}</div>`;
     row.appendChild(info);
-    row.appendChild(el('span','dot'+(u.online?'':' offdot')));
+    row.appendChild(el('span','dot'+(on?'':' offdot')));
     row.onclick=()=>openUser(u.pseudo);
     row.ondblclick=()=>openPm(u.pseudo);
     box.appendChild(row);
   });
 }
+// balayage : purge auto des rouges expires (toutes les 30 s)
+setInterval(()=>{const now=Date.now();let chg=false;Object.keys(OFFLINE_RECENT).forEach(p=>{if(now-OFFLINE_RECENT[p].ts>OFF_TTL){delete OFFLINE_RECENT[p];chg=true;}});if(chg)renderMembers();},30000);
 if($('#userSearch'))$('#userSearch').addEventListener('input',renderMembers);
 
 // ---- compose ----
@@ -1247,7 +1301,122 @@ $('#send').onclick=send;
 let ANON=false;
 $('#btnAnon').onclick=()=>{ANON=!ANON;const b=$('#btnAnon');b.classList.toggle('anon-on',ANON);b.textContent=ANON?'🕶️':'👤';$('#input').placeholder=ANON?'Mode anonyme activé…':'Écris un message…';toast(ANON?'🕶️ Mode anonyme ON — ton pseudo est masqué':'👤 Mode anonyme OFF');};
 $('#btnFile').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#fileAny').click();};
-$('#fileAny').onchange=e=>{const f=e.target.files[0];if(!f)return;e.target.value='';if(f.size>25*1048576){toast('⚠ Fichier trop lourd (max 25 Mo)');return;}const r=new FileReader();r.onload=()=>{const meta={name:f.name,mime:f.type,size:f.size,data:r.result};socket.emit('salon_file',meta);addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_file:meta,ts:Date.now()/1000});toast('📎 Fichier envoyé');};r.readAsDataURL(f);};
+$('#fileAny').onchange=e=>{const f=e.target.files[0];if(!f)return;e.target.value='';if(f.size>P2P_THRESHOLD){sendBigFile(f);return;}const r=new FileReader();r.onload=()=>{const meta={name:f.name,mime:f.type,size:f.size,data:r.result};socket.emit('salon_file',meta);addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_file:meta,ts:Date.now()/1000});toast('📎 Fichier envoyé');};r.readAsDataURL(f);};
+// ====== P2P PUR pour les gros fichiers (WebRTC DataChannel, ne passe JAMAIS par le serveur) ======
+const P2P_THRESHOLD=8*1048576;      // au-dela de 8 Mo => transfert direct P2P
+const RTC_CFG={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const P2P_OUT={};   // fid -> {file, card}
+const P2P_PC={};    // (fid|pair) -> RTCPeerConnection
+const P2P_IN={};    // fid -> {name,mime,size,chunks,got,card}
+function p2pKey(fid,peer){return fid+'|'+peer;}
+function sendBigFile(file){
+  if(!SALON){toast('Rejoins un salon');return;}
+  if(typeof RTCPeerConnection==='undefined'){toast('⚠ P2P non supporté par ce navigateur');return;}
+  const fid=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  const card=el('div','p2pcard');
+  card.appendChild(el('div','p2p-head','⇄ '+esc(file.name)+'  ·  '+fmtSize(file.size)));
+  const st=el('div','p2p-st','En attente de destinataires… (envoi direct, 100% P2P)');
+  card.appendChild(st);
+  P2P_OUT[fid]={file:file,card:{status(t){st.textContent=t;}}};
+  socket.emit('p2p_offer_file',{fid:fid,name:file.name,mime:file.type,size:file.size});
+  addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',text:'',_node:card,ts:Date.now()/1000});
+  if(SALON==='cinema'&&/video\//.test(file.type||'')){try{pinVideo(URL.createObjectURL(file),file.name);}catch(_){}}
+  toast('⇄ Fichier lourd : envoi 100% P2P');
+}
+// --- hote : un pair veut recevoir -> on cree la connexion et on pousse les chunks ---
+socket.on('p2p_want',async d=>{
+  const out=P2P_OUT[d.fid];if(!out)return;
+  const peer=d.from;const key=p2pKey(d.fid,peer);
+  const pc=new RTCPeerConnection(RTC_CFG);P2P_PC[key]=pc;
+  pc.onicecandidate=e=>{if(e.candidate)socket.emit('p2p_sig',{fid:d.fid,to:peer,ice:e.candidate});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'){out.card&&out.card.status('⚠ Connexion P2P échouée avec '+peer);}};
+  const dc=pc.createDataChannel('f');dc.binaryType='arraybuffer';
+  dc.onopen=()=>{out.card&&out.card.status('Transfert vers '+peer+'…');p2pPush(dc,out.file).then(()=>{out.card&&out.card.status('Envoyé à '+peer+' ✓');}).catch(()=>{});};
+  dc.onclose=()=>{try{pc.close();}catch(_){}delete P2P_PC[key];};
+  const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+  socket.emit('p2p_sig',{fid:d.fid,to:peer,sdp:pc.localDescription});
+});
+async function p2pPush(dc,file){
+  dc.send(JSON.stringify({t:'meta',name:file.name,mime:file.type,size:file.size}));
+  const CH=16*1024;let off=0;dc.bufferedAmountLowThreshold=256*1024;
+  while(off<file.size){
+    if(dc.readyState!=='open')return;
+    const buf=await file.slice(off,off+CH).arrayBuffer();off+=CH;
+    if(dc.bufferedAmount>4*1048576){await new Promise(r=>{const h=()=>{dc.removeEventListener('bufferedamountlow',h);r();};dc.addEventListener('bufferedamountlow',h);});}
+    try{dc.send(buf);}catch(_){return;}
+  }
+  try{dc.send(JSON.stringify({t:'done'}));}catch(_){}
+}
+// --- destinataire : carte "recevoir" ---
+socket.on('p2p_offer_file',d=>{
+  if(!d||!ME||d.host===ME.pseudo)return;
+  const card=p2pRecvCard(d);
+  addMsg({pseudo:d.host,avatar:d.avatar,text:'',_node:card.el,ts:d.ts||Date.now()/1000});
+});
+function p2pRecvCard(d){
+  const w=el('div','p2pcard');
+  w.appendChild(el('div','p2p-head','⇄ '+esc(d.name||'fichier')+'  ·  '+fmtSize(d.size)));
+  const st=el('div','p2p-st','Fichier lourd partagé en P2P');
+  const bar=el('div','aud-bar');const fill=el('div','aud-fill');bar.appendChild(fill);bar.style.display='none';
+  const btn=el('button','p2p-btn','⬇ Recevoir (P2P)');
+  w.appendChild(st);w.appendChild(bar);w.appendChild(btn);
+  const api={el:w,
+    status(t){st.textContent=t;},
+    progress(p){bar.style.display='';fill.style.width=Math.min(100,p*100).toFixed(0)+'%';st.textContent='Réception… '+(p*100).toFixed(0)+'%';},
+    done(url,f){bar.style.display='none';st.textContent='Reçu ✓';btn.remove();
+      if(/image\//.test(f.mime||'')){const im=new Image();im.className='pic';im.src=url;im.onclick=()=>lightbox(url);w.appendChild(im);}
+      else if(/video\//.test(f.mime||'')){w.appendChild(videoCard(url,f.name));if(SALON==='cinema')pinVideo(url,f.name);}
+      else if(/audio\//.test(f.mime||'')){w.appendChild(audioCard(url,0));}
+      const a=document.createElement('a');a.className='fc-dl';a.textContent='⬇';a.href=url;a.download=f.name||'fichier';a.style.marginTop='6px';w.appendChild(a);}};
+  btn.onclick=()=>{btn.disabled=true;btn.textContent='…';startP2PRecv(d,api);};
+  return api;
+}
+function startP2PRecv(d,card){
+  if(typeof RTCPeerConnection==='undefined'){card.status('⚠ P2P non supporté par ce navigateur');return;}
+  const pc=new RTCPeerConnection(RTC_CFG);P2P_PC[p2pKey(d.fid,d.host)]=pc;
+  P2P_IN[d.fid]={name:d.name,mime:d.mime,size:d.size,chunks:[],got:0,card:card,host:d.host};
+  pc.onicecandidate=e=>{if(e.candidate)socket.emit('p2p_sig',{fid:d.fid,to:d.host,ice:e.candidate});};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed')card.status('⚠ Connexion P2P échouée');};
+  pc.ondatachannel=e=>{const dc=e.channel;dc.binaryType='arraybuffer';wireRecvChannel(dc,d.fid);};
+  socket.emit('p2p_want',{fid:d.fid,host:d.host});
+  card.status('Connexion P2P…');
+}
+function wireRecvChannel(dc,fid){
+  const inc=P2P_IN[fid];if(!inc)return;
+  dc.onmessage=ev=>{
+    if(typeof ev.data==='string'){
+      let msg;try{msg=JSON.parse(ev.data);}catch(_){return;}
+      if(msg.t==='meta'){inc.name=msg.name||inc.name;inc.mime=msg.mime||inc.mime;inc.size=msg.size||inc.size;inc.card.status('Réception…');}
+      else if(msg.t==='done'){const blob=new Blob(inc.chunks,{type:inc.mime||'application/octet-stream'});const url=URL.createObjectURL(blob);inc.card.done(url,{name:inc.name,mime:inc.mime,size:inc.size});p2pPersist(blob,{name:inc.name,mime:inc.mime,size:inc.size,host:inc.host});try{dc.close();}catch(_){}}
+    }else{inc.chunks.push(ev.data);inc.got+=ev.data.byteLength||0;if(inc.size>0)inc.card.progress(inc.got/inc.size);}
+  };
+}
+// --- sauvegarde locale des medias P2P recus (IndexedDB) pour qu'ils restent dans le chat ---
+// Regle : <= 20 Mo => on garde en local (reste affiche). Gros film (>5 min, lourd) => pas stocke, juste "telecharger".
+function p2pPersist(blob,f){
+  try{
+    if(!blob||blob.size>20*1048576)return;
+    if(!/^(image|video|audio)\//.test(f.mime||''))return;
+    const salon=SALON;const r=new FileReader();
+    r.onload=()=>{const data=r.result;const ts=Date.now()/1000;
+      const rec={salon:salon,pseudo:f.host||'P2P',avatar:'',ts:ts,k:salon+'|p2p|'+((f.name||'')+'|'+ts)};
+      if(/image\//.test(f.mime)){rec.image=data;}
+      else if(/video\//.test(f.mime)){rec._video=data;rec._vname=f.name;}
+      else if(/audio\//.test(f.mime)){rec._audio=data;rec._dur=0;}
+      IDB.put(rec);};
+    r.readAsDataURL(blob);
+  }catch(_){}
+}
+// --- relais de signaling P2P (SDP / ICE) cote client ---
+socket.on('p2p_sig',async d=>{
+  const peer=d.from;const key=p2pKey(d.fid,peer);const pc=P2P_PC[key];
+  try{
+    if(d.sdp){
+      if(d.sdp.type==='offer'){if(!pc)return;await pc.setRemoteDescription(d.sdp);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);socket.emit('p2p_sig',{fid:d.fid,to:peer,sdp:pc.localDescription});}
+      else if(d.sdp.type==='answer'){if(pc)await pc.setRemoteDescription(d.sdp);}
+    }else if(d.ice){if(pc){try{await pc.addIceCandidate(d.ice);}catch(_){}}}
+  }catch(_){}
+});
 $('#input').addEventListener('input',autoGrow);
 // clavier adapte : PC -> Entree envoie, Maj+Entree = nouvelle ligne ; mobile -> Entree = nouvelle ligne (on envoie avec le bouton)
 $('#input').addEventListener('keydown',e=>{

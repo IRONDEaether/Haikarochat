@@ -182,6 +182,12 @@ def _bid_in_salon(bid, salon, skip_sid=None):
                if info.get("salon") == salon and info.get("bid") == bid and s != skip_sid)
 
 
+def _sids_by_pseudo(pseudo, salon):
+    """Sessions (sid) d'un pseudo dans un salon donne (routage signaling P2P)."""
+    return [s for s, info in SID.items()
+            if info.get("pseudo") == pseudo and info.get("salon") == salon]
+
+
 def _presence(salon, pseudo, kind, bid=None):
     """Annonce 'X a rejoint / quitte le salon' aux membres, avec anti-spam."""
     if not salon:
@@ -1098,6 +1104,47 @@ def on_rtc(d):
             break
 
 
+@socketio.on("p2p_offer_file")
+def on_p2p_offer(d):
+    """Annonce d'un gros fichier : on ne diffuse QUE les metadonnees.
+    Le fichier lui-meme transite ensuite 100%% en P2P (WebRTC DataChannel),
+    il ne passe JAMAIS par le serveur."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
+        return
+    socketio.emit("p2p_offer_file", {"fid": str(d.get("fid", ""))[:64],
+                  "name": (d.get("name") or "fichier")[:120],
+                  "mime": (d.get("mime") or "")[:80],
+                  "size": int(d.get("size", 0) or 0),
+                  "host": me["pseudo"], "avatar": me.get("avatar", ""),
+                  "ts": time.time()}, to=me["salon"], include_self=False)
+
+
+@socketio.on("p2p_want")
+def on_p2p_want(d):
+    """Un pair veut recevoir le fichier : on previent l'hote."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    for s in _sids_by_pseudo(d.get("host", ""), me["salon"]):
+        socketio.emit("p2p_want", {"fid": str(d.get("fid", ""))[:64],
+                      "from": me["pseudo"]}, to=s)
+
+
+@socketio.on("p2p_sig")
+def on_p2p_sig(d):
+    """Relais de signaling P2P (SDP / ICE) entre deux pairs du meme salon."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    for s in _sids_by_pseudo(d.get("to", ""), me["salon"]):
+        socketio.emit("p2p_sig", {"fid": str(d.get("fid", ""))[:64],
+                      "from": me["pseudo"], "sdp": d.get("sdp"),
+                      "ice": d.get("ice")}, to=s)
+
+
 @socketio.on("disconnect")
 def on_disc():
     me = SID.pop(request.sid, None)
@@ -1111,6 +1158,10 @@ def on_disc():
             _push_online(me["salon"])
             if _bid_in_salon(me["bid"], me["salon"]) == 0:
                 _presence(me["salon"], me["pseudo"], "leave", bid=me["bid"])
+                # passe l'ex-membre en "rouge" cote client (disparait apres 5 min)
+                socketio.emit("member_off", {"pseudo": me["pseudo"],
+                              "avatar": me.get("avatar", ""),
+                              "role": me.get("role", "user")}, to=me["salon"])
 
 
 if __name__ == "__main__":
