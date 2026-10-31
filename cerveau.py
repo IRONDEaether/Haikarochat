@@ -47,6 +47,37 @@ squad = Squad(sql, _emit)
 # presence en memoire : sid -> {bid, pseudo, role, salon, avatar}
 SID = {}
 
+# Anti-flood en memoire : sid -> {"msg": [ts...], "media": dernier_ts}
+FLOOD = {}
+
+
+def _flood_ok(sid, kind):
+    """Garde-fou anti-spam/robustesse : limite le debit des messages/medias."""
+    now = time.time()
+    rec = FLOOD.setdefault(sid, {"msg": [], "media": 0.0})
+    if kind == "media":
+        if now - rec["media"] < 0.8:
+            return False
+        rec["media"] = now
+        return True
+    rec["msg"] = [t for t in rec["msg"] if now - t < 4.0]
+    if len(rec["msg"]) >= 8:
+        return False
+    rec["msg"].append(now)
+    return True
+
+
+def _salon_cfg(salon):
+    return next((s for s in config.SALONS if s["id"] == salon), {})
+
+
+def _can_write(me, salon):
+    """Salons en lecture seule (admin_write) : seuls admin/owner y publient."""
+    cfg = _salon_cfg(salon)
+    if cfg.get("admin_write") and me.get("role") not in ("admin", "owner"):
+        return False
+    return True
+
 # Notes de l'appli (etoiles 1-5) donnees par les utilisateurs, en memoire.
 RATINGS = []
 
@@ -213,6 +244,15 @@ def api_register_owner():
 
 
 # ===================== SOCKET =====================
+@socketio.on_error_default
+def _socket_error(e):
+    """Robustesse : une exception dans un handler ne doit jamais tuer la session."""
+    try:
+        print("[SOCKET ERR]", repr(e))
+    except Exception:
+        pass
+
+
 def _me():
     return SID.get(request.sid)
 
@@ -257,6 +297,10 @@ def on_auth(d):
         return
     SID[request.sid] = {"bid": bid, "pseudo": user["pseudo"], "role": user.get("role", "user"),
                         "salon": None, "avatar": d.get("avatar", "")}
+    try:
+        sql.update_user(bid, {"last_seen": time.time()})
+    except Exception:
+        pass
     emit("auth_ok", {"user": user, "salons": _salons_for(user),
                      "titres": config.TITRES, "bots": config.BOTS,
                      "annonces": sql.list_annonces(), "secrets": _secrets_pub(bid),
@@ -328,6 +372,13 @@ def on_message(d):
         return
     if txt.startswith("/") and _command(me, salon, txt):
         return
+    if not _flood_ok(request.sid, "msg"):
+        emit("system", {"salon": salon, "bot": "Network", "text": "Doucement, tu ecris trop vite."})
+        return
+    if not _can_write(me, salon):
+        emit("system", {"salon": salon, "bot": "Network",
+             "text": "Ce salon est en lecture seule : seuls les admins peuvent y publier."})
+        return
     ok, _ = squad.inspect(me["bid"], me["pseudo"], txt, salon)
     if not ok:
         return
@@ -363,7 +414,7 @@ def _command(me, salon, txt):
     c = p[0].lower()
     is_mod = me["role"] in ("modo", "admin", "owner")
     if c == "/help":
-        cmds = "/help /guide /me /roll /rules /online"
+        cmds = "/help /guide /me /roll /rules /online /bang <pseudo>"
         if is_mod:
             cmds += " | MODO: /ban <pseudo> <raison> /warn <pseudo> <raison>"
         cmds += " | CASINO: /de /pileface <mise> /machine /defi <txt> | CINE: /ticket"
@@ -384,6 +435,35 @@ def _command(me, salon, txt):
         m = _online(salon)
         emit("system", {"salon": salon, "bot": "Haiku",
              "text": "En ligne (%d): %s" % (len(m), ", ".join(x["pseudo"] for x in m))})
+    elif c == "/bang":
+        if len(p) < 2:
+            emit("system", {"salon": salon, "bot": "Haiku", "text": "Usage: /bang <pseudo>"})
+            return True
+        cible = sql.get_by_pseudo(p[1])
+        if not cible:
+            emit("system", {"salon": salon, "bot": "Haiku", "text": "Inconnu au bataillon : %s" % p[1]})
+            return True
+        if any(x["pseudo"] == cible["pseudo"] for x in SID.values()):
+            emit("system", {"salon": salon, "bot": "Haiku",
+                 "text": "%s est connecte maintenant \U0001F7E2" % cible["pseudo"]})
+        else:
+            ls = cible.get("last_seen")
+            if not ls:
+                emit("system", {"salon": salon, "bot": "Haiku",
+                     "text": "On n'a jamais vu %s par ici." % cible["pseudo"]})
+            else:
+                diff = max(0, int(time.time() - float(ls)))
+                j = diff // 86400
+                h = (diff % 86400) // 3600
+                mn = (diff % 3600) // 60
+                if j:
+                    dur = "%dj %dh" % (j, h)
+                elif h:
+                    dur = "%dh %dmin" % (h, mn)
+                else:
+                    dur = "%dmin" % mn
+                emit("system", {"salon": salon, "bot": "Haiku",
+                     "text": "%s est absent depuis %s \U0001F480" % (cible["pseudo"], dur)})
     elif c == "/ban" and is_mod and len(p) >= 2:
         cible = sql.get_by_pseudo(p[1])
         if not cible or cible.get("role") == "owner":
@@ -416,6 +496,8 @@ def on_image(d):
     data = d.get("data", "")
     if not data:
         return
+    if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
+        return
     # pas de limite : on diffuse aux AUTRES, l'expediteur l'affiche en local
     socketio.emit("image", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "image": data, "ts": time.time()},
@@ -430,6 +512,8 @@ def on_voice(d):
         return
     data = d.get("data", "")
     if not data:
+        return
+    if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
         return
     socketio.emit("voice", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "audio": data,
@@ -446,10 +530,26 @@ def on_video(d):
     data = d.get("data", "")
     if not data:
         return
+    if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
+        return
     socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
                   "avatar": me.get("avatar", ""), "video": data,
                   "name": (d.get("name") or "")[:80], "ts": time.time()},
                   to=me["salon"], include_self=False)
+
+
+@socketio.on("react")
+def on_react(d):
+    """Reaction emoji sur un message : diffusee a tout le salon."""
+    me = _me()
+    if not me or not me["salon"]:
+        return
+    mid = (d.get("mid") or "")[:120]
+    emo = (d.get("emo") or "")[:8]
+    if not mid or not emo:
+        return
+    socketio.emit("react", {"salon": me["salon"], "mid": mid, "emo": emo,
+                  "pseudo": me["pseudo"]}, to=me["salon"])
 
 
 @socketio.on("set_wallpaper")
@@ -738,8 +838,14 @@ def on_rtc(d):
 @socketio.on("disconnect")
 def on_disc():
     me = SID.pop(request.sid, None)
-    if me and me["salon"]:
-        _push_online(me["salon"])
+    FLOOD.pop(request.sid, None)
+    if me:
+        try:
+            sql.update_user(me["bid"], {"last_seen": time.time()})
+        except Exception:
+            pass
+        if me["salon"]:
+            _push_online(me["salon"])
 
 
 if __name__ == "__main__":

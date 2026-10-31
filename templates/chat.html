@@ -287,21 +287,56 @@ body{background:linear-gradient(140deg,#060a1f,#0a1430,#140a2e,#07132c,#061427);
 *::-webkit-scrollbar{width:8px;height:8px}
 *::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
 *::-webkit-scrollbar-thumb:hover{background:rgba(110,240,255,.35)}
+/* ===================== THEME HALLOWEEN 🎃 ===================== */
+body.halloween{--cy:#ff8c1a;--mg:#ff5e00;--vi:#b14bff;--bg:#0a0510;--pan:#160a22;--pan2:#1e0e30;--bd:#3a1d55;--tx:#f6e9ff;--mut:#b79ad4;--gold:#ffb347;--glass:rgba(30,14,48,.6);--glassbd:rgba(255,140,26,.22);
+  background:radial-gradient(1200px 620px at 18% -14%,#2a0f3d,#0a0510 70%)}
+body.halloween .salon.on{background:linear-gradient(90deg,rgba(255,140,26,.18),rgba(177,75,255,.16))!important}
+body.halloween .msg.sys .bd{background:rgba(255,140,26,.08);border-color:rgba(255,140,26,.3);color:var(--gold)}
+body.halloween .mention{color:var(--gold);background:rgba(255,140,26,.14)}
+/* chauves-souris volantes */
+.bats{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden;display:none}
+body.halloween .bats{display:block}
+.bats b{position:absolute;font-size:22px;will-change:transform;animation:batfly linear infinite;opacity:.85;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+@keyframes batfly{0%{transform:translate(-8vw,0) scale(1)}25%{transform:translate(28vw,-7vh) scale(1.08)}50%{transform:translate(55vw,4vh) scale(.94)}75%{transform:translate(82vw,-6vh) scale(1.06)}100%{transform:translate(112vw,2vh) scale(1)}}
+/* brume au sol */
+.fog{position:fixed;left:0;right:0;bottom:0;height:34vh;pointer-events:none;z-index:6;display:none;
+  background:linear-gradient(0deg,rgba(177,75,255,.18),rgba(255,140,26,.05) 55%,transparent);
+  filter:blur(6px);animation:fogdrift 16s ease-in-out infinite}
+body.halloween .fog{display:block}
+@keyframes fogdrift{0%,100%{opacity:.55;transform:translateX(-4%)}50%{opacity:.85;transform:translateX(4%)}}
+/* reactions emoji par message */
+.msg .bd{position:relative}
+.reactbtn{position:absolute;top:4px;right:6px;opacity:0;cursor:pointer;font-size:.9rem;transition:.15s;user-select:none}
+.msg .bd:hover .reactbtn{opacity:.6}
+.reactbtn:hover{opacity:1;transform:scale(1.25)}
+.reactpick{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.reactpick span{cursor:pointer;font-size:1.05rem;padding:1px 3px;border-radius:7px;transition:.12s}
+.reactpick span:hover{background:rgba(255,255,255,.12);transform:scale(1.25)}
+.reacts{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.reacts .rc{display:inline-flex;align-items:center;gap:3px;font-size:.78rem;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--bd)}
+.readonly-hint{margin:10px 18px;padding:10px 14px;border-radius:12px;background:var(--pan2);border:1px dashed var(--bd);color:var(--mut);font-size:.82rem;text-align:center}
+.aidecard{margin:4px 0}
+.aidecard .bd{background:rgba(255,140,26,.08);border-color:rgba(255,140,26,.3)}
 </style></head>
 <body>
+<div class="bats" id="bats"></div>
+<div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.3.1</div></div>
+<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v1.4.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v1.3.1">HINATACHAT</span>
+    <span class="logo" title="HINATACHAT v1.4.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
     <button class="icobtn" id="btnNotif" title="Notifications">🔔<span class="badge" id="notifBadge" style="display:none">0</span></button>
     <button class="icobtn" id="btnDM" title="Messages privés">💬<span class="badge" id="dmBadge" style="display:none">0</span></button>
     <button class="icobtn" id="btnWall" title="Fond d'écran du salon">🖼️</button>
+    <button class="icobtn" id="btnHween" title="Thème Halloween">🎃</button>
+    <button class="icobtn" id="btnAmb" title="Ambiance sonore Halloween">🎵</button>
+    <button class="icobtn" id="btnInvite" title="Copier le lien d'invitation">🔗</button>
     <button class="icobtn" id="btnShop" title="Boutique de titres">🛒</button>
     <button class="icobtn" id="btnMarket" title="Marché des secrets">🎁</button>
     <button class="icobtn" id="btnProfile" title="Profil">👤</button>
@@ -514,14 +549,17 @@ function joinSalon(id){
   renderSalons();
   const casino=id==='casino', anno=id==='annonce';
   const needResa=reservable&&!RESAMINE.has(id);
+  const isAdmin=ME&&(ME.role==='admin'||ME.role==='owner');
+  const readOnly=!!s.admin_write&&!isAdmin;
   $('#musicpanel').classList.toggle('on',music);
   $('#casbar').classList.toggle('on',casino);
   $('#annopanel').classList.toggle('on',anno);
   $('#resapanel').classList.toggle('on',reservable);
   const hideChat=anno||needResa;
   $('#msgs').style.display=hideChat?'none':'flex';
-  $('#compose').style.display=hideChat?'none':'flex';
+  $('#compose').style.display=(hideChat||readOnly)?'none':'flex';
   $('#emobar').classList.remove('on');
+  const rh=$('#readonlyHint');if(rh)rh.remove();
   if(anno)renderAnnonces();
   if(reservable)renderResa(id);
   document.querySelector('.side').classList.remove('show');
@@ -531,6 +569,10 @@ function joinSalon(id){
   applyWallpaper(id);
   const tt=$('#typing');if(tt)tt.textContent='';
   renderCache(id);
+  if(s.help_bot)injectAideCard();
+  if(readOnly){const h=el('div','readonly-hint');h.id='readonlyHint';
+    h.textContent='🔒 Salon en lecture seule — seuls les admins peuvent y publier.';
+    $('#msgs').appendChild(h);}
   socket.emit('join',{salon:id});
 }
 
@@ -556,12 +598,16 @@ function addMsg(m){
   const bd=el('div','bd');
   const ti=m.titre?`<span class="ti">${esc(m.titre)}</span>`:'';
   bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}</div><div class="tx">${renderText(m.text)}</div>`;
+  const mid=(m.pseudo||'')+'|'+(m.ts||'');
+  bd.dataset.mid=mid;
   if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.onload=()=>scrollMsgs(stick||mine);bd.appendChild(im);}
   if(m._audio){const a=document.createElement('audio');a.controls=true;a.preload='metadata';a.src=m._audio;bd.appendChild(a);
     bd.appendChild(el('div','dl','\uD83C\uDF99\uFE0F vocal'+(m._dur?(' \u00b7 '+Math.round(m._dur)+'s'):'')));}
   if(m._video){const v=document.createElement('video');v.className='vid';v.controls=true;v.src=m._video;v.onloadeddata=()=>scrollMsgs(stick||mine);bd.appendChild(v);
     if(m._vname){bd.appendChild(el('div','dl','📹 '+esc(m._vname)));}}
+  if(m._note){bd.appendChild(el('div','dl',esc(m._note)));}
   row.appendChild(bd);
+  attachReact(bd,mid);
   box.appendChild(row); scrollMsgs(stick||mine);
   if(ment&&!m._hist)pingMention(m.pseudo,m.text);
   else if(!mine&&!m._hist&&document.hidden)flashTitle('nouveau message');
@@ -572,12 +618,33 @@ function addSys(bot,text){
   row.innerHTML=`<div class="bd"><div class="who">🤖 ${esc(bot)}</div><div class="tx">${esc(text)}</div></div>`;
   box.appendChild(row); scrollMsgs(stick);
 }
+// ---- carte d'aide du salon Aide (injectee cote client) ----
+function injectAideCard(){
+  const box=$('#msgs');if(!box)return;
+  const row=el('div','msg sys aidecard');
+  row.innerHTML=`<div class="bd"><div class="who">🆘 Assistant d'aide</div>
+    <div class="tx">Bienvenue dans le salon <b>Aide</b> 👋<br>
+    • Tape <b>/help</b> pour voir toutes les commandes.<br>
+    • <b>/bang &lt;pseudo&gt;</b> : savoir depuis combien de temps un membre est absent.<br>
+    • Besoin d'un modo ? Ouvre ton <b>profil</b> 👤 et fais une demande.<br>
+    • Signale un souci à un admin : ce salon est en lecture seule, mais les admins te répondent ici.</div></div>`;
+  box.appendChild(row);
+}
 // ---- persistance locale des messages (localStorage, par salon) ----
 function _mk(id){return 'hikaro_msgs_'+id;}
 function loadCache(id){try{return JSON.parse(localStorage.getItem(_mk(id)))||[];}catch(_){return[];}}
-function saveCache(id,arr){try{localStorage.setItem(_mk(id),JSON.stringify(arr.slice(-80)));}catch(_){}}
-function _sig(m){return (m.pseudo||'')+'|'+(m.ts||'')+'|'+((m.text||'').slice(0,48));}
-function cachePush(id,m){if(!m.text)return;const a=loadCache(id);const s=_sig(m);if(a.some(x=>_sig(x)===s))return;a.push({pseudo:m.pseudo,text:m.text,avatar:m.avatar,titre:m.titre,ts:m.ts||Date.now()/1000});saveCache(id,a);}
+function saveCache(id,arr){let a=arr.slice(-80);for(let tries=0;tries<7;tries++){try{localStorage.setItem(_mk(id),JSON.stringify(a));return;}catch(_){if(a.length<=2)return;a=a.slice(Math.ceil(a.length/3));}}}
+function _sig(m){return (m.pseudo||'')+'|'+(m.ts||'')+'|'+((m.text||'').slice(0,48))+'|'+(m.image?'i':'')+(m._audio?'a':'')+(m._video?'v':'');}
+function cachePush(id,m){
+  const a=loadCache(id);const s=_sig(m);if(a.some(x=>_sig(x)===s))return;
+  const rec={pseudo:m.pseudo,avatar:m.avatar,titre:m.titre,ts:m.ts||Date.now()/1000};
+  if(m.text)rec.text=m.text;
+  if(m.image)rec.image=m.image;
+  if(m._audio)rec._note='\uD83C\uDF99\uFE0F Message vocal'+(m._dur?(' \u00b7 '+Math.round(m._dur)+'s'):'');
+  if(m._video)rec._note='\uD83D\uDCF9 Vid\u00e9o'+(m._vname?(' \u00b7 '+m._vname):'');
+  if(!rec.text&&!rec.image&&!rec._note)return;
+  a.push(rec);saveCache(id,a);
+}
 function renderCache(id){const a=loadCache(id);if(!a.length)return;$('#msgs').innerHTML='';a.forEach(x=>{x._hist=true;addMsg(x);});scrollMsgs(true);}
 socket.on('history',d=>{
   if(d.salon!==SALON)return;
@@ -589,9 +656,9 @@ socket.on('history',d=>{
 });
 socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text))chime();}});
 socket.on('system',d=>{/* bots masqués : on n'affiche plus les messages des robots dans le chat */});
-socket.on('image',d=>{if(d.salon===SALON)addMsg(d);});
-socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
-socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});if(!mine)chime();});
+socket.on('image',d=>{if(d.salon===SALON){addMsg(d);cachePush(d.salon,d);}});
+socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_audio:1,_dur:d.dur,ts:d.ts});if(!mine)chime();});
+socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_video:1,_vname:d.name,ts:d.ts});if(!mine)chime();});
 socket.on('avatar',d=>{AVCACHE[d.pseudo]=d.avatar;});
 socket.on('denied',d=>toast(d.raison||'Refusé'));
 socket.on('economy',d=>{if(d.points!=null)$('#coins').textContent=d.points;if(d.level_up)toast('Niveau '+d.level+' !');});
@@ -603,14 +670,114 @@ socket.on('pm_error',d=>toast(d.error));
 socket.on('banned',d=>{if(d.browser_id===BID){toast('Tu as été banni : '+(d.raison||''));setTimeout(()=>location.href='/register',1800);}});
 socket.on('role_change',d=>{if(d.browser_id===BID&&ME){ME.role=d.role;toast('Ton rôle : '+d.role);}});
 
+// ---- reactions emoji par message (👻🎃💀🔥❤️😂) ----
+const REACT_EMOJIS=['👻','🎃','💀','🔥','❤️','😂'];
+const _REACTS={}; // mid -> {emo: count}
+function attachReact(bd,mid){
+  const btn=el('span','reactbtn','😊+');
+  btn.title='Réagir';
+  btn.onclick=(e)=>{e.stopPropagation();togglePicker(bd,mid);};
+  bd.appendChild(btn);
+  const box=el('div','reacts');box.dataset.for=mid;bd.appendChild(box);
+  if(_REACTS[mid])paintReacts(bd,mid);
+}
+function togglePicker(bd,mid){
+  const ex=bd.querySelector('.reactpick');if(ex){ex.remove();return;}
+  const p=el('div','reactpick');
+  REACT_EMOJIS.forEach(e=>{const s=el('span',null,e);s.onclick=(ev)=>{ev.stopPropagation();socket.emit('react',{mid:mid,emo:e});p.remove();};p.appendChild(s);});
+  bd.appendChild(p);
+}
+function paintReacts(bd,mid){
+  const box=bd.querySelector('.reacts');if(!box)return;box.innerHTML='';
+  const r=_REACTS[mid]||{};
+  Object.keys(r).forEach(emo=>{if(r[emo]>0){box.appendChild(el('span','rc',emo+' '+r[emo]));}});
+}
+socket.on('react',d=>{
+  if(d.salon!==SALON)return;
+  const r=_REACTS[d.mid]||(_REACTS[d.mid]={});
+  r[d.emo]=(r[d.emo]||0)+1;
+  const bd=[...document.querySelectorAll('#msgs .bd')].find(x=>x.dataset.mid===d.mid);
+  if(bd)paintReacts(bd,d.mid);
+});
+
 // ---- notifications + son ----
 let _actx=null;
 function audioCtx(){try{if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();if(_actx.state==='suspended')_actx.resume();return _actx;}catch(_){return null;}}
 // deverrouille le son au 1er geste utilisateur (exige par les navigateurs)
 ['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>audioCtx(),{once:true}));
+
+// ===================== HALLOWEEN 🎃 =====================
+let HALLOWEEN=localStorage.getItem('hikaro_hween');
+HALLOWEEN=(HALLOWEEN===null)?true:(HALLOWEEN==='1'); // defaut ON
+function spawnBats(){
+  const box=$('#bats');if(!box)return;box.innerHTML='';
+  if(!HALLOWEEN)return;
+  const n=7;
+  for(let i=0;i<n;i++){const b=document.createElement('b');b.textContent='🦇';
+    b.style.top=(5+Math.random()*70)+'%';
+    b.style.fontSize=(16+Math.random()*18)+'px';
+    b.style.animationDuration=(10+Math.random()*12)+'s';
+    b.style.animationDelay=(-Math.random()*18)+'s';
+    box.appendChild(b);}
+}
+function applyHween(){
+  document.body.classList.toggle('halloween',HALLOWEEN);
+  const b=$('#btnHween');if(b)b.style.opacity=HALLOWEEN?'1':'.45';
+  spawnBats();
+}
+function toggleHween(){HALLOWEEN=!HALLOWEEN;localStorage.setItem('hikaro_hween',HALLOWEEN?'1':'0');
+  applyHween();toast(HALLOWEEN?'🎃 Mode Halloween activé':'Mode Halloween désactivé');}
+if($('#btnHween'))$('#btnHween').onclick=toggleHween;
+applyHween();
+
+// ---- ambiance sonore spooky (Web Audio, bouton START) ----
+let _ambOn=false,_ambNodes=null,_ambTimer=null;
+function startAmbience(){
+  const c=audioCtx();if(!c)return;
+  stopAmbience();
+  // nappe grave + souffle filtre = ambiance de manoir hanté
+  const drone=c.createOscillator(),dg=c.createGain();drone.type='sawtooth';drone.frequency.value=55;
+  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=320;
+  drone.connect(lp);lp.connect(dg);dg.connect(c.destination);dg.gain.value=.04;drone.start();
+  // battement lent facon respiration
+  const lfo=c.createOscillator(),lg=c.createGain();lfo.type='sine';lfo.frequency.value=.12;lg.gain.value=.025;
+  lfo.connect(lg);lg.connect(dg.gain);lfo.start();
+  _ambNodes={drone,dg,lp,lfo,lg};
+  // cloches/hululements aléatoires
+  _ambTimer=setInterval(()=>{if(Math.random()<0.4)spookyHoot();},4200);
+  _ambOn=true;const b=$('#btnAmb');if(b)b.style.color='var(--gold)';
+}
+function spookyHoot(){const c=audioCtx();if(!c)return;try{
+  const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';
+  const t0=c.currentTime;o.frequency.setValueAtTime(300,t0);o.frequency.exponentialRampToValueAtTime(180,t0+.8);
+  g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.05,t0+.15);g.gain.exponentialRampToValueAtTime(.0001,t0+1.0);
+  o.start(t0);o.stop(t0+1.05);}catch(_){}}
+function stopAmbience(){if(_ambTimer){clearInterval(_ambTimer);_ambTimer=null;}
+  if(_ambNodes){try{_ambNodes.drone.stop();_ambNodes.lfo.stop();}catch(_){}_ambNodes=null;}
+  _ambOn=false;const b=$('#btnAmb');if(b)b.style.color='';}
+function toggleAmbience(){if(_ambOn){stopAmbience();toast('🔇 Ambiance coupée');}else{startAmbience();toast('🎵 Ambiance Halloween…');}}
+if($('#btnAmb'))$('#btnAmb').onclick=toggleAmbience;
+
+// ---- lien d'invitation ----
+if($('#btnInvite'))$('#btnInvite').onclick=()=>{
+  const url=location.origin+'/';
+  const done=()=>toast('🔗 Lien d\'invitation copié !');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(()=>prompt('Copie ce lien :',url));}
+  else prompt('Copie ce lien :',url);
+};
+
+// ---- son d'alerte spooky quand on t'ecrit (mode Halloween) ----
+function spookyChime(){const c=audioCtx();if(!c)return;try{
+  const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';
+  const t0=c.currentTime;o.frequency.setValueAtTime(440,t0);o.frequency.exponentialRampToValueAtTime(233,t0+.25);
+  o.frequency.exponentialRampToValueAtTime(330,t0+.5);
+  g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(.16,t0+.04);g.gain.exponentialRampToValueAtTime(.0001,t0+.6);
+  o.start(t0);o.stop(t0+.62);}catch(_){}}
+
 // son "whaou" (balayage ascendant) sur message entrant
 let _lastChime=0;
 function chime(){const c=audioCtx();if(!c)return;const t=Date.now();if(t-_lastChime<220)return;_lastChime=t;
+  if(HALLOWEEN){spookyChime();return;}
   try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
     const t0=c.currentTime;o.type='sine';
     o.frequency.setValueAtTime(520,t0);o.frequency.exponentialRampToValueAtTime(1040,t0+.18);
@@ -642,11 +809,12 @@ function flashTitle(t){if(!document.hidden)return;clearInterval(_titleTimer);let
   _titleTimer=setInterval(()=>{document.title=(on=!on)?('\uD83D\uDD14 '+t):_baseTitle;},900);}
 window.addEventListener('focus',()=>{clearInterval(_titleTimer);document.title=_baseTitle;});
 function pingMention(from,text){
-  beepMention();
-  notify('\uD83D\uDD14 '+from+' t\'a mentionn\u00e9 : '+String(text||'').slice(0,60),true);
-  toast('\uD83D\uDD14 '+from+' t\'a mentionn\u00e9');
+  if(HALLOWEEN){spookyChime();}else{beepMention();}
+  const gh=HALLOWEEN?'👻 ':'';
+  notify(gh+'\uD83D\uDD14 '+from+' t\'a mentionn\u00e9 : '+String(text||'').slice(0,60),true);
+  toast(gh+'\uD83D\uDD14 '+from+' t\'a mentionn\u00e9');
   flashTitle(from+' t\'a mentionn\u00e9');
-  try{if('Notification'in window&&Notification.permission==='granted'){new Notification('HINATACHAT \u2014 '+from+' t\'a mentionn\u00e9',{body:String(text||'').slice(0,80)});}}catch(_){}
+  try{if('Notification'in window&&Notification.permission==='granted'){new Notification((HALLOWEEN?'🎃 ':'')+'HINATACHAT \u2014 '+from+' t\'a mentionn\u00e9',{body:String(text||'').slice(0,80)});}}catch(_){}
 }
 $('#btnNotif').onclick=()=>{
   NOTIFN=0; $('#notifBadge').style.display='none';
@@ -795,7 +963,7 @@ $('#wallFile').onchange=e=>{
 };
 
 // ---- barre emoji ----
-const EMOJIS='😀 😂 😍 😎 🥳 😢 😡 👍 👎 🙏 🔥 ✨ 🎉 ❤️ 👀 🤖 🎮 🌀 🕶️ 🌸'.split(' ');
+const EMOJIS='😀 😂 😍 😎 🥳 😢 😡 👍 👎 🙏 🔥 ✨ 🎉 ❤️ 👀 🤖 🎃 👻 💀 🕷️ 🌙 🕶️'.split(' ');
 function renderEmobar(){const b=$('#emobar');b.innerHTML='';EMOJIS.forEach(e=>{const s=el('span',null,e);
   s.onclick=()=>{const i=$('#input');i.value+=e;i.focus();};b.appendChild(s);});}
 $('#btnEmo').onclick=()=>$('#emobar').classList.toggle('on');
@@ -897,6 +1065,7 @@ $('#imgFile').onchange=e=>{
       const _d=cv.toDataURL('image/jpeg',.7);
       socket.emit('image',{data:_d});
       addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',image:_d,ts:Date.now()/1000});
+      cachePush(SALON,{pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',image:_d,ts:Date.now()/1000});
     }; img.src=r.result;
   }; r.readAsDataURL(f); e.target.value='';
 };
@@ -979,7 +1148,8 @@ $('#vidFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;e.target.value='';
   const r=new FileReader();
   r.onload=()=>{socket.emit('video',{data:r.result,name:f.name});toast('📹 Vidéo envoyée');
-    addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_video:URL.createObjectURL(f),_vname:f.name,ts:Date.now()/1000});};
+    addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_video:URL.createObjectURL(f),_vname:f.name,ts:Date.now()/1000});
+    cachePush(SALON,{pseudo:ME.pseudo,avatar:AVATAR,_video:1,_vname:f.name,ts:Date.now()/1000});};
   r.readAsDataURL(f);
 };
 
@@ -1009,7 +1179,8 @@ async function startVoice(btn,pmPeer){
     r.onload=()=>{
       if(pm)socket.emit('pm_voice',{to:pm,data:r.result,dur:dur});
       else {socket.emit('voice',{data:r.result,dur:dur});
-        addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_audio:URL.createObjectURL(blob),_dur:dur,ts:Date.now()/1000});}
+        addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_audio:URL.createObjectURL(blob),_dur:dur,ts:Date.now()/1000});
+        cachePush(SALON,{pseudo:ME.pseudo,avatar:AVATAR,_audio:1,_dur:dur,ts:Date.now()/1000});}
     };
     r.readAsDataURL(blob);
   };

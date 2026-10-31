@@ -11,7 +11,7 @@ def _env(k, d=""):
 
 
 # --- Version ---
-VERSION = "1.3.2"
+VERSION = "1.4.0"
 
 # =====================================================================
 #  BASE DE DONNEES
@@ -109,6 +109,21 @@ SALONS = [
     {"id": "general", "nom": "General", "icone": "\U0001F30A",
      "desc": "Le salon unique du reseau", "specialite": "Discussion libre, vocal, video & messages prives",
      "regles": "Reste courtois, pas de spam, tout le monde est bienvenu."},
+    {"id": "halloween", "nom": "Halloween", "icone": "\U0001F383",
+     "desc": "Le salon hante d'Halloween", "specialite": "Frissons, blagues & ambiance d'Halloween",
+     "regles": "Amuse-toi; reste bienveillant; esprit d'Halloween"},
+    {"id": "jeux", "nom": "Jeux", "icone": "\U0001F3AE",
+     "desc": "Mini-jeux & defis entre membres", "specialite": "Jeux, defis et bonne humeur",
+     "regles": "Fair-play avant tout; pas de triche; respecte les autres"},
+    {"id": "annonces", "nom": "Annonces", "icone": "\U0001F4E2",
+     "desc": "Les annonces officielles du reseau",
+     "specialite": "Lecture seule \u2014 seuls les admins publient ici",
+     "regles": "Salon d'annonces; seuls les admins ecrivent; lis les infos importantes",
+     "admin_write": True},
+    {"id": "aide", "nom": "Aide", "icone": "\U0001F198",
+     "desc": "Besoin d'aide ? Lis le guide", "specialite": "Guide & support \u2014 ecriture reservee aux admins",
+     "regles": "Lis les consignes; pour une question ecris en General ou en MP a un admin",
+     "admin_write": True, "help_bot": True},
     {"id": "admin", "nom": "Admin", "icone": "\U0001F6E1", "admin": True},
 ]
 
