@@ -435,9 +435,9 @@ body{background:linear-gradient(135deg,#140a2e,#1a0f3f,#24124f,#140a2e);backgrou
 *::-webkit-scrollbar{width:8px;height:8px}
 *::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
 *::-webkit-scrollbar-thumb:hover{background:rgba(110,240,255,.35)}
-/* ===================== THEME HALLOWEEN 🎃 ===================== */
-body.halloween{--cy:#ff8c1a;--mg:#ff5e00;--vi:#b14bff;--bg:#0a0510;--pan:#160a22;--pan2:#1e0e30;--bd:#3a1d55;--tx:#f6e9ff;--mut:#b79ad4;--gold:#ffb347;--glass:rgba(30,14,48,.6);--glassbd:rgba(255,140,26,.22);
-  background:radial-gradient(1200px 620px at 18% -14%,#2a0f3d,#0a0510 70%)}
+/* ===================== THEME HALLOWEEN 🎃 (ancre sombre ocean) ===================== */
+body.halloween{--cy:#54e6ff;--mg:#3f9cff;--vi:#a98bff;--bg:#061520;--pan:#0c2532;--pan2:#103142;--bd:#1c4557;--tx:#eaf6fb;--mut:#8fb6c6;--gold:#ffc45e;
+  background:radial-gradient(1200px 640px at 18% -14%,#12455e,#04141d 72%)}
 body.halloween .salon.on{background:linear-gradient(90deg,rgba(255,140,26,.18),rgba(177,75,255,.16))!important}
 body.halloween .msg.sys .bd{background:rgba(255,140,26,.08);border-color:rgba(255,140,26,.3);color:var(--gold)}
 body.halloween .mention{color:var(--gold);background:rgba(255,140,26,.14)}
@@ -467,50 +467,120 @@ body.halloween .fog{display:block}
 .aidecard .bd{background:rgba(255,140,26,.08);border-color:rgba(255,140,26,.3)}
 
 /* =================================================================
-   THEME v2.1 — « Cire de plastique blanc » : glossy clair + fluidite max
+   THEME v2.5 — « OCEAN DISCO » : cire profonde, bulles en relief qui ondulent,
+   eau qui bouillonne (cyclones), chauves-souris en vagues, citrouilles & sorcières.
+   AUCUN floutage sur les panneaux (lisibilité) — le relief vient des bulles.
    (bloc d'override appende : prime sur les regles sombres ci-dessus)
    ================================================================= */
 :root{
-  --cy:#2bb6d6;--mg:#5c8cff;--vi:#7a6cff;
-  --bg:#eef3f7;--pan:#ffffff;--pan2:#f4f8fb;--pan3:#eaf1f6;
-  --tx:#17242e;--mut:#6b8291;--bd:#dde7ee;
-  --gold:#e2a93b;--glass:rgba(255,255,255,.72);--glassbd:rgba(120,160,200,.22);
+  --cy:#3fe0ff;--mg:#38a6ff;--vi:#8a6cff;
+  --bg:#071722;--pan:#0c2532;--pan2:#103142;--pan3:#16384b;
+  --tx:#eaf6fb;--mut:#8fb6c6;--bd:#1c4557;
+  --gold:#ffc45e;--glass:rgba(12,37,50,.74);--glassbd:rgba(120,210,255,.20);
 }
 body{color:var(--tx);
   background:
-    radial-gradient(1200px 620px at 18% -14%,#ffffff,transparent 60%),
-    radial-gradient(900px 520px at 100% 0%,#eaf2ff,transparent 55%),
-    linear-gradient(160deg,#f6fafc,#e7eef4)}
-/* surface « cire » : blanc laiteux, reflet glossy en haut */
-.top,.side,.modal,.msg .bd,.card,.coins,.icobtn,.salon,.chip,
-.ov .modal,.rail,.mem,.stage,.subtab button,.field input,.field textarea,
-#goSel,#pmInput,.readonly-hint{
-  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 42%,#eef4f9 100%)!important;
+    radial-gradient(1300px 700px at 18% -14%,#12384e,transparent 62%),
+    radial-gradient(1000px 560px at 100% 0%,#0e3350,transparent 58%),
+    linear-gradient(165deg,#08202c,#04141d 72%)}
+/* --- surface : cire profonde, reflet glossy, RIEN de flou --- */
+.top,.side,.modal,.card,.coins,.icobtn,.salon,.chip,
+.ov .modal,.mem,.stage,.subtab button,.field input,.field textarea,
+#goSel,#input,#pmInput,.readonly-hint{
+  background:linear-gradient(180deg,#12384a 0%,#0e2c3b 60%,#0b2431 100%)!important;
   border-color:var(--bd)!important;color:var(--tx)!important}
 .top,.side,.modal,.stage{
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(150,175,195,.25),
-             0 10px 30px rgba(90,120,150,.12)!important}
-.msg .bd{
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 18px rgba(90,120,150,.10)!important}
-.logo,#boot .bl{background:linear-gradient(90deg,var(--cy),var(--mg))!important;
-  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
-/* textes qui etaient clairs -> fonces */
-.who,.tx,.nm,.ds,.modal h2,.field label{color:var(--tx)!important}
+  box-shadow:inset 0 1px 0 rgba(140,220,255,.14),inset 0 -1px 0 rgba(0,0,0,.35),
+             0 12px 30px rgba(0,0,0,.34)!important}
+/* --- bulles de messages : wobbly + relief cire, sans flou --- */
+.msg .bd{position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#133c4f 0%,#0e2c3b 62%,#0b2431 100%)!important;
+  border:1px solid rgba(120,210,255,.20)!important;border-radius:18px!important;
+  box-shadow:inset 0 2px 3px rgba(175,235,255,.20),inset 0 -3px 6px rgba(0,0,0,.32),0 8px 20px rgba(0,0,0,.30)!important;
+  animation:bubWobble 6.5s ease-in-out infinite}
+.msg:nth-child(even) .bd{animation-duration:8.2s;animation-delay:-2.4s}
+.msg:nth-child(3n) .bd{animation-duration:7.3s;animation-delay:-4.1s}
+@keyframes bubWobble{0%,100%{transform:translateY(0) rotate(0deg)}
+  25%{transform:translateY(-2px) rotate(.5deg)}50%{transform:translateY(1px) rotate(-.5deg)}
+  75%{transform:translateY(-1px) rotate(.3deg)}}
+/* tete de bulle : petit reflet brillant en haut a gauche */
+.msg .bd::before{content:'';position:absolute;left:12px;top:7px;width:34%;height:20%;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 34% 34%,rgba(210,245,255,.55),transparent 70%)}
+/* message envoye par moi : teinte cyan */
+.msg.mine .bd{background:linear-gradient(180deg,#12505f,#0d3745)!important;border-color:rgba(63,224,255,.36)!important}
+.msg.mine{flex-direction:row-reverse}
+.msg.mine .bd .who{justify-content:flex-end}
+/* --- eau qui bouillonne : bulles montantes --- */
+.petals b{filter:drop-shadow(0 0 4px rgba(120,210,255,.55))}
+/* --- chauves-souris en VAGUE --- */
+.bats b{filter:drop-shadow(0 2px 5px rgba(0,0,0,.55))}
+.bats.wave b{animation:batWave linear infinite}
+@keyframes batWave{0%{transform:translate(-12vw,6vh) rotate(-6deg)}
+  18%{transform:translate(6vw,-14vh) rotate(4deg)}
+  40%{transform:translate(28vw,10vh) rotate(-3deg)}
+  62%{transform:translate(52vw,-16vh) rotate(6deg)}
+  82%{transform:translate(80vw,7vh) rotate(-4deg)}
+  100%{transform:translate(112vw,-4vh) rotate(0)}}
+/* --- cyclones / tourbillons dans l'eau --- */
+.cyclone{position:fixed;pointer-events:none;z-index:2;border-radius:50%;opacity:.30;
+  border:2px solid rgba(120,210,255,.55);border-top-color:transparent;border-left-color:transparent;
+  background:radial-gradient(circle,transparent 58%,rgba(63,224,255,.10) 72%,transparent 84%);
+  animation:cycSpin linear infinite;will-change:transform}
+.cyclone::after{content:'';position:absolute;inset:16%;border-radius:50%;
+  border:1px solid rgba(138,108,255,.42);border-bottom-color:transparent}
+@keyframes cycSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+/* --- bouillonnement a la surface : electrons qui montent --- */
+.ocean-boil{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;display:none}
+body.halloween .ocean-boil{display:block}
+.ocean-boil i{position:absolute;bottom:-8%;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,rgba(200,245,255,.85),rgba(63,224,255,.10) 70%,transparent);
+  animation:boilUp linear infinite;will-change:transform,opacity}
+@keyframes boilUp{0%{transform:translateY(0) scale(.6);opacity:0}
+  12%{opacity:.85}88%{opacity:.7}100%{transform:translateY(-112vh) scale(1.15);opacity:0}}
+/* --- deco halloween : citrouilles & sorcières qui derivent --- */
+.spooky-deco{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden;display:none}
+body.halloween .spooky-deco{display:block}
+.spooky-deco b{position:absolute;font-size:20px;opacity:.55;animation:decoFloat linear infinite;will-change:transform}
+@keyframes decoFloat{0%{transform:translate(0,0) rotate(-6deg)}
+  50%{transform:translate(3vw,-4vh) rotate(8deg)}100%{transform:translate(0,0) rotate(-6deg)}}
+/* --- texte / boutons --- */
+.who{color:var(--cy)!important}.tx,.nm,.modal h2,.field label{color:var(--tx)!important}
 .ds,.mut,.hint,.st{color:var(--mut)!important}
-/* boutons degrades : texte fonce illisible sur clair -> blanc */
-button[style*="var(--cy)"],button[style*="var(--mg)"],button[style*="var(--vi)"]{color:#fff!important}
-/* cartes medias (gradients sombres hardcodes) -> verre blanc */
-[style*="#241d53"],[style*="#1a1540"],[style*="241d53"],[style*="1a1540"]{
-  background:linear-gradient(180deg,#ffffff,#eef4f9)!important;color:var(--tx)!important;border-color:var(--bd)!important}
-.pic,video{border-radius:14px!important;box-shadow:0 8px 22px rgba(90,120,150,.18)!important}
-.coins{color:#b4832a!important}
-/* compteur de connectes par salon (accueil) */
-.scount{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:1px 8px;
-  font-size:.7rem;font-weight:700;border-radius:999px;color:#2f7d4f;
-  background:linear-gradient(180deg,#eafff2,#d9f6e6);border:1px solid #bfe9cf;vertical-align:middle}
-.scount .dot{width:6px;height:6px;border-radius:50%;background:#35c46a;box-shadow:0 0 6px #35c46a;animation:pulseDot 1.6s ease-in-out infinite}
-@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
-.salon .nm{display:flex;align-items:center}
+.pic,video{border-radius:16px!important;box-shadow:0 10px 26px rgba(0,0,0,.34)!important}
+.coins{color:var(--gold)!important}
+/* --- la petite BOULE d'outils a cote de la barre --- */
+.compose{position:relative;overflow:visible}
+.toolball{position:absolute;right:56px;bottom:58px;display:flex;flex-direction:column;gap:8px;
+  padding:10px;border-radius:20px;z-index:45;
+  background:linear-gradient(180deg,rgba(18,56,74,.97),rgba(11,36,49,.97));
+  border:1px solid rgba(120,210,255,.28);box-shadow:0 16px 40px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease}
+.toolball.on{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.toolball .tb{width:48px;height:48px;border-radius:50%;font-size:1.35rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--tx);
+  background:radial-gradient(circle at 34% 30%,#1a4a5e,#0e2f3e);
+  border:1px solid rgba(120,210,255,.26);
+  box-shadow:inset 0 2px 3px rgba(175,235,255,.20),0 6px 14px rgba(0,0,0,.38);
+  transition:transform .14s ease}
+.toolball .tb:hover{transform:scale(1.12);border-color:var(--cy)}
+.toolball .tb:active{transform:scale(.92)}
+#btnPlus{font-size:1.4rem;font-weight:800;transition:transform .2s ease}
+#btnPlus.open{transform:rotate(135deg)}
+.toolball .tb.rec{background:radial-gradient(circle at 34% 30%,#ff6b8a,#c02b4a)!important;color:#fff!important;box-shadow:0 0 0 4px rgba(255,77,109,.3)}
+#btnAnon.anon-on{background:radial-gradient(circle at 34% 30%,#8a6cff,#5b3fd0)!important;color:#fff!important}
+.scrim-tools{position:fixed;inset:0;z-index:44;display:none}
+.scrim-tools.on{display:block}
+/* ---- Fluidite max ---- */
+html{scroll-behavior:smooth}
+.msgs{scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  content-visibility:auto;contain-intrinsic-size:1px 1px}
+.msg{contain:content}
+.pic,video,.salon,.icobtn,.giftpick,.modal{will-change:transform}
+.side,.msgs,.rail{will-change:scroll-position}
+.pic,.audcard,.vidcard,img,video{content-visibility:auto}
+*{-webkit-tap-highlight-color:transparent}
 /* cadeaux : carte + picker */
 .giftmsg .giftcard{display:flex;align-items:center;gap:12px;
   background:linear-gradient(180deg,#fffaf0,#fdeecb)!important;border:1px solid #f0d79a!important;
@@ -543,9 +613,32 @@ html.dev-low body{animation:none!important}
 /* --- PERF: ongele les grosses anims quand l'onglet est en arriere-plan --- */
 html.tab-hidden .liquid,html.tab-hidden .petals,html.tab-hidden .halo,
 html.tab-hidden .orbWrap,html.tab-hidden .alw span{animation-play-state:paused!important}
+/* ==== SANS FLOUTAGE (v2.5) : on neutralise TOUS les blur des panneaux/bulles ==== */
+.top,.side,.right,.compose,.musicpanel .card,.modal,.head,.icobtn,.spec .chip,
+.compose input[type=text],.compose textarea#input,.msg .bd{
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* les blobs .liquid deviennent de vraies bulles d'eau en relief qui ondulent (plus de flou) */
+.liquid{filter:none!important;opacity:.9!important;mix-blend-mode:normal!important}
+.liquid i{filter:none!important;mix-blend-mode:normal!important;
+  box-shadow:inset 0 0 60px rgba(255,255,255,.14),inset 14px 20px 50px rgba(190,240,255,.28),0 20px 60px rgba(0,0,0,.25);
+  border:1px solid rgba(160,225,255,.22);will-change:transform,border-radius;
+  animation:liqMorph 14s ease-in-out infinite!important}
+.liquid i:nth-child(1){background:radial-gradient(circle at 32% 28%,rgba(100,225,255,.55),rgba(40,120,180,.10) 62%,transparent 74%)!important;animation-duration:15s!important}
+.liquid i:nth-child(2){background:radial-gradient(circle at 60% 40%,rgba(90,170,255,.5),rgba(40,90,180,.08) 62%,transparent 74%)!important;animation-duration:19s!important;animation-direction:reverse!important}
+.liquid i:nth-child(3){background:radial-gradient(circle at 48% 52%,rgba(80,245,220,.45),rgba(30,140,150,.08) 60%,transparent 74%)!important;animation-duration:17s!important}
+.liquid::after{display:none!important}
+@keyframes liqMorph{
+  0%,100%{border-radius:60% 40% 55% 45%/55% 50% 50% 45%;transform:translate(0,0) scale(1)}
+  33%{border-radius:40% 60% 45% 55%/50% 45% 55% 50%;transform:translate(3vw,-2vh) scale(1.06)}
+  66%{border-radius:55% 45% 60% 40%/45% 55% 45% 55%;transform:translate(-2vw,3vh) scale(.96)}}
+.fog{filter:none!important;opacity:.4!important}
+body.halloween .fog{background:linear-gradient(0deg,rgba(63,156,255,.16),rgba(84,230,255,.05) 55%,transparent)!important}
+html.tab-hidden .ocean-boil i,html.tab-hidden .cyclone,html.tab-hidden .spooky-deco b,html.tab-hidden .bats b{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;scroll-behavior:auto!important}}
 </style></head>
 <body>
+<div class="ocean-boil" id="oceanBoil"></div>
+<div class="spooky-deco" id="spookyDeco"></div>
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
@@ -556,12 +649,12 @@ html.tab-hidden .orbWrap,html.tab-hidden .alw span{animation-play-state:paused!i
 <div class="bar"><i id="bootBar"></i></div>
 <div class="st" id="bootSt">Réveil de l'orbe…</div>
 <div class="stp" id="bootPct">0%</div>
-<button id="bootRetry" style="display:none">Réessayer</button><div class="verz">v2.4.0</div></div>
+<button id="bootRetry" style="display:none">Réessayer</button><div class="verz">v2.5.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="ALLOWIN v2.4.0">HINATACHAT</span>
+    <span class="logo" title="ALLOWIN v2.5.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -627,16 +720,19 @@ html.tab-hidden .orbWrap,html.tab-hidden .alw span{animation-play-state:paused!i
     <div class="typing" id="typing"></div>
     <div class="emobar" id="emobar"></div>
     <div class="compose" id="compose">
-      <button class="icobtn ghost" id="btnEmo" title="Emojis">😀</button>
-      <button class="icobtn ghost" id="btnImg" title="Envoyer une photo">🖼️</button>
+      <button class="icobtn ghost" id="btnPlus" title="Outils (photo, vocal, fichier…)">＋</button>
       <input type="file" id="imgFile" accept="image/*" style="display:none">
-      <button class="icobtn ghost" id="btnVid" title="Envoyer une vidéo courte">📹</button>
       <input type="file" id="vidFile" accept="video/*" style="display:none">
-      <button class="icobtn ghost" id="btnFile" title="Envoyer un fichier">📎</button>
       <input type="file" id="fileAny" style="display:none">
-      <button class="icobtn ghost" id="btnAnon" title="Mode anonyme : envoyer sans montrer ton pseudo">👤</button>
-      <button class="icobtn ghost" id="btnVoice" title="Message vocal (maintenir)">🎙️</button>
       <input type="file" id="wallFile" accept="image/*" style="display:none">
+      <div class="toolball" id="toolball">
+        <button class="tb" id="btnEmo" title="Emojis">😀</button>
+        <button class="tb" id="btnImg" title="Envoyer une photo">🖼️</button>
+        <button class="tb" id="btnVid" title="Envoyer une vidéo courte">📹</button>
+        <button class="tb" id="btnFile" title="Envoyer un fichier">📎</button>
+        <button class="tb" id="btnVoice" title="Message vocal (maintenir)">🎙️</button>
+        <button class="tb" id="btnAnon" title="Mode anonyme : envoyer sans montrer ton pseudo">👤</button>
+      </div>
       <textarea id="input" rows="1" placeholder="Écris un message…" autocomplete="off"></textarea>
       <button id="send" title="Envoyer">➤</button>
     </div>
@@ -1173,27 +1269,80 @@ function audioCtx(){try{if(!_actx)_actx=new (window.AudioContext||window.webkitA
 let HALLOWEEN=localStorage.getItem('hikaro_hween');
 HALLOWEEN=(HALLOWEEN===null)?true:(HALLOWEEN==='1'); // defaut ON
 function spawnBats(){
-  const box=$('#bats');if(!box)return;box.innerHTML='';
+  const box=$('#bats');if(!box)return;box.innerHTML='';box.classList.add('wave');
   if(!HALLOWEEN)return;
   const _slow=window.matchMedia&&(matchMedia('(prefers-reduced-motion:reduce)').matches);
   if(_slow)return;
-  const n=(window.innerWidth<=820)?4:7;
-  for(let i=0;i<n;i++){const b=document.createElement('b');b.textContent='🦇';
-    b.style.top=(5+Math.random()*70)+'%';
-    b.style.fontSize=(16+Math.random()*18)+'px';
-    b.style.animationDuration=(10+Math.random()*12)+'s';
-    b.style.animationDelay=(-Math.random()*18)+'s';
+  // chauves-souris par VAGUES : plusieurs groupes qui partent ensemble puis se decalent
+  const small=window.innerWidth<=820;
+  const waves=small?2:3, perWave=small?3:4;
+  for(let w=0;w<waves;w++){
+    const base=-w*2.6;                 // decalage de depart entre vagues
+    for(let i=0;i<perWave;i++){
+      const b=document.createElement('b');b.textContent='\uD83E\uDD87';
+      b.style.top=(8+w*16+Math.random()*10)+'%';
+      b.style.fontSize=(16+Math.random()*16)+'px';
+      b.style.animationDuration=(11+Math.random()*7)+'s';
+      b.style.animationDelay=(base - i*0.35 - Math.random()*0.8)+'s';
+      box.appendChild(b);
+    }
+  }
+}
+// --- eau qui bouillonne : bulles qui montent ---
+function spawnBoil(){
+  const box=$('#oceanBoil');if(!box)return;box.innerHTML='';
+  if(!HALLOWEEN)return;
+  const n=(window.innerWidth<=820)?14:26;
+  for(let i=0;i<n;i++){const b=document.createElement('i');
+    const s=(5+Math.random()*16);
+    b.style.width=s+'px';b.style.height=s+'px';
+    b.style.left=(Math.random()*100)+'%';
+    b.style.animationDuration=(7+Math.random()*9)+'s';
+    b.style.animationDelay=(-Math.random()*12)+'s';
+    box.appendChild(b);}
+}
+// --- cyclones / tourbillons d'eau ---
+function spawnCyclones(){
+  document.querySelectorAll('.cyclone').forEach(c=>c.remove());
+  if(!HALLOWEEN)return;
+  const n=(window.innerWidth<=820)?2:3;
+  for(let i=0;i<n;i++){const c=document.createElement('div');c.className='cyclone';
+    const d=(140+Math.random()*180);
+    c.style.width=d+'px';c.style.height=d+'px';
+    c.style.left=(6+Math.random()*78)+'%';
+    c.style.top=(10+Math.random()*68)+'%';
+    c.style.animationDuration=(6+Math.random()*7)+'s';
+    if(Math.random()<.5)c.style.animationDirection='reverse';
+    document.body.appendChild(c);}
+}
+// --- citrouilles & petites sorcieres flottantes (par vagues) ---
+const _SPOOK='\uD83C\uDF83 \uD83E\uDDD9\u200D\u2640\uFE0F \uD83D\uDC7B \uD83E\uDD87 \uD83D\uDD6F\uFE0F'.split(' ');
+function spawnDeco(){
+  const box=$('#spookyDeco');if(!box)return;box.innerHTML='';
+  if(!HALLOWEEN)return;
+  const n=(window.innerWidth<=820)?6:11;
+  for(let i=0;i<n;i++){const b=document.createElement('b');
+    b.textContent=_SPOOK[Math.floor(Math.random()*_SPOOK.length)];
+    b.style.left=(Math.random()*94)+'%';
+    b.style.top=(Math.random()*88)+'%';
+    b.style.fontSize=(18+Math.random()*20)+'px';
+    b.style.animationDuration=(9+Math.random()*10)+'s';
+    b.style.animationDelay=(-Math.random()*10)+'s';
     box.appendChild(b);}
 }
 function applyHween(){
   document.body.classList.toggle('halloween',HALLOWEEN);
   const b=$('#btnHween');if(b)b.style.opacity=HALLOWEEN?'1':'.45';
-  spawnBats();
+  spawnBats();spawnBoil();spawnCyclones();spawnDeco();
 }
 function toggleHween(){HALLOWEEN=!HALLOWEEN;localStorage.setItem('hikaro_hween',HALLOWEEN?'1':'0');
   applyHween();toast(HALLOWEEN?'🎃 Mode Halloween activé':'Mode Halloween désactivé');}
 if($('#btnHween'))$('#btnHween').onclick=toggleHween;
 applyHween();
+// au redimensionnement : on regenere les decos en differe (jamais pendant le scroll/dessin)
+if(window.ResizeObserver){let _rt=null;new ResizeObserver(()=>{clearTimeout(_rt);_rt=setTimeout(()=>{if(HALLOWEEN){spawnBoil();spawnCyclones();spawnDeco();spawnBats();}},400);}).observe(document.body);}
+function _tabVis(){document.documentElement.classList.toggle('tab-hidden',document.hidden);}
+document.addEventListener('visibilitychange',_tabVis);_tabVis();
 
 // ---- ambiance sonore spooky (Web Audio, bouton START) ----
 let _ambOn=false,_ambNodes=null,_ambTimer=null;
@@ -1439,7 +1588,16 @@ $('#wallFile').onchange=e=>{
 const EMOJIS='😀 😂 😍 😎 🥳 😢 😡 👍 👎 🙏 🔥 ✨ 🎉 ❤️ 👀 🤖 🎃 👻 💀 🕷️ 🌙 🕶️'.split(' ');
 function renderEmobar(){const b=$('#emobar');b.innerHTML='';EMOJIS.forEach(e=>{const s=el('span',null,e);
   s.onclick=()=>{const i=$('#input');i.value+=e;i.focus();};b.appendChild(s);});}
-$('#btnEmo').onclick=()=>$('#emobar').classList.toggle('on');
+$('#btnEmo').onclick=()=>{$('#emobar').classList.toggle('on');closeTools();};
+// ---- petite BOULE d'outils : ouvre/ferme le menu des outils de la barre ----
+(function(){
+  const plus=$('#btnPlus'),ball=$('#toolball');if(!plus||!ball)return;
+  const scrim=document.createElement('div');scrim.className='scrim-tools';document.body.appendChild(scrim);
+  function open(){ball.classList.add('on');plus.classList.add('open');scrim.classList.add('on');}
+  window.closeTools=function(){ball.classList.remove('on');plus.classList.remove('open');scrim.classList.remove('on');};
+  plus.onclick=e=>{e.stopPropagation();ball.classList.contains('on')?window.closeTools():open();};
+  scrim.onclick=()=>window.closeTools();
+})();
 
 // ---- menu responsive ----
 function setVH(){document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');}
@@ -1542,8 +1700,8 @@ function send(){
 }
 $('#send').onclick=send;
 let ANON=false;
-$('#btnAnon').onclick=()=>{ANON=!ANON;const b=$('#btnAnon');b.classList.toggle('anon-on',ANON);b.textContent=ANON?'🕶️':'👤';$('#input').placeholder=ANON?'Mode anonyme activé…':'Écris un message…';toast(ANON?'🕶️ Mode anonyme ON — ton pseudo est masqué':'👤 Mode anonyme OFF');};
-$('#btnFile').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#fileAny').click();};
+$('#btnAnon').onclick=()=>{ANON=!ANON;const b=$('#btnAnon');b.classList.toggle('anon-on',ANON);b.textContent=ANON?'🕶️':'👤';$('#input').placeholder=ANON?'Mode anonyme activé…':'Écris un message…';toast(ANON?'🕶️ Mode anonyme ON — ton pseudo est masqué':'👤 Mode anonyme OFF');if(window.closeTools)closeTools();};
+$('#btnFile').onclick=()=>{if(window.closeTools)closeTools();if(!SALON){toast('Rejoins un salon');return;}$('#fileAny').click();};
 $('#fileAny').onchange=e=>{const f=e.target.files[0];if(!f)return;e.target.value='';if(f.size>P2P_THRESHOLD){sendBigFile(f);return;}const r=new FileReader();r.onload=()=>{const meta={name:f.name,mime:f.type,size:f.size,data:r.result};socket.emit('salon_file',meta);addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_file:meta,ts:Date.now()/1000});toast('📎 Fichier envoyé');};r.readAsDataURL(f);};
 // ====== P2P PUR pour les gros fichiers (WebRTC DataChannel, ne passe JAMAIS par le serveur) ======
 const P2P_THRESHOLD=8*1048576;      // au-dela de 8 Mo => transfert direct P2P
@@ -1689,7 +1847,7 @@ function renderTyping(){
   const t=$('#typing');if(t)t.textContent=txt;
 }
 setInterval(renderTyping,2000);
-$('#btnImg').onclick=()=>$('#imgFile').click();
+$('#btnImg').onclick=()=>{if(window.closeTools)closeTools();$('#imgFile').click();};
 $('#imgFile').onchange=e=>{
   const f=e.target.files[0]; if(!f)return;
   const r=new FileReader(); r.onload=()=>{
@@ -1846,7 +2004,7 @@ $('#pmFile').onclick=()=>$('#pmFileF').click();
 $('#pmFileF').onchange=e=>{const f=e.target.files[0];if(f)pmSendMedia(f,'file');e.target.value='';};
 
 // ============ VIDEO courte via le serveur (ephemere, broadcast) ============
-$('#btnVid').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
+$('#btnVid').onclick=()=>{if(window.closeTools)closeTools();if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
 $('#vidFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;e.target.value='';
   if(f.size>P2P_THRESHOLD){sendBigFile(f);return;}   // grosse video => envoi direct P2P
