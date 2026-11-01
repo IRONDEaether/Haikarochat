@@ -32,6 +32,7 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
 .typing:empty{display:none}
 /* centre */
 .main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;position:relative}
+.main>.compose,body>.compose{overflow:visible}
 .head{padding:12px 18px;border-bottom:1px solid var(--bd);background:var(--pan2);flex-shrink:0}
 .head h2{font-size:1.05rem}.head p{font-size:.78rem;color:var(--mut)}
 .msgs{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:16px 18px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
@@ -550,8 +551,10 @@ body.halloween .spooky-deco{display:block}
 .pic,video{border-radius:16px!important;box-shadow:0 10px 26px rgba(0,0,0,.34)!important}
 .coins{color:var(--gold)!important}
 /* --- la petite BOULE d'outils a cote de la barre --- */
-.compose{position:relative;overflow:visible}
-.toolball{position:absolute;right:56px;bottom:58px;display:flex;flex-direction:column;gap:8px;
+.compose{position:relative;overflow:visible;flex-wrap:wrap!important;gap:8px!important}
+#input{flex:1 1 120px;min-width:0}
+/* menu d'outils : sorti du flux, calé dans la zone visible au-dessus de la barre (bascule vers le bas si place manquante) */
+.toolball{position:fixed;right:18px;bottom:96px;left:auto;top:auto;display:flex;flex-direction:column-reverse;gap:10px;
   padding:10px;border-radius:20px;z-index:45;
   background:linear-gradient(180deg,rgba(18,56,74,.97),rgba(11,36,49,.97));
   border:1px solid rgba(120,210,255,.28);box-shadow:0 16px 40px rgba(0,0,0,.5);
@@ -566,7 +569,7 @@ body.halloween .spooky-deco{display:block}
   transition:transform .14s ease}
 .toolball .tb:hover{transform:scale(1.12);border-color:var(--cy)}
 .toolball .tb:active{transform:scale(.92)}
-#btnPlus{font-size:1.4rem;font-weight:800;transition:transform .2s ease}
+#btnPlus{font-size:1.4rem;font-weight:800;transition:transform .2s ease;z-index:46;position:relative}
 #btnPlus.open{transform:rotate(135deg)}
 .toolball .tb.rec{background:radial-gradient(circle at 34% 30%,#ff6b8a,#c02b4a)!important;color:#fff!important;box-shadow:0 0 0 4px rgba(255,77,109,.3)}
 #btnAnon.anon-on{background:radial-gradient(circle at 34% 30%,#8a6cff,#5b3fd0)!important;color:#fff!important}
@@ -1269,8 +1272,9 @@ function audioCtx(){try{if(!_actx)_actx=new (window.AudioContext||window.webkitA
 let HALLOWEEN=localStorage.getItem('hikaro_hween');
 HALLOWEEN=(HALLOWEEN===null)?true:(HALLOWEEN==='1'); // defaut ON
 function spawnBats(){
-  const box=$('#bats');if(!box)return;box.innerHTML='';box.classList.add('wave');
-  if(!HALLOWEEN)return;
+  const box=$('#bats');if(!box)return;
+  if(!HALLOWEEN){box.innerHTML='';return;}
+  box.classList.add('wave');box.innerHTML='';
   const _slow=window.matchMedia&&(matchMedia('(prefers-reduced-motion:reduce)').matches);
   if(_slow)return;
   // chauves-souris par VAGUES : plusieurs groupes qui partent ensemble puis se decalent
@@ -1588,15 +1592,26 @@ $('#wallFile').onchange=e=>{
 const EMOJIS='😀 😂 😍 😎 🥳 😢 😡 👍 👎 🙏 🔥 ✨ 🎉 ❤️ 👀 🤖 🎃 👻 💀 🕷️ 🌙 🕶️'.split(' ');
 function renderEmobar(){const b=$('#emobar');b.innerHTML='';EMOJIS.forEach(e=>{const s=el('span',null,e);
   s.onclick=()=>{const i=$('#input');i.value+=e;i.focus();};b.appendChild(s);});}
-$('#btnEmo').onclick=()=>{$('#emobar').classList.toggle('on');closeTools();};
+$('#btnEmo').onclick=()=>{$('#emobar').classList.toggle('on');if(window.closeTools)closeTools();};
 // ---- petite BOULE d'outils : ouvre/ferme le menu des outils de la barre ----
 (function(){
   const plus=$('#btnPlus'),ball=$('#toolball');if(!plus||!ball)return;
+  // ancrage fixe calculé depuis la position reelle de la barre (place au-dessus)
+  function place(){
+    const c=$('#compose')||plus.parentElement;
+    const r=c.getBoundingClientRect();
+    ball.style.right=(window.innerWidth-r.right+10)+'px';
+    const h=ball.offsetHeight||300;
+    if(r.top-h-16>8){ball.style.top=(r.top-h-14)+'px';ball.style.bottom='auto';}
+    else{ball.style.top=(r.bottom+10)+'px';ball.style.bottom='auto';}
+  }
   const scrim=document.createElement('div');scrim.className='scrim-tools';document.body.appendChild(scrim);
-  function open(){ball.classList.add('on');plus.classList.add('open');scrim.classList.add('on');}
+  function open(){place();ball.classList.add('on');plus.classList.add('open');scrim.classList.add('on');}
   window.closeTools=function(){ball.classList.remove('on');plus.classList.remove('open');scrim.classList.remove('on');};
-  plus.onclick=e=>{e.stopPropagation();ball.classList.contains('on')?window.closeTools():open();};
-  scrim.onclick=()=>window.closeTools();
+  plus.onclick=e=>{e.preventDefault();e.stopPropagation();ball.classList.contains('on')?window.closeTools():open();};
+  scrim.onclick=e=>{e.stopPropagation();window.closeTools();};
+  window.addEventListener('resize',()=>{if(ball.classList.contains('on'))place();});
+  window.closeTools._place=place;
 })();
 
 // ---- menu responsive ----
