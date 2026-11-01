@@ -1596,22 +1596,25 @@ $('#btnEmo').onclick=()=>{$('#emobar').classList.toggle('on');if(window.closeToo
 // ---- petite BOULE d'outils : ouvre/ferme le menu des outils de la barre ----
 (function(){
   const plus=$('#btnPlus'),ball=$('#toolball');if(!plus||!ball)return;
-  // ancrage fixe calculé depuis la position reelle de la barre (place au-dessus)
+  // ON SORT le menu du conteneur et on le colle au <body> : impossible qu'il
+  // soit rogne ou pris sous un calque (plus aucun probleme de stacking/overflow).
+  if(ball.parentElement!==document.body)document.body.appendChild(ball);
+  ball.style.zIndex='99999';
+  const scrim=document.createElement('div');scrim.className='scrim-tools';scrim.style.zIndex='99998';document.body.appendChild(scrim);
   function place(){
-    const c=$('#compose')||plus.parentElement;
-    const r=c.getBoundingClientRect();
-    ball.style.right=(window.innerWidth-r.right+10)+'px';
+    const r=plus.getBoundingClientRect();
+    ball.style.position='fixed';
+    ball.style.left=Math.max(8,r.left-4)+'px';
+    ball.style.right='auto';
     const h=ball.offsetHeight||300;
-    if(r.top-h-16>8){ball.style.top=(r.top-h-14)+'px';ball.style.bottom='auto';}
-    else{ball.style.top=(r.bottom+10)+'px';ball.style.bottom='auto';}
+    if(r.top-h-14>6){ball.style.top=(r.top-h-12)+'px';ball.style.bottom='auto';}
+    else{ball.style.top='auto';ball.style.bottom=(window.innerHeight-r.bottom+10)+'px';}
   }
-  const scrim=document.createElement('div');scrim.className='scrim-tools';document.body.appendChild(scrim);
-  function open(){place();ball.classList.add('on');plus.classList.add('open');scrim.classList.add('on');}
+  function open(){ball.classList.add('on');place();plus.classList.add('open');scrim.classList.add('on');}
   window.closeTools=function(){ball.classList.remove('on');plus.classList.remove('open');scrim.classList.remove('on');};
-  plus.onclick=e=>{e.preventDefault();e.stopPropagation();ball.classList.contains('on')?window.closeTools():open();};
-  scrim.onclick=e=>{e.stopPropagation();window.closeTools();};
+  plus.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();ball.classList.contains('on')?window.closeTools():open();});
+  scrim.addEventListener('click',e=>{e.stopPropagation();window.closeTools();});
   window.addEventListener('resize',()=>{if(ball.classList.contains('on'))place();});
-  window.closeTools._place=place;
 })();
 
 // ---- menu responsive ----
