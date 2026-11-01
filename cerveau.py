@@ -28,7 +28,28 @@ app.secret_key = config.SECRET_KEY
 socketio = SocketIO(app, async_mode=_ASYNC_MODE, cors_allowed_origins="*",
                     ping_timeout=60, ping_interval=25,
                     max_http_buffer_size=200 * 1024 * 1024,
+                    http_compression=True, compression_threshold=512,
                     message_queue=(config.MESSAGE_QUEUE or None))
+
+# --- PERF: reponse gelee pour les fichiers statiques + micro-cache d'assets ---
+try:
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 60 * 60 * 24 * 30
+except Exception:
+    pass
+
+
+@app.after_request
+def _perf_headers(resp):
+    """PERF: compression des reponses texte + cache navigateur des assets statiques."""
+    try:
+        p = request.path or ""
+        if p.startswith("/static/"):
+            resp.headers["Cache-Control"] = "public, max-age=2592000, immutable"
+        else:
+            resp.headers["Cache-Control"] = "no-cache"
+    except Exception:
+        pass
+    return resp
 
 sql = BotSQL()
 
@@ -49,6 +70,47 @@ SID = {}
 
 # Anti-flood en memoire : sid -> {"msg": [ts...], "media": dernier_ts}
 FLOOD = {}
+
+
+# --- PERSISTANCE v2.4 : buffer circulaire des messages recents par salon.
+#     Permet de re-afficher le fil (texte + medias) quand on se reconnecte.
+RECENT = {}
+RECENT_MAX = 30
+
+# --- SECURITE/PERF : plafonds de taille (en octets) des medias passant par le serveur.
+#     Au-dela, on refuse -> le client bascule sur l'envoi direct P2P (WebRTC).
+MEDIA_LIMITS = {"image": 2 * 1024 * 1024, "voice": 3 * 1024 * 1024,
+                "video": 16 * 1024 * 1024, "file": 10 * 1024 * 1024}
+
+
+def _too_big(data, kind):
+    try:
+        return len(data or "") > MEDIA_LIMITS.get(kind, 2 * 1024 * 1024)
+    except Exception:
+        return False
+
+
+def _recent_push(salon, msg):
+    """Memorise un message/mediа recent pour le rejouer a la reconnexion."""
+    if not salon:
+        return
+    try:
+        buf = RECENT.setdefault(salon, [])
+        buf.append(msg)
+        if len(buf) > RECENT_MAX:
+            del buf[:len(buf) - RECENT_MAX]
+    except Exception:
+        pass
+
+
+def _recent_since(salon, since):
+    """Messages recents postes apres 'since' (reconnexion / reprise de session)."""
+    try:
+        since = float(since or 0)
+    except Exception:
+        since = 0
+    out = [m for m in RECENT.get(salon, []) if float(m.get("ts", 0)) > since]
+    return out[-RECENT_MAX:]
 
 
 def _flood_ok(sid, kind):
@@ -149,6 +211,29 @@ def _online(salon):
 def _push_online(salon):
     m = _online(salon)
     socketio.emit("online", {"salon": salon, "membres": m, "count": len(m)}, to=salon)
+    _push_counts()
+
+
+def _salon_counts():
+    """Nombre d'humains distincts connectes par salon (pour l'accueil)."""
+    seen, c = set(), {}
+    for info in SID.values():
+        sal = info.get("salon")
+        if not sal:
+            continue
+        key = (sal, info.get("bid"))
+        if key in seen:
+            continue
+        seen.add(key)
+        c[sal] = c.get(sal, 0) + 1
+    return c
+
+
+def _push_counts():
+    try:
+        socketio.emit("salon_counts", {"counts": _salon_counts()})
+    except Exception:
+        pass
 
 
 def _annuaire(me_bid=None):
@@ -400,6 +485,7 @@ def on_auth(d):
                      "mon_code": _fmt_code(_user_code(bid)),
                      "annuaire": _annuaire(bid),
                      "titres": config.TITRES, "bots": config.BOTS,
+                     "gifts": GIFTS,
                      "annonces": sql.list_annonces(), "secrets": _secrets_pub(bid),
                      "reservations": _resa_state(),
                      "settings": {"annonce_prix": config.ANNONCE_PRIX,
@@ -448,13 +534,31 @@ def on_join(d):
     already = _bid_in_salon(me["bid"], salon, skip_sid=request.sid) > 0
     join_room(salon)
     me["salon"] = salon
-    emit("history", {"salon": salon, "messages": sql.history(salon)})
+    emit("history", {"salon": salon, "messages": sql.history(salon)
+                      + _recent_since(salon, 0)})
+    me["last_replay"] = time.time()
     squad.bienvenue(salon, user)
     _push_online(salon)
     if not already:
         _presence(salon, me["pseudo"], "join", bid=me["bid"])
     if me.get("avatar"):
         socketio.emit("avatar", {"pseudo": me["pseudo"], "avatar": me["avatar"]}, to=salon)
+
+
+@socketio.on("sync_since")
+def on_sync_since(d):
+    """Reconnexion : renvoie tout ce qui a ete poste depuis 'ts' (texte + medias)."""
+    me = _me()
+    if not me:
+        return
+    salon = me.get("salon") or d.get("salon")
+    if not salon:
+        return
+    try:
+        since = float(d.get("ts") or 0)
+    except Exception:
+        since = 0
+    emit("sync_fill", {"salon": salon, "messages": _recent_since(salon, since)})
 
 
 @socketio.on("leave")
@@ -512,6 +616,7 @@ def on_message(d):
                    "premium": bool(user.get("premium")),
                    "avatar": me.get("avatar", ""), "text": txt, "ts": time.time()}
         sql.add_message(salon, me["bid"], me["pseudo"], txt)
+    _recent_push(salon, payload)
     socketio.emit("message", payload, to=salon)
     g = squad.gain(me["bid"])
     if g:
@@ -623,10 +728,13 @@ def on_image(d):
         return
     if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
         return
+    if _too_big(data, "image"):
+        emit("media_too_big", {"kind": "image"}); return
     # pas de limite : on diffuse aux AUTRES, l'expediteur l'affiche en local
-    socketio.emit("image", {"salon": me["salon"], "pseudo": me["pseudo"],
-                  "avatar": me.get("avatar", ""), "image": data, "ts": time.time()},
-                  to=me["salon"], include_self=False)
+    payload = {"salon": me["salon"], "pseudo": me["pseudo"],
+               "avatar": me.get("avatar", ""), "image": data, "ts": time.time()}
+    _recent_push(me["salon"], payload)
+    socketio.emit("image", payload, to=me["salon"], include_self=False)
 
 
 @socketio.on("voice")
@@ -640,10 +748,13 @@ def on_voice(d):
         return
     if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
         return
-    socketio.emit("voice", {"salon": me["salon"], "pseudo": me["pseudo"],
-                  "avatar": me.get("avatar", ""), "audio": data,
-                  "dur": float(d.get("dur", 0) or 0), "ts": time.time()},
-                  to=me["salon"], include_self=False)
+    if _too_big(data, "voice"):
+        emit("media_too_big", {"kind": "voice"}); return
+    payload = {"salon": me["salon"], "pseudo": me["pseudo"],
+               "avatar": me.get("avatar", ""), "audio": data,
+               "dur": float(d.get("dur", 0) or 0), "ts": time.time()}
+    _recent_push(me["salon"], payload)
+    socketio.emit("voice", payload, to=me["salon"], include_self=False)
 
 
 @socketio.on("video")
@@ -657,10 +768,13 @@ def on_video(d):
         return
     if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
         return
-    socketio.emit("video", {"salon": me["salon"], "pseudo": me["pseudo"],
-                  "avatar": me.get("avatar", ""), "video": data,
-                  "name": (d.get("name") or "")[:80], "ts": time.time()},
-                  to=me["salon"], include_self=False)
+    if _too_big(data, "video"):
+        emit("media_too_big", {"kind": "video"}); return
+    payload = {"salon": me["salon"], "pseudo": me["pseudo"],
+               "avatar": me.get("avatar", ""), "video": data,
+               "name": (d.get("name") or "")[:80], "ts": time.time()}
+    _recent_push(me["salon"], payload)
+    socketio.emit("video", payload, to=me["salon"], include_self=False)
 
 
 @socketio.on("salon_file")
@@ -674,12 +788,15 @@ def on_salon_file(d):
         return
     if not _flood_ok(request.sid, "media") or not _can_write(me, me["salon"]):
         return
-    socketio.emit("salon_file", {"salon": me["salon"], "pseudo": me["pseudo"],
-                  "avatar": me.get("avatar", ""), "data": data,
-                  "name": (d.get("name") or "fichier")[:120],
-                  "mime": (d.get("mime") or "")[:80],
-                  "size": int(d.get("size", 0) or 0), "ts": time.time()},
-                  to=me["salon"], include_self=False)
+    if _too_big(data, "file"):
+        emit("media_too_big", {"kind": "file"}); return
+    payload = {"salon": me["salon"], "pseudo": me["pseudo"],
+               "avatar": me.get("avatar", ""), "data": data,
+               "name": (d.get("name") or "fichier")[:120],
+               "mime": (d.get("mime") or "")[:80],
+               "size": int(d.get("size", 0) or 0), "ts": time.time()}
+    _recent_push(me["salon"], payload)
+    socketio.emit("salon_file", payload, to=me["salon"], include_self=False)
 
 
 @socketio.on("react")
@@ -868,6 +985,50 @@ def on_buy_premium(d):
         pass
     nu = sql.get_user(me["bid"]) or u
     emit("premium_ok", {"user": nu})
+
+
+# --- Boutique de petits cadeaux virtuels a offrir aux membres ---
+GIFTS = {
+    "fleur":    {"emoji": "\U0001F338", "nom": "Fleur",    "prix": 5},
+    "cafe":     {"emoji": "\u2615",      "nom": "Cafe",     "prix": 8},
+    "ballon":   {"emoji": "\U0001F388", "nom": "Ballon",   "prix": 10},
+    "donut":    {"emoji": "\U0001F369", "nom": "Donut",    "prix": 15},
+    "coeur":    {"emoji": "\u2764\ufe0f", "nom": "Coeur",  "prix": 20},
+    "cadeau":   {"emoji": "\U0001F381", "nom": "Cadeau",   "prix": 30},
+    "diamant":  {"emoji": "\U0001F48E", "nom": "Diamant",  "prix": 60},
+    "couronne": {"emoji": "\U0001F451", "nom": "Couronne", "prix": 90},
+    "fusee":    {"emoji": "\U0001F680", "nom": "Fusee",    "prix": 120},
+}
+
+
+@socketio.on("offer_gift")
+def on_offer_gift(d):
+    """Offrir un petit cadeau virtuel a un membre (deduit des points, visible par le salon)."""
+    me = _me()
+    if not me:
+        return
+    g = GIFTS.get(str(d.get("gift", "")))
+    if not g:
+        emit("pm_error", {"error": "Cadeau inconnu."}); return
+    cible = sql.get_by_pseudo(d.get("to", ""))
+    if not cible:
+        emit("pm_error", {"error": "Destinataire introuvable."}); return
+    u = sql.get_user(me["bid"]) or {}
+    solde = int(u.get("points", 0))
+    if solde < g["prix"]:
+        emit("pm_error", {"error": "Pas assez de \U0001FA99 pour ce cadeau (%d)." % g["prix"]}); return
+    try:
+        sql.update_user(me["bid"], {"points": solde - g["prix"]})
+    except Exception:
+        pass
+    emit("economy", {"points": solde - g["prix"]})
+    payload = {"from": me["pseudo"], "to": cible["pseudo"], "emoji": g["emoji"],
+               "nom": g["nom"], "ts": time.time()}
+    if me.get("salon"):
+        socketio.emit("gift", dict(payload, salon=me["salon"]), to=me["salon"])
+    for s, info in SID.items():
+        if info.get("bid") == cible.get("browser_id"):
+            socketio.emit("gift_dm", payload, to=s)
 
 
 

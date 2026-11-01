@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
-<title>HINATACHAT</title>
+<title>ALLOWIN · HINATACHAT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -185,15 +185,80 @@ body{height:100vh;height:calc(var(--vh,1vh)*100);height:100dvh;overflow:hidden;c
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}
   body{animation:none!important;background-position:0 0!important}
-  .liquid,.petals,.bats,.fog{display:none!important}
+  .liquid,.petals,.fog{display:none!important}
+  .bats b{font-size:18px;animation-duration:22s!important}
+  #boot .halo,#boot .orbWrap::after{animation:none!important}
+  #boot .orb{animation:orbFloat 6s ease-in-out infinite!important}
 }
-/* --- ecran de chargement (evite la "fenetre noire") --- */
-#boot{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-  background:radial-gradient(1000px 500px at 50% 20%,#12213f,var(--bg))}
-#boot.hide{opacity:0;pointer-events:none;transition:opacity .5s}
-#boot .bl{font-weight:800;letter-spacing:3px;font-size:1.7rem;background:linear-gradient(90deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
-#boot .ring{width:52px;height:52px;border-radius:50%;border:4px solid rgba(0,240,255,.18);border-top-color:var(--cy);animation:spin 1s linear infinite}
-#boot .st{color:var(--mut);font-size:.9rem}
+/* ================= ECRAN DE CHARGEMENT « ALLOWIN » ================= */
+#boot{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  overflow:hidden;
+  background:
+    radial-gradient(900px 560px at 50% 18%,#ffffff,transparent 62%),
+    radial-gradient(760px 520px at 12% 88%,#ffe6ef,transparent 60%),
+    radial-gradient(760px 520px at 90% 82%,#e2edff,transparent 60%),
+    linear-gradient(160deg,#f7fbff,#eef3f9)}
+#boot.hide{opacity:0;pointer-events:none;transition:opacity .55s}
+/* halos glossy qui respirent en fond */
+#boot .halo{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;will-change:transform}
+#boot .halo.h1{width:52vmin;height:52vmin;left:-8vmin;top:-10vmin;background:radial-gradient(circle at 35% 35%,#9fe8ff,transparent 65%);animation:haloDrift 18s ease-in-out infinite}
+#boot .halo.h2{width:46vmin;height:46vmin;right:-8vmin;top:8vmin;background:radial-gradient(circle at 60% 40%,#c8b6ff,transparent 66%);animation:haloDrift 24s ease-in-out infinite reverse}
+#boot .halo.h3{width:50vmin;height:50vmin;left:18vmin;bottom:-14vmin;background:radial-gradient(circle at 50% 50%,#ffd7e6,transparent 66%);animation:haloDrift 29s ease-in-out infinite}
+@keyframes haloDrift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(4%,-4%) scale(1.1)}66%{transform:translate(-4%,4%) scale(.94)}}
+/* orbe ALLOWIN (cire brillante) */
+#boot .orbWrap{position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center}
+#boot .orbWrap::before{content:'';position:absolute;inset:-14px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--cy),var(--mg),var(--gold),var(--cy));
+  filter:blur(14px);opacity:.5;animation:orbSpin 5s linear infinite;z-index:-1}
+#boot .orbWrap::after{content:'';position:absolute;inset:-34px;border-radius:50%;
+  border:2px dashed rgba(43,182,214,.35);animation:orbSpin 14s linear infinite reverse}
+@keyframes orbSpin{to{transform:rotate(360deg)}}
+#boot .orb{width:104px;height:104px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 32% 26%,#ffffff 0%,#f2f8ff 38%,#dfeaf6 70%,#cbd9e9 100%);
+  box-shadow:
+    inset 0 6px 14px rgba(255,255,255,.95),
+    inset 0 -10px 20px rgba(150,175,200,.35),
+    0 16px 40px rgba(90,120,160,.24),
+    0 0 0 8px rgba(255,255,255,.65);
+  display:flex;align-items:center;justify-content:center;
+  animation:orbFloat 4.6s ease-in-out infinite;will-change:transform}
+#boot .orb::before{content:'';position:absolute;left:22%;top:16%;width:34%;height:24%;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.95),transparent 72%);filter:blur(1px)}
+#boot .orb .orbTxt{font-family:var(--disp);font-weight:800;font-size:1.55rem;letter-spacing:1px;
+  background:linear-gradient(135deg,var(--cy),var(--mg));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.025)}}
+/* titre ALLOWIN */
+#boot .alw{display:flex;gap:3px;margin-top:4px}
+#boot .alw span{font-family:var(--disp);font-weight:800;font-size:1.95rem;letter-spacing:2px;display:inline-block;
+  background:linear-gradient(180deg,#2bb6d6,#5c8cff 55%,#7a6cff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 2px 0 rgba(255,255,255,.9),0 10px 22px rgba(90,120,180,.20);
+  animation:alwWave 2.4s ease-in-out infinite}
+#boot .alw span:nth-child(1){animation-delay:0s}#boot .alw span:nth-child(2){animation-delay:.08s}
+#boot .alw span:nth-child(3){animation-delay:.16s}#boot .alw span:nth-child(4){animation-delay:.24s}
+#boot .alw span:nth-child(5){animation-delay:.32s}#boot .alw span:nth-child(6){animation-delay:.4s}
+#boot .alw span:nth-child(7){animation-delay:.48s}
+@keyframes alwWave{0%,100%{transform:translateY(0) rotate(0);filter:drop-shadow(0 0 0 rgba(43,182,214,0))}50%{transform:translateY(-8px) rotate(-2deg);filter:drop-shadow(0 8px 14px rgba(92,140,255,.35))}}
+#boot .alwSub{color:#7c93a3;font-family:var(--disp);font-weight:600;font-size:.72rem;letter-spacing:5px;text-transform:uppercase;margin-top:-2px}
+/* texte de statut + barre glossy */
+#boot .st{color:#5f7887;font-size:.92rem;font-weight:600;min-height:1.2em;text-align:center;padding:0 24px}
+#boot .bar{width:min(320px,68vw);height:12px;border-radius:999px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#e7eef5,#f7fbff);
+  box-shadow:inset 0 3px 7px rgba(120,150,180,.28),0 1px 0 rgba(255,255,255,.95)}
+#boot .bar i{position:absolute;inset:0;transform-origin:left center;transform:scaleX(.08);
+  background:linear-gradient(90deg,#2bb6d6,#5c8cff 52%,#7a6cff);border-radius:999px;
+  box-shadow:0 0 12px rgba(92,140,255,.5);transition:transform .5s cubic-bezier(.2,.9,.3,1)}
+#boot .bar::after{content:'';position:absolute;inset:0;border-radius:999px;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.85) 50%,transparent 70%);
+  background-size:220% 100%;animation:barShine 1.6s linear infinite;mix-blend-mode:overlay}
+@keyframes barShine{0%{background-position:180% 0}100%{background-position:-80% 0}}
+#boot .stp{color:#9db2c1;font-size:.72rem;letter-spacing:1px;font-weight:600}
+#bootRetry{margin-top:4px;padding:10px 22px;border:none;border-radius:12px;cursor:pointer;font-weight:800;
+  color:#fff!important;background:linear-gradient(90deg,var(--cy),var(--mg));
+  box-shadow:0 10px 24px rgba(92,140,255,.35);transition:.2s}
+#bootRetry:hover{transform:translateY(-2px)}
+#boot .verz{opacity:.6;font-size:.68rem;color:#8fa4b3}
+#boot .bootPetals{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#boot .bootPetals b{position:absolute;bottom:-6%;animation:rise linear infinite;will-change:transform}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* --- mention @quelqu'un --- */
 .mention{color:var(--cy);font-weight:700;background:rgba(0,240,255,.12);border-radius:6px;padding:0 4px}
@@ -400,17 +465,103 @@ body.halloween .fog{display:block}
 .readonly-hint{margin:10px 18px;padding:10px 14px;border-radius:12px;background:var(--pan2);border:1px dashed var(--bd);color:var(--mut);font-size:.82rem;text-align:center}
 .aidecard{margin:4px 0}
 .aidecard .bd{background:rgba(255,140,26,.08);border-color:rgba(255,140,26,.3)}
+
+/* =================================================================
+   THEME v2.1 — « Cire de plastique blanc » : glossy clair + fluidite max
+   (bloc d'override appende : prime sur les regles sombres ci-dessus)
+   ================================================================= */
+:root{
+  --cy:#2bb6d6;--mg:#5c8cff;--vi:#7a6cff;
+  --bg:#eef3f7;--pan:#ffffff;--pan2:#f4f8fb;--pan3:#eaf1f6;
+  --tx:#17242e;--mut:#6b8291;--bd:#dde7ee;
+  --gold:#e2a93b;--glass:rgba(255,255,255,.72);--glassbd:rgba(120,160,200,.22);
+}
+body{color:var(--tx);
+  background:
+    radial-gradient(1200px 620px at 18% -14%,#ffffff,transparent 60%),
+    radial-gradient(900px 520px at 100% 0%,#eaf2ff,transparent 55%),
+    linear-gradient(160deg,#f6fafc,#e7eef4)}
+/* surface « cire » : blanc laiteux, reflet glossy en haut */
+.top,.side,.modal,.msg .bd,.card,.coins,.icobtn,.salon,.chip,
+.ov .modal,.rail,.mem,.stage,.subtab button,.field input,.field textarea,
+#goSel,#pmInput,.readonly-hint{
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 42%,#eef4f9 100%)!important;
+  border-color:var(--bd)!important;color:var(--tx)!important}
+.top,.side,.modal,.stage{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(150,175,195,.25),
+             0 10px 30px rgba(90,120,150,.12)!important}
+.msg .bd{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 18px rgba(90,120,150,.10)!important}
+.logo,#boot .bl{background:linear-gradient(90deg,var(--cy),var(--mg))!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+/* textes qui etaient clairs -> fonces */
+.who,.tx,.nm,.ds,.modal h2,.field label{color:var(--tx)!important}
+.ds,.mut,.hint,.st{color:var(--mut)!important}
+/* boutons degrades : texte fonce illisible sur clair -> blanc */
+button[style*="var(--cy)"],button[style*="var(--mg)"],button[style*="var(--vi)"]{color:#fff!important}
+/* cartes medias (gradients sombres hardcodes) -> verre blanc */
+[style*="#241d53"],[style*="#1a1540"],[style*="241d53"],[style*="1a1540"]{
+  background:linear-gradient(180deg,#ffffff,#eef4f9)!important;color:var(--tx)!important;border-color:var(--bd)!important}
+.pic,video{border-radius:14px!important;box-shadow:0 8px 22px rgba(90,120,150,.18)!important}
+.coins{color:#b4832a!important}
+/* compteur de connectes par salon (accueil) */
+.scount{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:1px 8px;
+  font-size:.7rem;font-weight:700;border-radius:999px;color:#2f7d4f;
+  background:linear-gradient(180deg,#eafff2,#d9f6e6);border:1px solid #bfe9cf;vertical-align:middle}
+.scount .dot{width:6px;height:6px;border-radius:50%;background:#35c46a;box-shadow:0 0 6px #35c46a;animation:pulseDot 1.6s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+.salon .nm{display:flex;align-items:center}
+/* cadeaux : carte + picker */
+.giftmsg .giftcard{display:flex;align-items:center;gap:12px;
+  background:linear-gradient(180deg,#fffaf0,#fdeecb)!important;border:1px solid #f0d79a!important;
+  border-radius:14px;padding:10px 14px;box-shadow:0 8px 22px rgba(200,160,70,.18)!important}
+.giftmsg .gface{font-size:1.9rem;animation:giftPop .6s cubic-bezier(.2,1.4,.4,1)}
+.giftmsg .gtx{color:#6b4e12!important;font-size:.9rem}
+@keyframes giftPop{0%{transform:scale(.2) rotate(-18deg);opacity:0}60%{transform:scale(1.18) rotate(6deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.giftpick{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;cursor:pointer;
+  border:1px solid var(--bd);border-radius:12px;color:var(--tx);
+  background:linear-gradient(180deg,#ffffff,#eef4f9);transition:.15s}
+.giftpick:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 16px rgba(200,160,70,.22)}
+.giftpick .ge{font-size:1.5rem}
+.giftpick .gn{font-size:.72rem;font-weight:700}
+.giftpick .gp{font-size:.68rem;color:#b4832a;font-weight:700}
+/* ---- Fluidite max ---- */
+html{scroll-behavior:smooth}
+.msgs{scroll-behavior:smooth;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  content-visibility:auto;contain-intrinsic-size:1px 1px}
+.msg{contain:content}
+.pic,video,.salon,.icobtn,.giftpick,.modal{will-change:transform}
+.side,.msgs,.rail{will-change:scroll-position}
+.pic,.audcard,.vidcard,img,video{content-visibility:auto}
+*{-webkit-tap-highlight-color:transparent}
+/* --- PERF: si l'appareil est faible, on allege les effets lourds --- */
+html.dev-low .liquid{display:none}
+html.dev-low .petals b{animation-duration:26s!important;opacity:.4}
+html.dev-low .top,html.dev-low .side,html.dev-low .right,html.dev-low .modal,
+html.dev-low .compose,html.dev-low .msg .bd{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.dev-low body{animation:none!important}
+/* --- PERF: ongele les grosses anims quand l'onglet est en arriere-plan --- */
+html.tab-hidden .liquid,html.tab-hidden .petals,html.tab-hidden .halo,
+html.tab-hidden .orbWrap,html.tab-hidden .alw span{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;scroll-behavior:auto!important}}
 </style></head>
 <body>
 <div class="bats" id="bats"></div>
 <div class="fog" id="fog"></div>
 <div class="liquid"><i></i><i></i><i></i></div>
-<div id="boot"><div class="petals" id="bootPetals"></div><div class="bl">HINATACHAT</div><div class="ring"></div><div class="st" id="bootSt">Connexion au chat…</div><button id="bootRetry" style="display:none;margin-top:6px;padding:9px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">Réessayer</button><div class="st" style="opacity:.55;font-size:.68rem;margin-top:4px">v2.0.0</div></div>
+<div id="boot"><span class="halo h1"></span><span class="halo h2"></span><span class="halo h3"></span><div class="bootPetals" id="bootPetals"></div>
+<div class="orbWrap"><div class="orb"><span class="orbTxt">A</span></div></div>
+<div class="alw"><span>A</span><span>L</span><span>L</span><span>O</span><span>W</span><span>I</span><span>N</span></div>
+<div class="alwSub">HINATACHAT · ALLOWIN</div>
+<div class="bar"><i id="bootBar"></i></div>
+<div class="st" id="bootSt">Réveil de l'orbe…</div>
+<div class="stp" id="bootPct">0%</div>
+<button id="bootRetry" style="display:none">Réessayer</button><div class="verz">v2.4.0</div></div>
 <div class="app" id="app" style="display:none">
   <div class="petals" id="petals"></div>
   <div class="top">
     <button class="icobtn" id="btnMenu" title="Salons" style="display:none">☰</button>
-    <span class="logo" title="HINATACHAT v2.0.0">HINATACHAT</span>
+    <span class="logo" title="ALLOWIN v2.4.0">HINATACHAT</span>
     <span class="sp"></span>
     <button class="icobtn" id="btnOnline" title="En ligne" style="display:none">👥</button>
     <div class="coins">🪙 <span id="coins">0</span></div>
@@ -536,6 +687,11 @@ body.halloween .fog{display:block}
     <div style="color:#ffd76b;font-size:.82rem" id="uLvl"></div><div style="color:var(--mut);font-size:.8rem" id="uPays"></div></div></div>
   <button id="uPm" style="width:100%;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--cy),var(--mg))">✉️ Message privé (ou double-clic)</button>
   <button id="uMention" style="width:100%;margin-top:8px;padding:11px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;font-weight:700;color:var(--tx);background:var(--pan2)">@ Mentionner dans le salon</button>
+  <button id="uGift" style="width:100%;margin-top:8px;padding:11px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#04121a;background:linear-gradient(90deg,var(--gold),var(--mg))">🎁 Offrir un cadeau</button>
+  <div id="uGiftBox" style="display:none;margin-top:10px">
+    <div style="color:var(--mut);font-size:.78rem;margin-bottom:6px">Choisis un cadeau — payable en 🪙 :</div>
+    <div id="giftGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+  </div>
 </div></div>
 <div class="ov" id="ovPm"><div class="modal">
   <span class="x" data-close>×</span><h2 id="pmTitle" style="display:flex;align-items:center;gap:8px;justify-content:space-between"><span id="pmTitleTxt">Message privé</span><button class="icobtn ghost" id="pmBlock" title="Bloquer cette personne" style="font-size:13px;padding:4px 10px">🚫 Bloquer</button></h2>
@@ -589,6 +745,21 @@ body.halloween .fog{display:block}
 </div>
 <div class="toast" id="toast"></div>
 <script>
+/* ================== PERF v2.3.0 — reglages de performance globaux ================== */
+const PERF=(()=>{
+  const nav=navigator||{};
+  const cores=nav.hardwareConcurrency||4;
+  const mem=nav.deviceMemory||nav.deviceMemory===0?nav.deviceMemory:4;
+  const low=cores<=4||mem<=2||/Android|iPhone|iPad|iPod|Mobile/i.test(nav.userAgent||'');
+  const saveData=!!(nav.connection&&nav.connection.saveData);
+  const slowNet=!!(nav.connection&&/2g|slow-2g/i.test(nav.connection.effectiveType||''));
+  const conf={cores:cores,mem:mem,low:low,saveData:saveData,slowNet:slowNet,
+    media:!(low&&saveData),fx:!(low||saveData)};
+  try{document.documentElement.classList.add(conf.low?'dev-low':'dev-high');}catch(_){}
+  return conf;
+})();
+// remonte le taux de rafraichissement max (ions fluides) sans surcharger les petits appareils
+function _rafLoop(fn){if(fn)return requestAnimationFrame(fn);}
 const BID=localStorage.getItem('hikaro_bid');
 const SIG=localStorage.getItem('hikaro_sig');
 let AVATAR=localStorage.getItem('hikaro_avatar')||'';
@@ -603,20 +774,33 @@ if($('#bootRetry'))$('#bootRetry').onclick=()=>location.reload();
 let ME=null, SALON=null, SALONS=[], AVCACHE={}, PMWITH=null, MODE='ens';
 let SETTINGS={}, ANNONCES=[], SECRETS=[], NOTIFS=[], NOTIFN=0;
 let RESA={}, RESAMINE=new Set(), HASTICKET=false;
+let SALON_COUNTS={}, GIFTS={};
 
-const socket=(typeof io!=='undefined')?io({transports:['polling','websocket'],upgrade:true,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:800,reconnectionDelayMax:4000,timeout:20000}):{on:function(){},emit:function(){},io:{on:function(){}}};
+const socket=(typeof io!=='undefined')?io({transports:['polling','websocket'],upgrade:true,perMessageDeflate:true,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:800,reconnectionDelayMax:4000,timeout:20000}):{on:function(){},emit:function(){},io:{on:function(){}}};
 setTimeout(function(){const bt=$('#boot');if(bt&&!bt.classList.contains('hide')){showBootRetry('\u00c7a prend plus de temps que pr\u00e9vu\u2026 tu peux r\u00e9essayer.');}},9000);
 function bootMsg(t){const s=$('#bootSt');if(s)s.textContent=t;}
+// ---- ALLOWIN loader : barre de progression simulee + messages rotatifs ----
+let _bootPct=6;const _bootT0=Date.now();
+const _bootTips=['Réveil de l\'orbe…','Polissage de la cire…','Ouverture des salons…','Chargement des cadeaux…','Synchronisation du monde ALLOWIN…'];
+function bootSet(p){_bootPct=Math.max(_bootPct,Math.min(97,p));
+  const b=$('#bootBar');if(b)b.style.transform='scaleX('+(_bootPct/100)+')';
+  const pc=$('#bootPct');if(pc)pc.textContent=Math.round(_bootPct)+'%';}
+const _bootTmr=setInterval(()=>{bootSet(_bootPct+(97-_bootPct)*0.14+0.4);},380);
+let _tipI=0;const _tipTmr=setInterval(()=>{const s=$('#bootSt');if(s&&$('#boot')&&!$('#boot').classList.contains('hide')){_tipI=(_tipI+1)%_bootTips.length;s.textContent=_bootTips[_tipI];}},1700);
+function bootDone(){clearInterval(_bootTmr);clearInterval(_tipTmr);bootSet(100);}
 socket.on('connect',()=>{bootMsg('Authentification\u2026');socket.emit('auth',{browser_id:BID,signature:SIG,avatar:AVATAR});});
 socket.on('connect_error',()=>bootMsg('Reconnexion en cours\u2026'));
 socket.io.on('reconnect_attempt',()=>bootMsg('Reconnexion en cours\u2026'));
 socket.on('disconnect',()=>{if(ME)setNet('off');});
 socket.on('connect',()=>{if(ME)setNet('on');});
+// Reconnexion : 'connect' relance auth -> auth_ok -> joinSalon() qui recharge TOUT
+// l'historique (texte + medias recents via le buffer serveur). sync_since reste dispo
+// comme filet manuel, mais on ne le declenche pas ici pour eviter les doublons.
 socket.io.on('reconnect',()=>{if(ME)setNet('on');});
 socket.io.on('reconnect_attempt',()=>{if(ME)setNet('wait');});
 // --- Connexion persistante: ne coupe plus brutalement (lock ecran / onglet arriere-plan / APK) ---
 function _wake(){try{if(socket&&socket.connected===false)socket.connect();}catch(_){}}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)_wake();});
+document.addEventListener('visibilitychange',()=>{try{document.documentElement.classList.toggle('tab-hidden',document.hidden);}catch(_){}if(!document.hidden)_wake();});
 window.addEventListener('pageshow',_wake);
 window.addEventListener('focus',_wake);
 window.addEventListener('online',()=>{if(ME)setNet('wait');_wake();});
@@ -633,26 +817,32 @@ socket.on('auth_error',d=>{toast(d.error||'Erreur');setTimeout(()=>location.href
 socket.on('app_full',d=>{const b=$('#boot');if(b)b.classList.remove('hide');bootMsg(d.text||'L\u2019appli est pleine. R\u00e9essaie plus tard.');const s=$('#bootSt');if(s){s.style.color='#ff6b9d';s.style.fontWeight='700';}});
 socket.on('auth_ok',d=>{
   ME=d.user; SALONS=d.salons; window.TITRES=d.titres||[];
+  GIFTS=d.gifts||{};
   window.MON_CODE=d.mon_code||'';
   window.ANNUAIRE=d.annuaire||[];
   SETTINGS=d.settings||{}; ANNONCES=d.annonces||[]; SECRETS=d.secrets||[];
   RESA=d.reservations||{};
   RESAMINE=new Set(Object.keys(RESA).filter(k=>(RESA[k].membres||[]).includes(ME.pseudo)));
   $('#app').style.display='grid';
-  spawnPetals($('#petals'),16);
+  spawnPetals($('#petals'),PERF.low?6:16);
+  bootDone();
   const bt=$('#boot');if(bt)bt.classList.add('hide');
   try{if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();}catch(_){}
   $('#coins').textContent=ME.points||0;
   if(SETTINGS.annonce_prix!=null)$('#annoPrix').textContent='Coût : '+SETTINGS.annonce_prix+' 🪙 — diffusée à tout le chat (1–24h).';
   renderSalons(); renderEmobar(); refreshDmBadge();
-  const gen=SALONS.find(s=>s.id==='general')||SALONS[0]; if(gen) joinSalon(gen.id);
+  let _last='';try{_last=localStorage.getItem('hikaro_last_salon')||'';}catch(_){}
+  const _target=(_last&&SALONS.find(s=>s.id===_last))||SALONS.find(s=>s.id==='general')||SALONS[0];
+  if(_target) joinSalon(_target.id);
 });
 
 function renderSalons(){
   const box=$('#salons'); box.innerHTML='';
   SALONS.forEach(s=>{
     const d=el('div','salon'+(s.id===SALON?' on':''));
-    d.innerHTML=`<span class="em">${s.icone||'#'}</span><div class="meta"><div class="nm">${esc(s.nom)}</div><div class="ds">${esc(s.desc||'')}</div></div><button class="join" title="Rejoindre ce salon">➜</button>`;
+    const n=(SALON_COUNTS&&SALON_COUNTS[s.id])||0;
+    const badge=`<span class="scount" title="${n} connecté${n>1?'s':''} dans ce salon"><span class="dot"></span>${n}</span>`;
+    d.innerHTML=`<span class="em">${s.icone||'#'}</span><div class="meta"><div class="nm">${esc(s.nom)}${badge}</div><div class="ds">${esc(s.desc||'')}</div></div><button class="join" title="Rejoindre ce salon">➜</button>`;
     d.onclick=()=>joinSalon(s.id);
     d.querySelector('.join').onclick=(e)=>{e.stopPropagation();joinSalon(s.id);toast('Tu rejoins '+esc(s.nom));};
     box.appendChild(d);
@@ -702,6 +892,7 @@ function joinSalon(id){
   const tt=$('#typing');if(tt)tt.textContent='';
   JOINEXTRAS={salon:id,help_bot:!!s.help_bot,readOnly:readOnly};
   renderCache(id);
+  try{localStorage.setItem('hikaro_last_salon',id);}catch(_){}
   socket.emit('join',{salon:id});
 }
 
@@ -718,6 +909,17 @@ function scrollMsgs(force){
   const box=$('#msgs');
   if(force||nearBottom(box)){requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight;});}
 }
+// --- PERF: on borne le nombre de bulles dans le DOM (sinon ca rame apres 1000 msgs) ---
+const MAX_DOM_MSGS=220;
+function _pruneMsgs(){
+  const box=$('#msgs');if(!box)return;
+  while(box.children.length>MAX_DOM_MSGS){box.removeChild(box.firstChild);}
+}
+// --- PERF: met en pause les videos hors ecran (economise CPU/batterie) ---
+const _vidObs=('IntersectionObserver'in window)?new IntersectionObserver(es=>{
+  es.forEach(e=>{const v=e.target;if(!e.isIntersecting&&!v.paused){try{v.pause();}catch(_){}}})
+},{root:null,threshold:0.01}):null;
+function _observeVid(v){if(_vidObs&&v)try{_vidObs.observe(v);}catch(_){}}
 function fmtSize(b){b=+b||0;if(b<1024)return b+' o';if(b<1048576)return (b/1024).toFixed(0)+' Ko';return (b/1048576).toFixed(1)+' Mo';}
 function _recFmt2(s){s=Math.max(0,Math.round(s||0));const m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
 // lecteur audio custom (corrige le 0:00/0:00 des blobs webm)
@@ -782,7 +984,7 @@ function addMsg(m){
   bd.innerHTML=`<div class="who">${esc(m.pseudo)}${ti}${pb}</div><div class="tx">${renderText(m.text)}</div>`;
   const mid=(m.pseudo||'')+'|'+(m.ts||'');
   bd.dataset.mid=mid;
-  if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.loading='lazy';im.onload=()=>scrollMsgs(stick||mine);im.onclick=()=>lightbox(m.image);bd.appendChild(im);}
+  if(m.image){const im=new Image();im.className='pic';im.src=m.image;im.loading='lazy';im.decoding='async';try{im.fetchPriority='low';}catch(_){}im.onload=()=>scrollMsgs(stick||mine);im.onclick=()=>lightbox(m.image);bd.appendChild(im);}
   if(m._audio){bd.appendChild(audioCard(m._audio,m._dur));}
   if(m._video){bd.appendChild(videoCard(m._video,m._vname,()=>scrollMsgs(stick||mine)));}
   if(m._file){bd.appendChild(fileCard(m._file));}
@@ -790,7 +992,8 @@ function addMsg(m){
   if(m._node){bd.appendChild(m._node);}
   row.appendChild(bd);
   attachReact(bd,mid);
-  box.appendChild(row); scrollMsgs(stick||mine);
+  box.appendChild(row); _pruneMsgs(); scrollMsgs(stick||mine);
+  const _v=bd.querySelector('video');if(_v)_observeVid(_v);
   if(ment&&!m._hist)pingMention(m.pseudo,m.text);
   else if(!mine&&!m._hist&&document.hidden)flashTitle('nouveau message');
 }
@@ -798,7 +1001,15 @@ function addSys(bot,text){
   const box=$('#msgs'); const stick=nearBottom(box);
   const row=el('div','msg sys');
   row.innerHTML=`<div class="bd"><div class="who">🤖 ${esc(bot)}</div><div class="tx">${esc(text)}</div></div>`;
-  box.appendChild(row); scrollMsgs(stick);
+  box.appendChild(row); _pruneMsgs(); scrollMsgs(stick);
+}
+function addGift(d){
+  const box=$('#msgs');if(!box)return;const stick=nearBottom(box);
+  const row=el('div','msg giftmsg');
+  row.innerHTML=`<div class="bd giftcard"><div class="gface">${esc(d.emoji||'🎁')}</div>`+
+    `<div class="gtx"><b>${esc(d.from||'')}</b> offre un <b>${esc(d.nom||'cadeau')}</b> à <b>${esc(d.to||'')}</b></div></div>`;
+  box.appendChild(row);scrollMsgs(stick);
+  try{confettiBurst(10);}catch(_){}
 }
 // ---- carte d'aide du salon Aide (injectee cote client) ----
 function injectAideCard(){
@@ -870,12 +1081,28 @@ function renderCache(id){
 socket.on('history',d=>{
   if(d.salon!==SALON)return;
   const cache=loadCache(d.salon);const merged=cache.slice();
-  (d.messages||[]).forEach(m=>{if(!m.text)return;const s=_sig(m);if(!merged.some(x=>_sig(x)===s)){merged.push({pseudo:m.pseudo,text:m.text,avatar:m.avatar,titre:m.titre,ts:m.ts});IDB.put({k:d.salon+'|'+s,salon:d.salon,pseudo:m.pseudo,text:m.text,avatar:m.avatar,titre:m.titre,ts:m.ts});}});
+  (d.messages||[]).forEach(m=>{LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,m.ts||0);if(m.text){const s=_sig(m);if(!merged.some(x=>_sig(x)===s)){merged.push({pseudo:m.pseudo,text:m.text,avatar:m.avatar,titre:m.titre,ts:m.ts});IDB.put({k:d.salon+'|'+s,salon:d.salon,pseudo:m.pseudo,text:m.text,avatar:m.avatar,titre:m.titre,ts:m.ts});}}else if(m.image){cachePush(d.salon,{pseudo:m.pseudo,avatar:m.avatar,image:m.image,ts:m.ts});}else if(m.audio){cachePush(d.salon,{pseudo:m.pseudo,avatar:m.avatar,_audio:m.audio,_dur:m.dur,ts:m.ts});}else if(m.video){cachePush(d.salon,{pseudo:m.pseudo,avatar:m.avatar,_video:m.video,_vname:m.name,ts:m.ts});}});
   merged.sort((a,b)=>(a.ts||0)-(b.ts||0));
   saveCache(d.salon,merged);
   renderCache(d.salon);
 });
-socket.on('message',d=>{if(d.salon===SALON){const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text)){chime();if(document.hidden){notify('💬 '+d.pseudo+' : '+String(d.text||'').slice(0,60),true);try{if('Notification'in window&&Notification.permission==='granted')new Notification('HINATACHAT — '+d.pseudo,{body:String(d.text||'').slice(0,80)});}catch(_){}}}}});
+socket.on('message',d=>{if(d.salon===SALON){LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,d.ts||0);const notMine=ME&&d.pseudo!==ME.pseudo;addMsg(d);cachePush(d.salon,d);if(notMine&&!mentionsMe(d.text)){chime();notifSound();if(document.hidden){notify('💬 '+d.pseudo+' : '+String(d.text||'').slice(0,60),true);try{if('Notification'in window&&Notification.permission==='granted')new Notification('HINATACHAT — '+d.pseudo,{body:String(d.text||'').slice(0,80)});}catch(_){}}}}});
+socket.on('sync_fill',d=>{
+  if(!d||d.salon!==SALON)return;
+  let n=0;
+  (d.messages||[]).forEach(m=>{
+    LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,m.ts||0);
+    if(m.text){addMsg(m);cachePush(d.salon,m);}
+    else if(m.image){addMsg(m);cachePush(d.salon,m);}
+    else if(m.audio){const x={pseudo:m.pseudo,avatar:m.avatar,text:'',_audio:m.audio,_dur:m.dur,ts:m.ts};addMsg(x);cachePush(d.salon,x);}
+    else if(m.video){const x={pseudo:m.pseudo,avatar:m.avatar,text:'',_video:m.video,_vname:m.name,ts:m.ts};addMsg(x);cachePush(d.salon,x);}
+    else if(m.data){const x={pseudo:m.pseudo,avatar:m.avatar,text:'',_file:{name:m.name,mime:m.mime,size:m.size,data:m.data},ts:m.ts};addMsg(x);}
+    else{return;}
+    n++;
+  });
+  if(n){scrollMsgs(true);notifSound();toast('🔄 '+n+' nouveau'+(n>1?'x':'')+' message'+(n>1?'s':'')+' rattrap\u00e9'+(n>1?'s':''));}
+});
+socket.on('media_too_big',d=>{const k=(d&&d.kind)||'fichier';toast('⚠ '+(k==='video'?'Vidéo':k==='image'?'Image':k==='voice'?'Vocal':'Fichier')+' trop lourd pour le serveur — envoi 100% P2P…');});
 socket.on('presence',d=>{
   if(d.salon!==SALON)return;
   const me=ME&&d.pseudo===ME.pseudo;
@@ -888,15 +1115,18 @@ socket.on('presence',d=>{
   if(!me)softTick();
 });
 socket.on('system',d=>{/* bots masqués : on n'affiche plus les messages des robots dans le chat */});
-socket.on('image',d=>{if(d.salon===SALON){addMsg(d);cachePush(d.salon,d);}});
-socket.on('voice',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine)chime();});
-socket.on('video',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_video:d.video,_vname:d.name,ts:d.ts});if(!mine)chime();});
-socket.on('salon_file',d=>{if(d.salon!==SALON)return;const mine=ME&&d.pseudo===ME.pseudo;const f={name:d.name,mime:d.mime,size:d.size,data:d.data};addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_file:f,ts:d.ts});if(!mine)chime();});
+socket.on('image',d=>{if(d.salon===SALON){LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,d.ts||0);addMsg(d);cachePush(d.salon,d);}});
+socket.on('voice',d=>{if(d.salon!==SALON)return;LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,d.ts||0);const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_audio:d.audio,_dur:d.dur,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_audio:d.audio,_dur:d.dur,ts:d.ts});if(!mine){chime();notifSound();}});
+socket.on('video',d=>{if(d.salon!==SALON)return;LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,d.ts||0);const mine=ME&&d.pseudo===ME.pseudo;addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_video:d.video,_vname:d.name,ts:d.ts});cachePush(d.salon,{pseudo:d.pseudo,avatar:d.avatar,_video:d.video,_vname:d.name,ts:d.ts});if(!mine){chime();notifSound();}});
+socket.on('salon_file',d=>{if(d.salon!==SALON)return;LAST_TS[d.salon]=Math.max(LAST_TS[d.salon]||0,d.ts||0);const mine=ME&&d.pseudo===ME.pseudo;const f={name:d.name,mime:d.mime,size:d.size,data:d.data};addMsg({pseudo:d.pseudo,avatar:d.avatar,text:'',_file:f,ts:d.ts});if(!mine){chime();notifSound();}});
 socket.on('avatar',d=>{AVCACHE[d.pseudo]=d.avatar;});
 socket.on('denied',d=>toast(d.raison||'Refusé'));
 socket.on('economy',d=>{if(d.points!=null)$('#coins').textContent=d.points;if(d.level_up)toast('Niveau '+d.level+' !');});
 socket.on('title_bought',d=>{toast('Titre équipé : '+d.titre);ME=d.user;$('#coins').textContent=ME.points;});
 socket.on('salons_update',d=>{SALONS=d.salons;renderSalons();toast('🕶️ Un nouveau salon vient d\'apparaître…');});
+socket.on('salon_counts',d=>{SALON_COUNTS=(d&&d.counts)||{};renderSalons();});
+socket.on('gift',d=>{if(d.salon===SALON){addGift(d);}});
+socket.on('gift_dm',d=>{toast((d.emoji||'🎁')+' '+(d.from||'Quelqu\'un')+' t\'offre un '+(d.nom||'cadeau')+' !');try{chime();}catch(_){}confettiBurst(14);});
 socket.on('shop_error',d=>toast(d.error));
 socket.on('mod_ok',d=>toast(d.text));
 socket.on('pm_error',d=>toast(d.error));
@@ -1003,6 +1233,17 @@ function spookyChime(){const c=audioCtx();if(!c)return;try{
 
 // son "whaou" (balayage ascendant) sur message entrant
 let _lastChime=0;
+const LAST_TS={};          // salon -> ts du dernier message vu (synchronisation a la reconnexion)
+let _lastNotif=0;
+// ---- son de notification dedie : petit "ding-dong" a deux notes ----
+function notifSound(){
+  const c=audioCtx();if(!c)return;const t=Date.now();if(t-_lastNotif<400)return;_lastNotif=t;
+  try{
+    const t0=c.currentTime;
+    const mk=(freq,start,dur,vol)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(freq,t0+start);g.gain.setValueAtTime(.0001,t0+start);g.gain.exponentialRampToValueAtTime(vol,t0+start+.012);g.gain.exponentialRampToValueAtTime(.0001,t0+start+dur);o.start(t0+start);o.stop(t0+start+dur+.02);};
+    mk(880,0,.16,.12);      // "ding"
+    mk(659.25,.13,.26,.11); // "dong"
+  }catch(_){}}
 function chime(){const c=audioCtx();if(!c)return;const t=Date.now();if(t-_lastChime<220)return;_lastChime=t;
   if(HALLOWEEN){spookyChime();return;}
   try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
@@ -1217,7 +1458,9 @@ function spawnPetals(box,n){
     box.appendChild(b);
   }
 }
-spawnPetals($('#bootPetals'),10);
+spawnPetals($('#petals'),14);
+spawnPetals($('#bootPetals'),14);
+bootSet(12);
 setVH();window.addEventListener('resize',setVH);window.addEventListener('orientationchange',setVH);
 function openDrawer(sel){const el=document.querySelector(sel),other=sel==='.side'?'.right':'.side';document.querySelector(other).classList.remove('show');const willOpen=!el.classList.contains('show');document.querySelectorAll('.side,.right').forEach(d=>d.classList.remove('show'));if(willOpen){el.classList.add('show');$('#scrim').classList.add('on');}else{$('#scrim').classList.remove('on');}}
 function closeDrawers(){document.querySelectorAll('.side,.right').forEach(d=>d.classList.remove('show'));$('#scrim').classList.remove('on');}
@@ -1304,7 +1547,7 @@ $('#btnFile').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#file
 $('#fileAny').onchange=e=>{const f=e.target.files[0];if(!f)return;e.target.value='';if(f.size>P2P_THRESHOLD){sendBigFile(f);return;}const r=new FileReader();r.onload=()=>{const meta={name:f.name,mime:f.type,size:f.size,data:r.result};socket.emit('salon_file',meta);addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_file:meta,ts:Date.now()/1000});toast('📎 Fichier envoyé');};r.readAsDataURL(f);};
 // ====== P2P PUR pour les gros fichiers (WebRTC DataChannel, ne passe JAMAIS par le serveur) ======
 const P2P_THRESHOLD=8*1048576;      // au-dela de 8 Mo => transfert direct P2P
-const RTC_CFG={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const RTC_CFG={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};
 const P2P_OUT={};   // fid -> {file, card}
 const P2P_PC={};    // (fid|pair) -> RTCPeerConnection
 const P2P_IN={};    // fid -> {name,mime,size,chunks,got,card}
@@ -1451,10 +1694,10 @@ $('#imgFile').onchange=e=>{
   const f=e.target.files[0]; if(!f)return;
   const r=new FileReader(); r.onload=()=>{
     const img=new Image(); img.onload=()=>{
-      const cv=document.createElement('canvas'); const mx=520; let w=img.width,h=img.height;
+      const cv=document.createElement('canvas'); const mx=(PERF.saveData||PERF.slowNet)?420:520; let w=img.width,h=img.height;
       if(w>mx){h=h*mx/w;w=mx;} cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      const _d=cv.toDataURL('image/jpeg',.7);
+      const _d=cv.toDataURL('image/jpeg',(PERF.saveData||PERF.slowNet)?.6:.7);
       socket.emit('image',{data:_d});
       addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',image:_d,ts:Date.now()/1000});
       cachePush(SALON,{pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',image:_d,ts:Date.now()/1000});
@@ -1531,6 +1774,14 @@ socket.on('user_info',u=>{
   if(u.avatar){$('#uAv').src=u.avatar;}else{$('#uAv').removeAttribute('src');}
   $('#uPm').onclick=()=>{$('#ovUser').classList.remove('on');openPm(u.pseudo);};
   $('#uMention').onclick=()=>{$('#ovUser').classList.remove('on');mentionUser(u.pseudo);};
+  const gb=$('#uGiftBox');if(gb)gb.style.display='none';
+  const gg=$('#giftGrid');
+  if(gg){gg.innerHTML='';Object.keys(GIFTS||{}).forEach(k=>{const g=GIFTS[k];
+    const b=el('button','giftpick');
+    b.innerHTML=`<span class="ge">${esc(g.emoji||'🎁')}</span><span class="gn">${esc(g.nom||k)}</span><span class="gp">${g.prix} 🪙</span>`;
+    b.onclick=()=>{socket.emit('offer_gift',{to:u.pseudo,gift:k});$('#ovUser').classList.remove('on');toast('🎁 Cadeau envoyé à '+u.pseudo+' !');};
+    gg.appendChild(b);});}
+  const ug=$('#uGift');if(ug)ug.onclick=()=>{if(gb)gb.style.display=(gb.style.display==='none')?'block':'none';};
   $('#ovUser').classList.add('on');
 });
 
@@ -1598,6 +1849,7 @@ $('#pmFileF').onchange=e=>{const f=e.target.files[0];if(f)pmSendMedia(f,'file');
 $('#btnVid').onclick=()=>{if(!SALON){toast('Rejoins un salon');return;}$('#vidFile').click();};
 $('#vidFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;e.target.value='';
+  if(f.size>P2P_THRESHOLD){sendBigFile(f);return;}   // grosse video => envoi direct P2P
   const r=new FileReader();
   r.onload=()=>{socket.emit('video',{data:r.result,name:f.name});toast('📹 Vidéo envoyée');
     addMsg({pseudo:ME.pseudo,avatar:AVATAR,titre:(ME&&ME.titre)||'',_video:URL.createObjectURL(f),_vname:f.name,ts:Date.now()/1000});
